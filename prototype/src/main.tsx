@@ -6,6 +6,7 @@ import "./ds/base.css";
 import "./ds/components.css";
 import "./app/shell.css";
 import "./app/patterns.css";
+import "./app/guide.css";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

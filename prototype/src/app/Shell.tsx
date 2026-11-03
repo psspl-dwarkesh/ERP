@@ -24,6 +24,7 @@ import { useQuery } from "../api/hooks";
 import type { ModuleKey } from "../api/types";
 import { Avatar, Button, Dialog, IconButton, Kbd, Menu, Popover, Status, cx, useToast } from "../ds/components";
 import { Logo, TENANT } from "./brand";
+import { DemoGuide } from "./DemoGuide";
 import { MODULES, moduleDef } from "./modules";
 import { href, navigate, useRoute } from "./router";
 
@@ -66,6 +67,7 @@ export function Shell() {
         </main>
       </div>
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <DemoGuide />
     </div>
   );
 }
