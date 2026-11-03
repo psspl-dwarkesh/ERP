@@ -373,3 +373,27 @@ td, .app-shell .grid-col-value, .app-shell .grid-col-date, .app-shell .grid-reco
   .desk-loading-row { grid-template-columns: 26px minmax(0, 1fr) 84px; }
   .desk-loading-row .desk-loading-line.short { display: none; }
 }
+
+/* Square chrome. Circles stay where they carry data (chart marks, status
+   dots), never on a person's initials or a handoff marker. */
+.avatar { border-radius: 0; }
+.demo-indicator { border-radius: 0; }
+
+/* One geometry. Controls, panels and chips are square; the only circles left
+   are marks that carry data (status dots, legend dots, chart points). */
+.icon-button, .select-control, .filter-select, .flow-records, .review-symbol,
+.demo-pill, .note-box, .tab-count, .grid-count, .subtle-tag, .decision-tag,
+.modal, .toast, .command-input, .product-dropdown, .product-dropdown [role="menuitemcheckbox"],
+.product-command [cmdk-item], .form-field textarea, .form-field input,
+.pipeline-column, .pipeline-card, .assembly-grid, .assembly-stage > span,
+.three-cards > div, .feature-banner, .feature-icon, .attention-bar, .report-icon,
+.stage-line, .record-trail span, .column-heading span, .command-footer kbd,
+.global-search kbd, kbd, .grid-progress, .mini-progress, .delivery-progress b {
+  border-radius: 0;
+}
+
+/* Counter chips, label spans and bar fills are chrome too. Legend and status
+   dots are plain <i> marks, so they keep the circle that reads as data. */
+small, span,
+.nav-item small, .review-panel h2 > span, .record-trail span, .column-heading span,
+.delivery-progress > i, .mini-progress i, .stock-metric > i { border-radius: 0; }

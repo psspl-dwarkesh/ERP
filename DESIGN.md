@@ -84,7 +84,7 @@ Use surface contrast and 1px rules for hierarchy. Most primary surfaces are flat
 
 ## Shapes
 
-Major surfaces, buttons and navigation use square geometry. The skewed three-bar brand mark is the recurring expressive shape. Rounded badges and chart marks may remain where they convey state or data.
+Major surfaces, buttons and navigation use square geometry. The skewed three-bar brand mark is the recurring expressive shape. Circles belong to data marks and legend dots only, never to interface chrome: a person's initials, a handoff marker and a demo indicator are squares, because a round avatar is the most interchangeable shape a product can borrow. Rounded badges and chart marks may remain where they convey state or data.
 
 ## Motion
 
@@ -92,7 +92,7 @@ Motion marks a handoff, not decoration. Selecting a stop on the entry route sett
 
 ## Components
 
-Primary buttons are copper with ink text. Secondary buttons use off-white surfaces and ruled borders. Record cards, dispatch rows and tables expose a clear title or ID, state, owner or next action. The dashboard opens with three actionable handoffs. The entry route changes its active record and provides a direct module link. Every heading stands on its own: no eyebrow labels, section numbers or category kickers that repeat what the heading already says. A loading state uses the destination's own geometry, so a panel being fetched still reads as that panel; spinners and skeleton blobs do not belong here.
+Primary buttons are copper with ink text. Secondary buttons use off-white surfaces and ruled borders. Record cards, dispatch rows and tables expose a clear title or ID, state, owner or next action. The dashboard opens with three actionable handoffs. The entry route changes its active record and provides a direct module link. Every heading stands on its own: no eyebrow labels, section numbers or category kickers that repeat what the heading already says. A line above a heading carries an identifier or a period instead (PRJ-0264, BOM-042 · REV C, NOVEMBER 2026 · DRAFT RUN), because that is data the heading does not hold. A loading state uses the destination's own geometry, so a panel being fetched still reads as that panel; spinners and skeleton blobs do not belong here.
 
 ## Do's and Don'ts
 

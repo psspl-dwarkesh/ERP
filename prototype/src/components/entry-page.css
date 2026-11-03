@@ -189,12 +189,12 @@
 .entry-route-track button.active { background: var(--entry-copper); color: var(--entry-ink); }
 .entry-route-track button.active:first-child { padding-left: 17px; }
 .entry-route-index { display: flex; align-items: center; gap: 8px; font: 11px "IBM Plex Mono", monospace; margin-bottom: 17px; }
-.entry-route-index i { width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; }
+.entry-route-index i { width: 8px; height: 8px; border: 1px solid currentColor; }
 .entry-route-track button.active .entry-route-index i { background: currentColor; }
 .entry-route-track strong { display: block; font: 600 clamp(22px, 2.2vw, 33px)/.93 "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .01em; }
 .entry-route-track small { display: block; font: 11px "IBM Plex Mono", monospace; margin-top: 8px; opacity: .88; }
 .entry-route-track button.active small { opacity: 1; }
-.entry-route-arrow { position: absolute; top: 53px; right: -9px; z-index: 2; background: var(--entry-ink); color: var(--entry-paper); border-radius: 50%; }
+.entry-route-arrow { position: absolute; top: 53px; right: -9px; z-index: 2; background: var(--entry-ink); color: var(--entry-paper); }
 .entry-route-track button.active .entry-route-arrow { background: var(--entry-copper); color: var(--entry-ink); }
 .entry-current {
   display: grid;

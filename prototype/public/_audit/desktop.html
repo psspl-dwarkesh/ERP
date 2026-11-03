@@ -114,6 +114,15 @@
           }
         }
         const heading = doc.querySelector("h1")?.textContent.trim().slice(0, 60) ?? "(none)";
+        // Geometry rule: chrome is square. Legend and status dots are <i>
+        // marks and chart points are SVG, so those circles are allowed.
+        const rounded = [];
+        for (const el of doc.querySelectorAll("body *")) {
+          if (el.tagName === "I" || el.tagName === "SVG" || el.tagName === "CIRCLE") continue;
+          const cs = win.getComputedStyle(el);
+          const r = parseFloat(cs.borderTopLeftRadius) || 0;
+          if (r > 0) rounded.push({ c: (el.className || el.tagName).toString().slice(0, 30), r: cs.borderTopLeftRadius });
+        }
         return {
           label,
           viewport: `${vw}x${win.innerHeight}`,
@@ -125,6 +134,9 @@
           contrastSample: contrast.slice(0, 4),
           residualBlue: blue.length,
           blueSample: blue.slice(0, 3),
+          roundedChrome: rounded.length,
+          roundedSample: rounded.slice(0, 4),
+          eyebrowCount: doc.querySelectorAll(".eyebrow").length,
           barlow: doc.fonts.check('600 120px "Barlow Condensed"'),
           heading,
         };

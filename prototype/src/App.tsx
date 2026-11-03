@@ -446,9 +446,7 @@ function App() {
         </button>
         <div className="record-hero">
           <div>
-            <span className="eyebrow">
-              {p.id} <span> / </span> TURNKEY AUTOMATION
-            </span>
+            <span className="eyebrow">{p.id}</span>
             <h1>{p.name}</h1>
             <p>{p.subtitle} · Order SO-0196</p>
           </div>
@@ -498,7 +496,6 @@ function App() {
             <section className="card padded">
               <div className="card-heading">
                 <div>
-                  <span className="eyebrow">EXECUTION PLAN</span>
                   <h2>Project milestones</h2>
                 </div>
                 <span className="subtle-tag">5 milestones</span>
@@ -664,9 +661,6 @@ function App() {
             <Factory size={28} />
           </span>
           <div>
-            <span className="eyebrow">
-              PANEL ASSEMBLY · INVENTORY / PROJECTS
-            </span>
             <h2>Panel assembly work order</h2>
             <p>
               WO-0187 · Process control panel · PRJ-0264 · BOM-042 revision C
@@ -759,7 +753,6 @@ function App() {
             </div>
           </section>
           <section className="card padded">
-            <span className="eyebrow">CONTROL POINTS</span>
             <h3>Dispatch release controls</h3>
             <p className="muted">
               A stage change is not a finished-goods release. Test evidence and
@@ -784,7 +777,7 @@ function App() {
             <GitBranch size={28} />
           </span>
           <div>
-            <span className="eyebrow">MATERIAL REQUIREMENTS · BOM-042 / C</span>
+            <span className="eyebrow">BOM-042 · REV C</span>
             <h2>Material requirements</h2>
             <p>
               PRJ-0264 · Approved demand · Illustrative requirements snapshot
@@ -968,7 +961,6 @@ function App() {
       <>
         <div className="service-summary">
           <div>
-            <span className="eyebrow">FIELD OPERATIONS</span>
             <h2>Service work queue</h2>
             <p>
               Contract entitlement, equipment history and the next action
@@ -1017,7 +1009,6 @@ function App() {
       <>
         <div className="report-header">
           <div>
-            <span className="eyebrow">REPORT CATALOGUE</span>
             <h2>Report catalogue</h2>
             <p>Defined sources, clear periods and a path back to the record.</p>
           </div>
@@ -1117,9 +1108,6 @@ function App() {
             <LockKeyhole size={28} />
           </span>
           <div>
-            <span className="eyebrow">
-              RESTRICTED WORKSPACE · DESIGN PREVIEW
-            </span>
             <h2>Payroll run controls</h2>
             <p>
               Salary records require explicit payroll permission, independent of
@@ -1200,7 +1188,6 @@ function App() {
             <ShieldCheck size={27} />
           </span>
           <div>
-            <span className="eyebrow">ACCESS & ACCOUNTABILITY</span>
             <h2>Access administration</h2>
             <p>
               Illustrative role matrix · Production policies require server-side
@@ -1431,7 +1418,6 @@ function App() {
             <div className="feature-banner">
               <CalendarDays size={30} />
               <div>
-                <span className="eyebrow">CALIBRATION ASSURANCE</span>
                 <h2>Calibration schedule</h2>
                 <p>AST-0086 · Digital pressure calibrator · Due 05 Nov 2026</p>
               </div>
@@ -1506,7 +1492,6 @@ function App() {
           </section>
         ) : route === "Inventory" && tab === "Movements" ? (
           <section className="card padded">
-            <span className="eyebrow">CONTROLLED STOCK ACTIONS</span>
             <h2>Issue material with the right evidence.</h2>
             <p className="muted">
               Try the two cases below. No real stock ledger is changed.
@@ -1610,7 +1595,6 @@ function App() {
           </>
         ) : route === "HR" && tab === "Leave & attendance" ? (
           <section className="card padded">
-            <span className="eyebrow">APPROVED INPUTS BEFORE PAYROLL</span>
             <h2>Review attendance and leave exceptions.</h2>
             <p className="muted">
               Attendance devices, leave accrual and shift policies need customer
@@ -1985,7 +1969,6 @@ function App() {
             >
               <div className="modal-heading">
                 <div>
-                  <span className="eyebrow">ABC WORKSPACE / DEMO</span>
                   <Dialog.Title asChild>
                     <h2>{modal.title}</h2>
                   </Dialog.Title>
