@@ -581,3 +581,189 @@ export const exitLines: ExitLine[] = [
       "Checked and empty. An exception report has to show the lines it looked at, not only the ones it found.",
   },
 ];
+
+/* The reconciliation surface is drawn around the advice that already exists in
+   the Sales fixture — BA-0063, ₹5.28 L, Arjun Mehta, PRJ-0249 — because an
+   outbox only means something if it belongs to a record a visitor can navigate
+   to. The party and project names are the existing customer fixtures, and the
+   milestone evidence points at the service order and acceptance records the
+   prototype already carries. Advice identifiers, provider invoice numbers and
+   the two amounts that disagree are illustrative: the accounting platform and
+   the invoice source of truth are open decisions, so this screen shows the
+   reconciliation states a design has to survive, not a real provider's codes. */
+export type DeliveryState =
+  | "Queued"
+  | "Sent"
+  | "Acknowledged"
+  | "Failed"
+  | "Needs attention"
+  /* "Reconciled" is never written to a posting. It is what a superseded posting
+     displays once the corrected one has been answered by the provider, which is
+     the only thing that closes a difference. */
+  | "Superseded"
+  | "Reconciled";
+export type AdviceDelivery = {
+  key: string;
+  advice: string;
+  party: string;
+  project: string;
+  state: DeliveryState;
+  attempts: number;
+  lastAttempt: string;
+  amount: number;
+  posted: number | null;
+  external: string;
+  note: string;
+};
+export const adviceDeliveries: AdviceDelivery[] = [
+  {
+    key: "BA-0063/R1",
+    advice: "BA-0063",
+    party: "Crest Chemicals",
+    project: "PRJ-0249",
+    state: "Queued",
+    attempts: 0,
+    lastAttempt: "Not handed to the provider",
+    amount: 528000,
+    posted: null,
+    external: "No external reference yet",
+    note: "Eligibility resolved from PRJ-0249 milestone M2 evidence, not from a typed note.",
+  },
+  {
+    key: "BA-0057/R1",
+    advice: "BA-0057",
+    party: "Summit Engineering",
+    project: "PRJ-0278",
+    state: "Sent",
+    attempts: 1,
+    lastAttempt: "06 Nov 2026 · 11:04",
+    amount: 720000,
+    posted: null,
+    external: "Awaiting the provider's number",
+    note: "Acknowledgement pending. An unanswered send is not a failed send.",
+  },
+  {
+    key: "BA-0051/R1",
+    advice: "BA-0051",
+    party: "Meridian Foods",
+    project: "PRJ-0258",
+    state: "Failed",
+    attempts: 3,
+    lastAttempt: "05 Nov 2026 · 17:42 · provider unavailable",
+    amount: 186000,
+    posted: null,
+    external: "No reference returned",
+    note: "Transport failure before any invoice number came back, so the key is still unused.",
+  },
+  {
+    key: "BA-0049/R1",
+    advice: "BA-0049",
+    party: "Aster Biologics",
+    project: "PRJ-0271",
+    state: "Needs attention",
+    attempts: 1,
+    lastAttempt: "03 Nov 2026 · 09:18",
+    amount: 480000,
+    posted: 474000,
+    external: "INV-2026-0431 · returned by provider",
+    note: "Retention deducted against no rule on the advice. Re-sending would repeat the wrong number.",
+  },
+  {
+    key: "BA-0044/R1",
+    advice: "BA-0044",
+    party: "Northstar Pharma",
+    project: "PRJ-0264",
+    state: "Acknowledged",
+    attempts: 1,
+    lastAttempt: "30 Oct 2026 · 15:05",
+    amount: 960000,
+    posted: 960000,
+    external: "INV-2026-0447 · reconciled",
+    note: "Posted, acknowledged and equal to the advice. The line stays visible as evidence of a clean match.",
+  },
+];
+/* Two postings exist only after the visitor performs the action that creates
+   them: a correction that supersedes a mismatched amount, and the advice a
+   milestone turns into when the eligibility check finds it unbilled. */
+export const raisedPostings: Record<"correction" | "unbilled", AdviceDelivery> =
+  {
+    correction: {
+      key: "BA-0049/R2",
+      advice: "BA-0049",
+      party: "Aster Biologics",
+      project: "PRJ-0271",
+      state: "Queued",
+      attempts: 0,
+      lastAttempt: "Not handed to the provider",
+      amount: 474000,
+      posted: null,
+      external: "No external reference yet",
+      note: "The amount the provider recorded, with the retention rule written on the advice this time.",
+    },
+    unbilled: {
+      key: "BA-0064/R1",
+      advice: "BA-0064",
+      party: "Northstar Pharma",
+      project: "PRJ-0264",
+      state: "Queued",
+      attempts: 0,
+      lastAttempt: "Not handed to the provider",
+      amount: 300000,
+      posted: null,
+      external: "No external reference yet",
+      note: "Raised from PRJ-0264 milestone M3 evidence. A session record; the advice list remains the authority.",
+    },
+  };
+/* The acknowledgement is an inbound event: the design can record what the
+   provider said, it cannot invent it. This is the answer that closes the
+   mismatched posting, and the only thing on the screen that does. */
+export const correctionAck = {
+  reference: "INV-2026-0455",
+  posted: 474000,
+  received: "06 Nov 2026 · 16:20",
+};
+export type UnbilledMilestone = {
+  key: "commissioning" | "performance" | "design";
+  milestone: string;
+  party: string;
+  basis: string;
+  amount: number;
+  evidence: string;
+  eligible: boolean;
+  advice: string;
+};
+export const unbilledMilestones: UnbilledMilestone[] = [
+  {
+    key: "commissioning",
+    milestone: "PRJ-0249 · M2 Commissioning and functional test",
+    party: "Crest Chemicals",
+    basis: "40 per cent of contract value on signed site acceptance",
+    amount: 528000,
+    evidence:
+      "Site acceptance signed 02 Nov 2026 · WO-0187 closed · SAT protocol v3 attached",
+    eligible: true,
+    advice: "BA-0063",
+  },
+  {
+    key: "performance",
+    milestone: "PRJ-0264 · M3 Performance demonstration",
+    party: "Northstar Pharma",
+    basis: "20 per cent on 30 consecutive compliant batches",
+    amount: 300000,
+    evidence:
+      "Batch log complete · run report countersigned by plant QA on 02 Nov 2026",
+    eligible: true,
+    advice: "",
+  },
+  {
+    key: "design",
+    milestone: "PRJ-0258 · M1 Design review approval",
+    party: "Meridian Foods",
+    basis: "25 per cent on the approved design dossier",
+    amount: 186000,
+    evidence:
+      "No dossier on record. The project manager's note says the review passed.",
+    eligible: false,
+    advice: "",
+  },
+];

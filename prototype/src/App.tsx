@@ -42,6 +42,7 @@ import {
   MoreHorizontal,
   PackageCheck,
   Plus,
+  RotateCw,
   Search,
   Settings2,
   Share2,
@@ -60,22 +61,29 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import {
+  adviceDeliveries,
   assets,
   approvals,
   countLines,
+  correctionAck,
   exitLines,
   opportunities,
   people,
   projects,
   purchases,
+  raisedPostings,
   sales,
   stock,
   subcontractLines,
   tickets,
+  unbilledMilestones,
+  type AdviceDelivery,
   type CountLine,
+  type DeliveryState,
   type ExitLine,
   type RecordRow,
   type SubcontractLine,
+  type UnbilledMilestone,
 } from "./data";
 import "./product.css";
 import "./brand-refresh.css";
@@ -98,6 +106,15 @@ type Modal = {
   row?: RecordRow;
   approval?: (typeof approvals)[number];
 } | null;
+/* One recorded event per posting key. Written as a whole envelope so a row
+   cannot show a fixture value that the session has already replaced. */
+type ReconEvent = {
+  state: DeliveryState;
+  attempts: number;
+  posted: number | null;
+  contact: string;
+  external: string;
+};
 const nav: { name: Route; icon: LucideIcon; group?: string }[] = [
   { name: "Dashboard", icon: LayoutDashboard, group: "WORKSPACE" },
   { name: "Projects", icon: BriefcaseBusiness, group: "OPERATIONS" },
@@ -118,7 +135,7 @@ const descriptions: Record<Route, string> = {
     "Stock, reservations, cycle counts, subcontract material and panel assembly.",
   Assets: "Equipment, service contracts and maintenance obligations.",
   Purchase: "Requisitions, supplier selection, orders and receipts.",
-  Sales: "Quotations, orders, fulfilment and billing advice.",
+  Sales: "Quotations, orders, fulfilment, billing advice and reconciliation.",
   CRM: "Enquiries, opportunity stages and commercial handoffs.",
   HR: "People, deployment, attendance, employee requests and exit handover.",
   Payroll: "Review approved inputs, pay periods and run controls.",
@@ -137,17 +154,20 @@ const isEntryHash = () =>
    count and subcontract screens: a warning badge and a review badge are not the
    same thing. The exit screen added the settled tier's other half — returned,
    settled, delegated, checked — because a handover item that has ended has to
-   look different from one someone merely promised to do. */
+   look different from one someone merely promised to do. The reconciliation
+   screen added its own three: a posting the provider answered is settled, a
+   posting another posting replaced is a dead record rather than a warning, and
+   an unbilled amount is money the company is owed, which is a warning. */
 function Badge({ status }: { status: string }) {
-  const tone = /risk|Urgent|hold|Low|Overdue|Denied|Rejected|Variance|short|Damag|Loss/i.test(
+  const tone = /risk|Urgent|hold|Low|Overdue|Denied|Rejected|Variance|short|Damag|Loss|Fail|Attention|Unbilled/i.test(
     status,
   )
     ? "amber"
-    : /track|Available|Approved|service|Completed|Active|Deployed|Matched|Reconciled|Closed|Settled|Returned|Re-owned|Delegated|Checked/i.test(
+    : /track|Available|Approved|service|Completed|Active|Deployed|Matched|Reconciled|Closed|Settled|Returned|Re-owned|Delegated|Checked|Acknowledged/i.test(
         status,
       )
       ? "green"
-      : /Draft|Planning|locked/i.test(status)
+      : /Draft|Planning|locked|Superseded/i.test(status)
         ? "gray"
         : "blue";
   return (
@@ -253,6 +273,15 @@ function App() {
   const [exitClosed, setExitClosed] = useState(false);
   const [exitDate, setExitDate] = useState("14 Nov 2026");
   const [ticketStatus, setTicketStatus] = useState("Assigned");
+  /* Reconciliation state is stored per posting key, not per row, because the
+     idempotency key is the subject of every rule on that screen. Each recorded
+     event is the whole envelope for that posting — state, attempts, the amount
+     the provider returned, when it was last touched and the reference it came
+     back with — so no cell can keep a fixture value that the action replaced. */
+  const [reconEvents, setReconEvents] = useState<Record<string, ReconEvent>>({});
+  const [correctionRaised, setCorrectionRaised] = useState(false);
+  const [adviceRaised, setAdviceRaised] = useState(false);
+  const [reconRefusals, setReconRefusals] = useState(0);
 
   const notify = (message: string) => {
     setToast(message);
@@ -1679,16 +1708,18 @@ function App() {
             </span>
           </div>
           <div className="table-scroll">
-            <table>
+            <table className="wrapped">
               <thead>
                 <tr>
                   {[
-                    "Handover item",
-                    "Owner and date",
-                    "What has to be true",
-                    "State and closing event",
-                  ].map((t) => (
-                    <th key={t}>{t}</th>
+                    ["Handover item", "20%"],
+                    ["Owner and date", "17%"],
+                    ["What has to be true", "34%"],
+                    ["State and closing event", "29%"],
+                  ].map(([t, w]) => (
+                    <th key={t} style={{ width: w }}>
+                      {t}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -1917,6 +1948,645 @@ function App() {
                 "Payroll",
                 "Where a full-and-final figure would come from",
               )}
+            </div>
+          </section>
+        </div>
+      </>
+    );
+  }
+  /* The reconciliation half of E2E-10, which is the surface an ERP design
+     normally delivers as a log table because everything it would have to say
+     depends on an accounting platform the client has not chosen. So it says it
+     as behavior instead: an outbox addressed by idempotency key rather than by
+     advice number, a retry that may only reuse the key, an unanswered send that
+     is not a failed send, a mismatch that refuses to be re-sent, a milestone
+     that becomes an advice only when the evidence carries it, and a payload the
+     session role is not entitled to read. */
+  function reconView() {
+    const event = (d: AdviceDelivery) => reconEvents[d.key];
+    const stateOf = (d: AdviceDelivery): DeliveryState =>
+      event(d)?.state ?? d.state;
+    const attemptsOf = (d: AdviceDelivery) => event(d)?.attempts ?? d.attempts;
+    const postedOf = (d: AdviceDelivery) => event(d)?.posted ?? d.posted;
+    const contactOf = (d: AdviceDelivery) => event(d)?.contact ?? d.lastAttempt;
+    const externalOf = (d: AdviceDelivery) => event(d)?.external ?? d.external;
+    const record = (d: AdviceDelivery, next: Partial<ReconEvent>) =>
+      setReconEvents((prev) => ({
+        ...prev,
+        [d.key]: {
+          state: prev[d.key]?.state ?? d.state,
+          attempts: prev[d.key]?.attempts ?? d.attempts,
+          posted: prev[d.key]?.posted ?? d.posted,
+          contact: prev[d.key]?.contact ?? d.lastAttempt,
+          external: prev[d.key]?.external ?? d.external,
+          ...next,
+        },
+      }));
+    const postings = [
+      ...adviceDeliveries,
+      ...(correctionRaised ? [raisedPostings.correction] : []),
+      ...(adviceRaised ? [raisedPostings.unbilled] : []),
+    ];
+    /* A correction posting explains a mismatched amount; it does not close it.
+       Only the provider's answer to the corrected advice closes it, and that
+       answer is inbound — the screen can record it, not invent it. */
+    const corrected = raisedPostings.correction;
+    const mismatched =
+      adviceDeliveries.find((d) => d.state === "Needs attention") ??
+      adviceDeliveries[0];
+    const answered = (d: AdviceDelivery) =>
+      postings.some(
+        (p) =>
+          p.advice === d.advice &&
+          p.key !== d.key &&
+          stateOf(p) === "Acknowledged" &&
+          postedOf(p) !== null &&
+          postedOf(p) === p.amount,
+      );
+    const displayState = (d: AdviceDelivery): DeliveryState =>
+      stateOf(d) === "Superseded" && answered(d) ? "Reconciled" : stateOf(d);
+    const diffOf = (d: AdviceDelivery) => {
+      const returned = postedOf(d);
+      return returned === null ? null : returned - d.amount;
+    };
+    const unexplained = postings.reduce((total, d) => {
+      const difference = diffOf(d);
+      if (difference === null || difference === 0 || answered(d)) return total;
+      return total + Math.abs(difference);
+    }, 0);
+    const adviceName = (m: UnbilledMilestone) =>
+      m.advice !== ""
+        ? m.advice
+        : m.key === "performance" && adviceRaised
+          ? "BA-0064"
+          : "";
+    const advised = (m: UnbilledMilestone) => adviceName(m) !== "";
+    const unbilledLines = unbilledMilestones.filter(
+      (m) => m.eligible && !advised(m),
+    );
+    const unbilled = unbilledLines.reduce((total, m) => total + m.amount, 0);
+    const attention = postings.filter(
+      (d) => displayState(d) === "Needs attention",
+    );
+    const inFlight = postings.filter((d) => {
+      const s = displayState(d);
+      return s === "Queued" || s === "Sent" || s === "Failed";
+    });
+    const plural = (value: number, word: string) =>
+      value === 1 ? word : `${word}s`;
+    const refusal = (message: string) => {
+      setReconRefusals((n) => n + 1);
+      notify(message);
+    };
+    const hand = (d: AdviceDelivery) => {
+      record(d, {
+        state: "Sent",
+        attempts: attemptsOf(d) + 1,
+        contact: "Handed to the provider this session",
+      });
+      notify(
+        `${d.key} handed to the provider under its own key. The advice is not editable while a posting is in flight.`,
+      );
+    };
+    const bannerStatus = attention.length
+      ? "Needs attention"
+      : unbilled
+        ? "Unbilled earned"
+        : unexplained
+          ? "Awaiting an answer"
+          : inFlight.length
+            ? "In flight"
+            : "Reconciled";
+    const rowAction = (d: AdviceDelivery) => {
+      const s = displayState(d);
+      if (s === "Acknowledged") {
+        return (
+          <small>
+            Reconciled against {externalOf(d)}. The amounts are equal, there is
+            nothing to do, and the line stays visible as evidence of a clean
+            match.
+          </small>
+        );
+      }
+      if (s === "Reconciled") {
+        return (
+          <small>
+            Answered by {corrected.key} at {inr(corrected.amount)} against{" "}
+            {externalOf(corrected)}. The wrong posting stays on the record with
+            its difference named, because a reconciliation that hides it cannot
+            be audited.
+          </small>
+        );
+      }
+      if (s === "Superseded") {
+        return (
+          <small>
+            Superseded by {corrected.key}, which is still awaiting the provider.
+            The wrong posting stays on the record, because a reconciliation that
+            hides it cannot be audited.
+          </small>
+        );
+      }
+      if (s === "Queued") {
+        return (
+          <button className="button" onClick={() => hand(d)}>
+            <Share2 size={15} />
+            Hand to provider
+          </button>
+        );
+      }
+      if (s === "Sent") {
+        if (d.key === corrected.key) {
+          return (
+            <button
+              className="button"
+              onClick={() => {
+                record(d, {
+                  state: "Acknowledged",
+                  posted: correctionAck.posted,
+                  contact: `ACK ${correctionAck.received} recorded this session`,
+                  external: correctionAck.reference,
+                });
+                notify(
+                  `Acknowledgement recorded on ${d.key}: ${correctionAck.reference} for ${inr(correctionAck.posted)}, equal to the advice. The ${inr(Math.abs(diffOf(mismatched) ?? 0))} difference on ${mismatched.key} is now answered, and nothing else on this page closes it.`,
+                );
+              }}
+            >
+              <ArrowDownToLine size={15} />
+              Record the provider's acknowledgement
+            </button>
+          );
+        }
+        return (
+          <button
+            className="button"
+            onClick={() =>
+              refusal(
+                `${d.key} was sent and has not been answered. An unanswered send is not a failed send: re-sending into a timeout is how one milestone becomes two invoices. Waiting is the action.`,
+              )
+            }
+          >
+            <LockKeyhole size={15} />
+            Send it again, it is late
+          </button>
+        );
+      }
+      if (s === "Failed") {
+        return (
+          <>
+            <button
+              className="button"
+              onClick={() => {
+                record(d, {
+                  state: "Sent",
+                  attempts: attemptsOf(d) + 1,
+                  contact: `Retry ${attemptsOf(d) + 1} dispatched this session`,
+                });
+                notify(
+                  `Retry dispatched on ${d.key}, attempt ${attemptsOf(d) + 1} recorded. The provider dedupes on that key, so no second invoice can come back from it.`,
+                );
+              }}
+            >
+              <RotateCw size={15} />
+              Retry under the same key
+            </button>
+            <button
+              className="button"
+              onClick={() =>
+                refusal(
+                  `A new key is a new posting. ${d.key} has never been answered, so re-keying it is exactly how a customer ends up paying twice for one milestone.`,
+                )
+              }
+            >
+              <LockKeyhole size={15} />
+              Re-key it and send again
+            </button>
+          </>
+        );
+      }
+      return (
+        <>
+          <button
+            className="button"
+            onClick={() => {
+              setCorrectionRaised(true);
+              record(d, { state: "Superseded" });
+              notify(
+                `${corrected.key} raised at ${inr(corrected.amount)} with the retention rule written on the advice. ${d.key} is superseded, not deleted, and the difference reconciles against the new posting.`,
+              );
+            }}
+          >
+            <Plus size={15} />
+            Raise a correction advice
+          </button>
+          <button
+            className="button"
+            onClick={() =>
+              refusal(
+                `A mismatch closes when the amounts agree, not when the button is pressed. ${inr(Math.abs(diffOf(d) ?? 0))} is unaccounted for against a rule ${d.advice} does not carry.`,
+              )
+            }
+          >
+            <LockKeyhole size={15} />
+            Mark it reconciled
+          </button>
+        </>
+      );
+    };
+    const milestoneStatus = (m: UnbilledMilestone) =>
+      !m.eligible
+        ? "Eligibility denied"
+        : advised(m)
+          ? `Advised · ${adviceName(m)}`
+          : "Unbilled earned";
+    const milestoneAction = (m: UnbilledMilestone) => {
+      if (!m.eligible) {
+        return (
+          <button
+            className="button"
+            onClick={() =>
+              refusal(
+                "Eligibility reads the milestone record. A project manager's note is not an approved dossier, so there is no advice to raise and nothing enters the outbox.",
+              )
+            }
+          >
+            <LockKeyhole size={15} />
+            Mark it earned anyway
+          </button>
+        );
+      }
+      if (m.key === "commissioning") {
+        return (
+          <button
+            className="button"
+            onClick={() =>
+              refusal(
+                "One milestone raises one advice. BA-0063 has to be voided before a second can exist, and voiding it means knowing what the provider did with the first.",
+              )
+            }
+          >
+            <LockKeyhole size={15} />
+            Raise a second advice
+          </button>
+        );
+      }
+      if (adviceRaised) {
+        return (
+          <small>
+            BA-0064 sits in the outbox as BA-0064/R1 with a key of its own.
+            Raising an advice is not posting it.
+          </small>
+        );
+      }
+      return (
+        <button
+          className="button primary"
+          onClick={() => {
+            setAdviceRaised(true);
+            notify(
+              `BA-0064 raised for ${inr(m.amount)} against ${m.party}'s milestone evidence. It enters the outbox queued, not sent.`,
+            );
+          }}
+        >
+          <Plus size={15} />
+          Raise the advice
+        </button>
+      );
+    };
+    /* The trail names its rows by key rather than by position, so it cannot end
+       up following the wrong posting if the outbox is ever re-ordered. */
+    const seeded = (key: string) =>
+      adviceDeliveries.find((d) => d.key === key) ?? adviceDeliveries[0];
+    const trail = [
+      {
+        what: "PRJ-0249 M2 evidence resolved to BA-0063",
+        state: "Eligible",
+        done: true,
+      },
+      {
+        what: "BA-0063/R1 handed to the provider",
+        state: displayState(seeded("BA-0063/R1")),
+        done: displayState(seeded("BA-0063/R1")) !== "Queued",
+      },
+      {
+        what: "BA-0051/R1 retried on its own key",
+        state: `${attemptsOf(seeded("BA-0051/R1"))} attempts`,
+        done: displayState(seeded("BA-0051/R1")) !== "Failed",
+      },
+      {
+        what: "BA-0049 difference routed to a correction posting",
+        state: correctionRaised
+          ? displayState(corrected) === "Acknowledged"
+            ? "Answered · R1 reconciled"
+            : "R2 raised · awaiting an answer"
+          : "Open",
+        done: correctionRaised,
+      },
+      {
+        what: "PRJ-0264 M3 unbilled amount turned into an advice",
+        state: adviceRaised ? "BA-0064" : inr(unbilled),
+        done: adviceRaised,
+      },
+      {
+        what: "PRJ-0258 M1 refused for want of a dossier",
+        state: "Not eligible",
+        done: true,
+      },
+      {
+        what: "Refusals raised against the rules this session",
+        state: `${reconRefusals} ${plural(reconRefusals, "refusal")}`,
+        done: reconRefusals > 0,
+      },
+    ];
+    return (
+      <>
+        <div className="feature-banner">
+          <span className="feature-icon">
+            <FileChartColumn size={28} />
+          </span>
+          <div>
+            <span className="eyebrow">E2E-10 · MILESTONE TO INVOICE</span>
+            <h2>Billing reconciliation</h2>
+            <p>
+              BA-0063 · Crest Chemicals · PRJ-0249 — what left the building, what
+              the provider answered, and what still cannot be billed.
+            </p>
+          </div>
+          <Badge status={bannerStatus} />
+        </div>
+        <section className="card">
+          <div className="card-heading">
+            <div>
+              <h2>Advice outbox</h2>
+              <p className="muted">
+                Every row is a posting with a key, not an invoice with a number.
+                The key is what a retry reuses, and what makes a second invoice
+                impossible.
+              </p>
+            </div>
+            <span className="subtle-tag">
+              {postings.length} postings · {inFlight.length} awaiting an answer
+            </span>
+          </div>
+          <div className="table-scroll">
+            <table className="wrapped">
+              <thead>
+                <tr>
+                  {[
+                    ["Posting key", "16%"],
+                    ["Attempts and last contact", "23%"],
+                    ["Advice against provider", "19%"],
+                    ["State and action", "42%"],
+                  ].map(([t, w]) => (
+                    <th key={t} style={{ width: w }}>
+                      {t}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {postings.map((d) => {
+                  const difference = diffOf(d);
+                  return (
+                    <tr key={d.key}>
+                      <td>
+                        <strong>{d.key}</strong>
+                        <small>
+                          {d.party} · {d.project}
+                        </small>
+                      </td>
+                      <td>
+                        {contactOf(d)}
+                        <small>
+                          {attemptsOf(d)} {plural(attemptsOf(d), "attempt")} ·{" "}
+                          {externalOf(d)}
+                        </small>
+                      </td>
+                      <td>
+                        <strong>{inr(d.amount)}</strong>
+                        <small>
+                          {difference === null
+                            ? "Provider has not returned an amount"
+                            : difference === 0
+                              ? `${inr(postedOf(d) ?? 0)} returned · matched`
+                              : answered(d)
+                                ? `${inr(postedOf(d) ?? 0)} returned · ${difference > 0 ? "+" : "−"}${inr(Math.abs(difference))} · answered by ${corrected.key}`
+                                : `${inr(postedOf(d) ?? 0)} returned · ${difference > 0 ? "+" : "−"}${inr(Math.abs(difference))}`}
+                        </small>
+                      </td>
+                      <td>
+                        <div className="detail-side">
+                          <Badge status={displayState(d)} />
+                          {rowAction(d)}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section className="card">
+          <div className="card-heading">
+            <div>
+              <h2>Unbilled earned</h2>
+              <p className="muted">
+                Eligibility is resolved from the milestone record before this
+                table is drawn. A note in a status field cannot add a line to it.
+              </p>
+            </div>
+            <span className="subtle-tag">{inr(unbilled)} unbilled</span>
+          </div>
+          <div className="table-scroll">
+            <table className="wrapped">
+              <thead>
+                <tr>
+                  {[
+                    ["Milestone and party", "24%"],
+                    ["Contract basis", "21%"],
+                    ["What the record shows", "29%"],
+                    ["Eligibility and action", "26%"],
+                  ].map(([t, w]) => (
+                    <th key={t} style={{ width: w }}>
+                      {t}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {unbilledMilestones.map((m) => (
+                  <tr key={m.key}>
+                    <td>
+                      <strong>{m.milestone}</strong>
+                      <small>{inr(m.amount)} at the contract weight</small>
+                    </td>
+                    <td>{m.basis}</td>
+                    <td>
+                      {m.evidence}
+                      <small>
+                        {advised(m)
+                          ? `Advised as ${adviceName(m)}`
+                          : m.eligible
+                            ? "No advice raised yet"
+                            : "No advice can be raised"}
+                      </small>
+                    </td>
+                    <td>
+                      <div className="detail-side">
+                        <Badge status={milestoneStatus(m)} />
+                        {milestoneAction(m)}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <div className="inventory-summary">
+          <div>
+            <h2>What the reconciliation has to answer for</h2>
+            <p>
+              Three counters. Two of them move when work is done; the third is
+              the line a report that lists only its findings would have skipped.
+            </p>
+          </div>
+          <div className={`stock-metric${unbilled ? " warning" : ""}`}>
+            <strong>
+              {inr(unbilled)}
+              <span>
+                {unbilledLines.length} {plural(unbilledLines.length, "milestone")}
+              </span>
+            </strong>
+            <small>Unbilled against signed evidence</small>
+            <i />
+          </div>
+          <div className={`stock-metric${attention.length ? " warning" : ""}`}>
+            <strong>
+              {attention.length}
+              <span>{plural(attention.length, "posting")}</span>
+            </strong>
+            <small>Amount mismatch needing attention</small>
+            <i />
+          </div>
+          <div className="stock-metric">
+            <strong>
+              0
+              <span>postings</span>
+            </strong>
+            <small>Checked for a missing idempotency key</small>
+            <i />
+          </div>
+        </div>
+        <div className="detail-grid">
+          <section className="card padded">
+            <div className="card-heading">
+              <div>
+                <h2>Posting gate</h2>
+                <p className="muted">
+                  The gate is the interface. Where the rule refuses, the refusal
+                  is the response on screen rather than a footnote in a manual.
+                </p>
+              </div>
+              <span className="subtle-tag">
+                {reconRefusals} {plural(reconRefusals, "refusal")} this session
+              </span>
+            </div>
+            <div className="three-cards">
+              <div>
+                <small>Retry rule</small>
+                <h3>Same key or stop</h3>
+                <p>
+                  A retry re-sends the key that failed. A new key is a new
+                  posting, and two postings is a duplicate invoice.
+                </p>
+              </div>
+              <div>
+                <small>Difference unexplained</small>
+                <h3>{inr(unexplained)}</h3>
+                <p>
+                  The page states what it compares: the advice amount, the amount
+                  the provider returned, and the difference between them in
+                  rupees. A correction posting explains a difference; it does not
+                  close it. The line closes when the provider acknowledges the
+                  advice that carries the rule.
+                </p>
+              </div>
+              <div>
+                <small>Payload preview</small>
+                <h3>Restricted</h3>
+                <p>
+                  Amounts and the customer's tax reference are withheld from this
+                  session. The key, the state and the checksum are not.
+                </p>
+              </div>
+            </div>
+            <div className="form-footer">
+              <p className="muted">
+                Session state. Nothing is sent to a provider, and no accounting
+                system is written to — the platform and the invoice source of
+                truth are still the client's decisions.
+              </p>
+              <div className="header-actions">
+                <button
+                  className="button"
+                  onClick={() =>
+                    notify(
+                      `Envelope preview for ${seeded("BA-0063/R1").key}: state ${displayState(seeded("BA-0063/R1"))}, key unchanged, checksum 8f2a…c41. Four fields — amounts, tax reference, customer account and terms — are withheld at the role layer, not hidden by layout.`,
+                    )
+                  }
+                >
+                  <Search size={15} />
+                  Preview the payload
+                </button>
+                {unexplained > 0 && (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      refusal(
+                        `Nothing re-sends ${mismatched.key}. It posts again only as a corrected advice carrying the rule${
+                          correctionRaised
+                            ? `, and ${corrected.key} is already awaiting the provider's answer`
+                            : ""
+                        }. Until the amount matches it stops here as an exception with a name and a figure.`,
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Re-send the mismatched posting
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+          <section className="card padded">
+            <h2>Posting trail</h2>
+            {trail.map((t) => (
+              <div className="checklist-line" key={t.what}>
+                <span className={t.done ? "checked-box" : "unchecked-box"}>
+                  {t.done && <Check size={14} />}
+                </span>
+                <span>{t.what}</span>
+                <small>{t.state}</small>
+              </div>
+            ))}
+            <div className="note-box">
+              <TriangleAlert size={16} />
+              States this layout has to carry: provider unavailable, sent and
+              never answered, amount mismatch, duplicate refused, unbilled
+              milestone, partial billing of a milestone, payload opened by someone
+              not entitled to it.
+            </div>
+            <div className="detail-side">
+              {detailLink(
+                "Sales",
+                "BA-0063 in the billing advice list",
+                "Billing advice",
+              )}
+              {detailLink("Projects", "PRJ-0249 milestone evidence", "Project detail")}
+              {detailLink("Reports", "Unbilled and mismatch as reported exceptions")}
+              {detailLink("Dashboard", "The same exceptions as tiles")}
             </div>
           </section>
         </div>
@@ -2396,7 +3066,7 @@ function App() {
                 : route === "CRM"
                   ? ["Pipeline", "List"]
                   : route === "Sales"
-                    ? ["Orders & quotations", "Billing advice"]
+                    ? ["Orders & quotations", "Billing advice", "Reconciliation"]
                     : [];
     /* Landing state is the literal "Overview" even on routes whose first tab
        carries a different label, so the tab the visitor actually sees is the
@@ -2670,7 +3340,25 @@ function App() {
                 },
               )}
             </section>
+            <section className="card padded">
+              <div className="note-box">
+                <FileText size={16} />
+                The advice list is where a billing record is created and owned.
+                What happened to it after that — whether it reached the provider,
+                whether the amount came back the same, whether the milestone that
+                justified it had evidence — is a different screen.
+              </div>
+              <div className="detail-side">
+                {detailLink(
+                  "Sales",
+                  "Open the reconciliation of advices already sent",
+                  "Reconciliation",
+                )}
+              </div>
+            </section>
           </>
+        ) : route === "Sales" && tab === "Reconciliation" ? (
+          reconView()
         ) : route === "HR" && tab === "Leave & attendance" ? (
           <section className="card padded">
             <h2>Review attendance and leave exceptions.</h2>

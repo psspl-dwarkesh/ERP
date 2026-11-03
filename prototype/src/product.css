@@ -1686,6 +1686,24 @@ table {
   white-space: nowrap;
   font-size: 11px;
 }
+/* A record grid keeps every cell on one line, because a record row is a line a
+   person scans across. The journey tables are not record grids: their third and
+   fourth cells carry the argument, and an argument that cannot wrap pushes the
+   column beside it off a 1440 screen. These tables wrap, with each column's
+   width stated so the scan order survives the wrap. */
+.wrapped {
+  table-layout: fixed;
+  white-space: normal;
+  /* Below this the percentages would leave a column narrower than its own
+     record key, so the narrow view keeps the proportions and hands the rest to
+     the scroll container instead of crushing the text. */
+  min-width: 720px;
+}
+.wrapped th,
+.wrapped td {
+  vertical-align: top;
+  padding-inline: 13px;
+}
 th {
   text-align: left;
   background: #fafcff;
