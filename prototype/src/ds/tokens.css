@@ -1,0 +1,194 @@
+/*
+ * Threadline design tokens.
+ * One dark (slate), two lights (mist page, white surface), one accent (petrol teal).
+ * Every colour, size, radius, shadow and duration in the product comes from here.
+ */
+:root {
+  /* Slate neutral ramp — hue ~205, cool and slightly blue so it reads as steel, not grey. */
+  --slate-0: #ffffff;
+  --slate-25: #f9fbfc;
+  --slate-50: #f3f6f8;
+  --slate-100: #e9eef2;
+  --slate-150: #dde4ea;
+  --slate-200: #cdd7df;
+  --slate-300: #aebbc6;
+  --slate-400: #8796a4;
+  --slate-500: #5f7181;
+  --slate-600: #4a5b69;
+  --slate-700: #34444f;
+  --slate-800: #22313b;
+  --slate-850: #1a2832;
+  --slate-900: #13222b;
+  --slate-950: #0c1820;
+
+  /* Petrol teal — the only brand accent. */
+  --teal-25: #f2fafa;
+  --teal-50: #e6f4f5;
+  --teal-100: #c9e8ea;
+  --teal-200: #98d1d5;
+  --teal-300: #5fb4bb;
+  --teal-400: #2a96a0;
+  --teal-500: #0b7a85;
+  --teal-600: #08656f;
+  --teal-700: #07525a;
+  --teal-800: #074047;
+  --teal-900: #062f34;
+  --teal-glow: #45c4cd; /* accent on slate surfaces */
+
+  /* Status hues. Each has a strong (text/icon), a soft (fill) and a line (border). */
+  --green-600: #17794f;
+  --green-500: #1f8a5b;
+  --green-100: #dcf1e6;
+  --green-50: #edf8f2;
+  --amber-700: #8a5a0f;
+  --amber-500: #c48416;
+  --amber-100: #fbecc9;
+  --amber-50: #fdf6e6;
+  --red-700: #a3302b;
+  --red-500: #c9443d;
+  --red-100: #f8dcda;
+  --red-50: #fcefee;
+  --blue-700: #24599a;
+  --blue-500: #3a76c0;
+  --blue-100: #dce8f7;
+  --blue-50: #eef4fb;
+  --violet-700: #5a4a9c;
+  --violet-500: #7461c2;
+  --violet-100: #e6e1f6;
+
+  /* ---- Semantic roles (use these in components, not the ramps) ---- */
+  --bg-page: var(--slate-50);
+  --bg-surface: var(--slate-0);
+  --bg-subtle: var(--slate-25);
+  --bg-muted: var(--slate-100);
+  --bg-inset: #eef2f5;
+  --bg-hover: #f0f4f7;
+  --bg-selected: var(--teal-50);
+  --bg-inverse: var(--slate-900);
+  --bg-inverse-raised: var(--slate-850);
+
+  --fg-strong: var(--slate-950);
+  --fg-default: var(--slate-800);
+  --fg-muted: var(--slate-500);
+  --fg-subtle: var(--slate-400);
+  --fg-on-accent: #ffffff;
+  --fg-inverse: #eef3f6;
+  --fg-inverse-muted: #9fb0bd;
+  --fg-accent: var(--teal-600);
+
+  --line-subtle: var(--slate-100);
+  --line-default: var(--slate-150);
+  --line-strong: var(--slate-200);
+  --line-inverse: rgba(255, 255, 255, 0.09);
+
+  --accent: var(--teal-500);
+  --accent-hover: var(--teal-600);
+  --accent-press: var(--teal-700);
+  --accent-soft: var(--teal-50);
+  --accent-line: var(--teal-200);
+
+  --ok: var(--green-500);
+  --ok-fg: var(--green-600);
+  --ok-soft: var(--green-50);
+  --warn: var(--amber-500);
+  --warn-fg: var(--amber-700);
+  --warn-soft: var(--amber-50);
+  --risk: var(--red-500);
+  --risk-fg: var(--red-700);
+  --risk-soft: var(--red-50);
+  --info: var(--blue-500);
+  --info-fg: var(--blue-700);
+  --info-soft: var(--blue-50);
+
+  /* Data visualisation — ordered for adjacent contrast, all pass 3:1 on white. */
+  --viz-1: var(--teal-500);
+  --viz-2: #3e5c76;
+  --viz-3: var(--amber-500);
+  --viz-4: var(--violet-500);
+  --viz-5: #5fa36a;
+  --viz-6: var(--red-500);
+  --viz-track: var(--slate-100);
+
+  /* ---- Typography ---- */
+  --font-sans: "Archivo Variable", "Archivo", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+  --wdth-display: 88; /* semi-condensed headlines */
+  --wdth-text: 100;
+
+  --text-2xs: 11.5px; /* floor — only for mono IDs and axis labels */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px; /* UI body */
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 22px;
+  --text-3xl: 28px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 64px;
+  --text-7xl: 84px;
+
+  --leading-tight: 1.12;
+  --leading-snug: 1.3;
+  --leading-body: 1.5;
+
+  --weight-regular: 420;
+  --weight-medium: 520;
+  --weight-semibold: 620;
+  --weight-bold: 720;
+
+  /* ---- Space (4px grid) ---- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ---- Shape ---- */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
+  --radius-full: 999px;
+
+  /* ---- Elevation: borders do the work at rest, shadows only for things that float. ---- */
+  --shadow-xs: 0 1px 0 rgba(12, 24, 32, 0.04);
+  --shadow-sm: 0 1px 2px rgba(12, 24, 32, 0.06), 0 1px 1px rgba(12, 24, 32, 0.03);
+  --shadow-md: 0 4px 12px -2px rgba(12, 24, 32, 0.1), 0 2px 4px -2px rgba(12, 24, 32, 0.06);
+  --shadow-lg: 0 18px 40px -12px rgba(12, 24, 32, 0.22), 0 6px 14px -6px rgba(12, 24, 32, 0.1);
+  --shadow-xl: 0 32px 64px -20px rgba(12, 24, 32, 0.35), 0 10px 24px -10px rgba(12, 24, 32, 0.14);
+  --ring: 0 0 0 3px rgba(11, 122, 133, 0.28);
+  --ring-risk: 0 0 0 3px rgba(201, 68, 61, 0.22);
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --dur-slower: 560ms;
+
+  /* ---- Layout ---- */
+  --sidebar-w: 248px;
+  --topbar-h: 56px;
+  --content-max: 1480px;
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-toast: 70;
+}

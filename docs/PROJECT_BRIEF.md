@@ -40,17 +40,17 @@ Manufacturing is nested within Inventory/Project. AMC, O&M and field service are
 
 Working title: **ABC Limited / Operations workspace**. Use the client's name without inventing a brand history, certification, customer list or performance claim. Replace the simple placeholder monogram when actual brand assets arrive.
 
-The current direction treats an engineering job as a continuous route sheet. Use ink-dark navigation, mineral drawing-paper work surfaces, off-white records, copper actions and restrained status color. Barlow Condensed headings make the entry and key operating views distinctive; IBM Plex Sans and Mono keep work text and record IDs legible. The user rejected both the first green editorial concept and a later cool-gray/cobalt version as too generic. Remove promotional headings, floating feature cards and decorative module banners. Show concrete task labels, record IDs, consistent action positions and directly useful workflow views.
+The current direction (Threadline v1.0, 4 November 2026, see [DESIGN.md](../DESIGN.md)) treats a job as one unbroken thread of linked records. It uses deep slate navigation, a mist page with white surfaces, and petrol-teal actions, with restrained status colour. Headings are semi-condensed Archivo, work text is Archivo, and record IDs are IBM Plex Mono. Three earlier concepts were rejected as too generic: green editorial, cool-grey/cobalt and the ink/copper route sheet. Remove promotional headings, floating feature cards and decorative module banners. Show concrete task labels, record IDs, consistent action positions and directly useful workflow views.
 
 ### Tokens and components
 
 | Token | Proposed value / rule |
 | --- | --- |
-| Primary | Copper `#F07946`; hover `#F59165`; navigation ink `#172320` |
-| Canvas and surface | Warm paper `#E6ECE6`; record surface `#FFFDF7`; selected view `#F8E5D6` |
-| Text and borders | Primary `#172320`; secondary `#526258`; borders `#D9D8CF` |
-| Status | Success `#285C3A` on pale green; warning `#9A3A1C` on pale copper; information `#235D57` on pale teal; always include status text |
-| Type | Barlow Condensed for display headings; IBM Plex Sans for work text; IBM Plex Mono only for IDs and numeric/operational metadata; tabular numerals for amounts |
+| Primary | Petrol teal `#0B7A85`; hover `#08656F`; on dark surfaces `#45C4CD`; navigation slate `#13222B` |
+| Canvas and surface | Mist `#F3F6F8`; surface `#FFFFFF`; selected `#E6F4F5` |
+| Text and borders | Strong `#0C1820`; default `#22313B`; muted `#5F7181`; borders `#DDE4EA` |
+| Status | Success `#1F8A5B`, warning `#C48416`, risk `#C9443D`, info `#3A76C0`, each with a soft fill; always include status text |
+| Type | Archivo Variable (width 88 for display, 100 for text), self-hosted; IBM Plex Mono only for record IDs; tabular numerals for amounts |
 | Scale | Body 14–16 px; table 13–14 px; metadata 11–12 px; section 18–22 px; page 35–42 px; entry headline 70–156 px responsive |
 | Spacing | 4 px base, usually 8/12/16/24/32; 28–32 px desktop content gutters |
 | Geometry | Square or nearly square controls and ruled panels; compact status badges; minimal shadow and 1 px dividers |

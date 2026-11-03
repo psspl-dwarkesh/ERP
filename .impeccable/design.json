@@ -1,46 +1,47 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-03T00:00:00+05:30",
-  "title": "Design System: ABC ERP",
+  "generatedAt": "2026-11-04T00:00:00+05:30",
+  "title": "Design System: Threadline",
   "extensions": {
     "colorMeta": {
-      "ink": { "role": "primary", "displayName": "Route Ink" },
-      "mineral-paper": { "role": "neutral", "displayName": "Mineral Paper" },
-      "copper": { "role": "accent", "displayName": "Signal Copper" },
-      "record": { "role": "neutral", "displayName": "Record Surface" }
+      "slate-900": { "role": "primary", "displayName": "Deep Slate" },
+      "mist": { "role": "neutral", "displayName": "Mist" },
+      "white": { "role": "neutral", "displayName": "Surface" },
+      "teal-500": { "role": "accent", "displayName": "Petrol Teal" }
     },
     "typographyMeta": {
-      "display": { "displayName": "Industrial Display", "purpose": "Entry headline." },
-      "title": { "displayName": "Operating Title", "purpose": "Portal page title." },
-      "identifier": { "displayName": "Record ID", "purpose": "Job, document and stage identifiers." }
+      "display": { "displayName": "Archivo wdth 88", "purpose": "Headlines and page titles." },
+      "text": { "displayName": "Archivo wdth 100", "purpose": "UI and body text." },
+      "identifier": { "displayName": "IBM Plex Mono", "purpose": "Record IDs." }
     },
-    "shadows": [],
+    "shadows": ["--shadow-sm", "--shadow-md", "--shadow-lg", "--shadow-xl"],
     "motion": [
-      { "name": "route-enter", "value": "600ms ease-out", "purpose": "Single entry route reveal; disabled for reduced motion." }
+      { "name": "base", "value": "200ms cubic-bezier(0.2,0.8,0.2,1)", "purpose": "State changes; disabled for reduced motion." },
+      { "name": "slow", "value": "320ms", "purpose": "Drawers, dialogs, thread pulse." }
     ],
     "breakpoints": [
-      { "name": "portal-mobile", "value": "767px" },
-      { "name": "entry-mobile", "value": "650px" }
+      { "name": "nav-drawer", "value": "1024px" },
+      { "name": "mobile", "value": "720px" }
     ]
   },
   "components": [
     {
       "name": "Primary Action",
       "kind": "button",
-      "refersTo": "button-primary",
-      "description": "Current workflow action or direct route entry.",
-      "html": "<button class=\"ds-action\">OPEN RECORD</button>",
-      "css": ".ds-action{background:#F07946;color:#172320;border:1px solid #C9542B;border-radius:0;padding:10px 16px;font:600 12px 'IBM Plex Sans',sans-serif}.ds-action:focus-visible{outline:2px solid #172320;outline-offset:2px}"
+      "refersTo": "btn-primary",
+      "description": "The one forward action in a view.",
+      "html": "<button class=\"btn btn-primary btn-md\"><span>Review & decide</span></button>",
+      "css": ".btn-primary{background:#0B7A85;color:#fff;border-radius:7px;height:36px;padding:0 16px;font:520 14px 'Archivo Variable',sans-serif}.btn-primary:focus-visible{box-shadow:0 0 0 3px rgba(11,122,133,.28)}"
     }
   ],
   "narrative": {
-    "northStar": "The Engineering Job Traveller",
-    "overview": "One connected job provides the visual and informational spine. The entry tells the handoff story; operating views keep the records and next action close together.",
-    "keyCharacteristics": ["Industrial typography", "Ruled record surfaces", "Copper active state", "Linked handoff examples"],
+    "northStar": "One unbroken thread",
+    "overview": "A job is one linked record chain from enquiry to service. The thread motif, teal on slate, carries that idea; screens lead with the decision and keep the linked records one click away.",
+    "keyCharacteristics": ["Slate + petrol teal", "Semi-condensed Archivo headlines", "Mono record IDs", "Custom controls, no browser defaults"],
     "rules": [
-      { "name": "Decision first", "body": "Place current exceptions and next actions before summary metrics.", "section": "components" }
+      { "name": "Decision first", "body": "Exceptions and next actions before summary metrics.", "section": "components" }
     ],
-    "dos": ["Use real linked fixture IDs and explicit states.", "Preserve readable data density."],
-    "donts": ["Use generic metric-card hero layouts.", "Imply local simulations are live ERP transactions."]
+    "dos": ["Link every record ID.", "Use semantic tokens, not raw hex."],
+    "donts": ["Reintroduce copper/orange.", "Use native select, alert or title tooltips.", "Imply simulated actions are live integrations."]
   }
 }

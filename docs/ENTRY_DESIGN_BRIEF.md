@@ -1,3 +1,5 @@
+> **Superseded 4 November 2026.** This describes the rejected v0.3 ink/copper "route sheet" concept. The current design is Threadline. See [DESIGN.md](../DESIGN.md).
+
 # Entry surface direction
 
 Mode: Persuade. Audience: ABC Limited stakeholders and staff reviewing the ERP concept. Job: understand how one engineering job crosses modules, then enter the working demo. All record names and values are illustrative.

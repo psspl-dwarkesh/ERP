@@ -1,0 +1,100 @@
+/* ---- Record thread ---- */
+.thread {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(150px, 1fr);
+  gap: 0;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+}
+.thread-node { position: relative; display: flex; padding-right: 22px; }
+.thread-node:last-child { padding-right: 0; }
+.thread-node::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 14px;
+  height: 2px;
+  background: var(--teal-300);
+  border-radius: 1px;
+}
+.thread-node::before {
+  content: "";
+  position: absolute;
+  top: calc(50% - 3px);
+  right: 2px;
+  width: 6px;
+  height: 6px;
+  border-top: 2px solid var(--teal-300);
+  border-right: 2px solid var(--teal-300);
+  transform: rotate(45deg);
+}
+.thread-node:last-child::after,
+.thread-node:last-child::before { display: none; }
+.thread-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  color: inherit;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  animation: thread-in var(--dur-slower) var(--ease-out) both;
+  animation-delay: calc(var(--i) * 60ms);
+}
+@keyframes thread-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+.thread-card:hover { text-decoration: none; border-color: var(--teal-300); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.thread-kind { color: var(--fg-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); }
+.thread-id { color: var(--fg-accent); font-size: var(--text-md); font-weight: 500; }
+.thread-label { color: var(--fg-default); font-size: var(--text-sm); line-height: 1.35; min-height: 2.7em; }
+.thread-compact .thread-card { padding: 10px 12px; }
+
+/* ---- Health dots ---- */
+.health { display: inline-flex; gap: 5px; }
+.health-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tone-solid); }
+.health-dot.tone-neutral { background: var(--slate-200); }
+
+/* ---- SLA ---- */
+.sla { display: inline-flex; align-items: center; gap: 5px; color: var(--tone-fg); font-size: var(--text-xs); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sla.tone-neutral { color: var(--fg-muted); }
+
+/* ---- Stock meter ---- */
+.stock-meter { display: flex; flex-direction: column; gap: 6px; min-width: 160px; }
+.stock-meter-legend { color: var(--fg-muted); font-size: var(--text-xs); white-space: nowrap; }
+.stock-meter-legend b { color: var(--fg-strong); font-weight: var(--weight-semibold); }
+
+/* ---- Approval dialog ---- */
+.approval-body { display: flex; flex-direction: column; gap: var(--space-5); }
+.approval-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-md); background: var(--bg-subtle); border: 1px solid var(--line-subtle); }
+.approval-summary > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.approval-label { display: block; color: var(--fg-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); margin-bottom: 4px; }
+.evidence { display: flex; flex-direction: column; gap: 6px; }
+.evidence li { display: flex; align-items: center; gap: 8px; color: var(--fg-default); font-size: var(--text-sm); }
+.evidence svg { color: var(--accent); flex: none; }
+@media (max-width: 560px) {
+  .approval-summary { grid-template-columns: 1fr; }
+}
+
+/* ---- Ticket priority chip ---- */
+.prio {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.prio-p1 { background: var(--red-500); color: #fff; }
+.prio-p2 { background: var(--amber-100); color: var(--amber-700); }
+.prio-p3,
+.prio-p4 { background: var(--slate-100); color: var(--slate-600); }

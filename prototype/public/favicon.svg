@@ -1,8 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="ABC Limited monogram">
-  <rect width="32" height="32" fill="#172320"/>
-  <g transform="skewX(-7)" fill="#F07946">
-    <rect x="6.5" y="11" width="3.5" height="11"/>
-    <rect x="12.5" y="7" width="3.5" height="15"/>
-    <rect x="18.5" y="14" width="3.5" height="8"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0c1820"/><path d="M6 21 C 11 21, 11 11, 16 11 S 21 21, 26 21" fill="none" stroke="#45c4cd" stroke-width="2.2" stroke-linecap="round"/><circle cx="6.5" cy="21" r="2.6" fill="#fff"/><circle cx="16" cy="11" r="2.6" fill="#fff"/><circle cx="25.5" cy="21" r="2.6" fill="#fff"/></svg>

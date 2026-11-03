@@ -1,105 +1,65 @@
 ---
-name: ABC ERP
-description: Engineering job traveller identity for a connected operating portal.
+name: Threadline
+description: One connected ERP for engineering, panel-manufacturing and field-service firms.
 colors:
-  ink: "#172320"
-  mineral-paper: "#E6ECE6"
-  copper: "#F07946"
-  copper-deep: "#C9542B"
-  record: "#FFFDF7"
-  rule: "#D9D8CF"
-  secondary-ink: "#526258"
-  muted: "#5D6C64"
-  quiet-ink: "#43564A"
-  paper-edge: "#DFE6DD"
-  ink-soft: "#4A5B52"
+  slate-900: "#13222B"   # dark: sidebar, hero, controls band, tooltips, toasts
+  slate-950: "#0C1820"   # deepest dark: showcase hero and final CTA
+  mist: "#F3F6F8"        # light 1: app page background
+  white: "#FFFFFF"       # light 2: cards, dialogs, drawers, tables
+  teal-500: "#0B7A85"    # accent: primary actions, active states, links
+  teal-glow: "#45C4CD"   # accent on dark surfaces only
 typography:
-  display:
-    fontFamily: "Barlow Condensed, Arial Narrow, sans-serif"
-    fontSize: "clamp(76px, 10.5vw, 156px)"
-    fontWeight: 600
-  title:
-    fontFamily: "Barlow Condensed, Arial Narrow, sans-serif"
-    fontSize: "42px"
-    fontWeight: 600
-    lineHeight: 1
-  body:
-    fontFamily: "IBM Plex Sans, sans-serif"
-    fontSize: "12px"
-    fontWeight: 400
-    lineHeight: 1.5
-  identifier:
-    fontFamily: "IBM Plex Mono, monospace"
-    fontSize: "11px"
-    fontWeight: 500
-rounded:
-  square: "0px"
-legibility:
-  minimum-font-size: "11px"
-  body-contrast: "4.5:1"
-  large-text-contrast: "3:1"
-  numerals: "tabular-nums on record values, dates, totals and identifiers"
-motion:
-  settle: "0.34s cubic-bezier(0.16, 1, 0.3, 1)"
-  stamp: "0.42s cubic-bezier(0.16, 1, 0.3, 1)"
-  draw: "0.85s cubic-bezier(0.16, 1, 0.3, 1)"
-  reduced-motion: "no transform or draw animation; instant state change"
-spacing:
-  tight: "8px"
-  standard: "16px"
-  wide: "32px"
-components:
-  button-primary:
-    backgroundColor: "{colors.copper}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.square}"
-    padding: "10px 16px"
-  record-surface:
-    backgroundColor: "{colors.record}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.square}"
+  sans: "Archivo Variable (self-hosted; wdth 88 for display, 100 for text)"
+  mono: "IBM Plex Mono (record IDs only)"
 ---
 
-## Overview
+# Threadline design system
 
-The visual north star is an engineering job traveller: one job moves through order, project, materials, assembly, quality and service. The entry page makes those handoffs visible. Operating pages use dense, legible records and clear actions, with the route identity carried through the navigation and headings.
+Version 1.0, 4 November 2026. This replaces the v0.3 "route sheet" concept (ink, mineral paper and copper), which was rejected as generic. The source of truth is code: [tokens.css](prototype/src/ds/tokens.css), [base.css](prototype/src/ds/base.css), [components.tsx](prototype/src/ds/components.tsx) and [components.css](prototype/src/ds/components.css). This page explains the decisions behind them.
 
-## Colors
+## Idea
 
-Ink anchors the entry cover and navigation. Mineral paper is the portal canvas; off-white holds record content. Copper marks the current stop and primary action. Secondary ink is used for supporting text, while thin rules structure lists and tables. Status colors retain their semantic meaning inside operating views.
+The product's promise is that a job never breaks into separate systems: enquiry, quotation, order, project, BOM, purchase, assembly, installed asset and service all sit on one record chain. The visual signature is the **thread**: a teal line passing through record nodes. It appears in the logo, the dashboard's record chain, the showcase hero and the interactive job route.
 
-Supporting text uses one ladder measured against its composited background, not one inherited gray: quiet ink for small or dense copy on paper, secondary ink for standard supporting text, muted for the lightest tone that still clears 4.5:1. Copper-deep is the text-safe copper; bright copper stays on fills and marks where it sits on ink. Browser surfaces belong to the palette too: selection, scrollbars, caret, placeholder, native control accent, focus ring and the page `theme-color` are themed from these tokens, and the favicon is the brand monogram.
+## Colour
 
-## Typography
+One dark, two lights, one accent.
 
-Barlow Condensed gives the entry headline and page titles an industrial silhouette. IBM Plex Sans carries labels, instructions and data. IBM Plex Mono distinguishes record IDs, stage numbers and small technical metadata. Nothing renders below an 11 px floor, including identifier and eyebrow text; if a label cannot survive that size it is removed rather than shrunk. Because Barlow Condensed is a webfont, it must stay in the single Google Fonts import in `product.css`: a declared family that is never imported silently falls back and flattens the whole identity.
+| Role | Token | Use |
+| --- | --- | --- |
+| Dark | `--slate-900` / `--slate-950` | Sidebar, showcase hero, controls band, tooltips, toasts, record cards on light pages |
+| Light 1 | `--bg-page` (mist `#F3F6F8`) | App canvas between surfaces |
+| Light 2 | `--bg-surface` (white) | Cards, tables, dialogs, drawers, popovers |
+| Accent | `--accent` (petrol teal `#0B7A85`) | Primary buttons, active nav, links, selected state, focus ring |
 
-## Layout
+Petrol teal was chosen over SaaS blue because it reads as instrumentation and process engineering, suits the pharma and chemical customers in the scope, and stays clear of every status hue. Status colours (green ok, amber warn, red risk, blue info) are reserved for meaning and never decorate. Components consume **semantic** tokens (`--fg-muted`, `--line-default`, `--accent-soft`), not the ramps.
 
-The entry is short: cover, interactive route and three linked operational examples. The portal uses a persistent desktop sidebar, compact top bar and content width capped near 1570px. On narrow screens, navigation becomes a menu and tables scroll inside their own containers. Keep the decision or exception before decorative summary metrics.
+## Type
 
-## Elevation & Depth
+- **Archivo Variable**, self-hosted through `@fontsource-variable/archivo` (no Google Fonts request). Headlines use the width axis at 88 for an engineered, semi-condensed silhouette; UI text runs at 100.
+- **IBM Plex Mono** only for record IDs (PRJ-0264, WO-0187), so identifiers are scannable everywhere.
+- UI body 14 px, dense tables 13–14 px, floor 11.5 px (mono IDs and axis labels only).
 
-Use surface contrast and 1px rules for hierarchy. Most primary surfaces are flat. Focus and active states should read clearly without large ambient shadows.
+## Shape, depth, motion
 
-## Shapes
+- Radius 5–7 px on controls, 10 px on cards, 14–20 px on dialogs and showcase panels. Avatars are rounded squares; circles are reserved for status dots, step markers and data marks.
+- Borders carry hierarchy at rest. Shadows appear only on things that float: popovers, dialogs, drawers, toasts.
+- Motion marks a change of state: drawers slide, dialogs settle, checkboxes pop, the work-order step pulses, the thread pulse travels to the selected stop. Durations are 120, 200, 320 and 560 ms on shared easing curves. Everything honours `prefers-reduced-motion`.
 
-Major surfaces, buttons and navigation use square geometry. The skewed three-bar brand mark is the recurring expressive shape. Circles belong to data marks and legend dots only, never to interface chrome: a person's initials, a handoff marker and a demo indicator are squares, because a round avatar is the most interchangeable shape a product can borrow. The operational test is size rather than markup: a mark no wider than 8 px in both dimensions is data and may stay round, anything larger is chrome and is square. Because a class selector outranks an element selector, an override list that squares `span` does not square a `span` with its own class, so new controls need the class-qualified rule.
+## No browser defaults
 
-## Motion
-
-Motion marks a handoff, not decoration. Selecting a stop on the entry route settles the active record with a short rise and resolves the record ID's letter-spacing, so the change reads as a record being stamped rather than a block being swapped; a scale plate above the summary tracks the same stop. The route rule draws left to once on load. All of it runs only under `prefers-reduced-motion: no-preference`, uses the shared settle curve, and stays under half a second.
+Every control is ours. Radix supplies behaviour (focus traps, keyboard, ARIA); the styling is custom. That covers select, checkbox, switch, radio cards, tabs, segmented control, tooltip, popover, menu, dialog, drawer, toast and command palette (cmdk). Selection, caret, scrollbars, autofill, search-cancel and number spinners are themed or removed in `base.css`. No `alert`, `confirm`, `title=` tooltips or native `<select>`.
 
 ## Components
 
-Primary buttons are copper with ink text. Secondary buttons use off-white surfaces and ruled borders. Record cards, dispatch rows and tables expose a clear title or ID, state, owner or next action. The dashboard opens with three actionable handoffs. The entry route changes its active record and provides a direct module link. Every heading stands on its own: no eyebrow labels, section numbers or category kickers that repeat what the heading already says. A line above a heading carries an identifier or a period instead (PRJ-0264, BOM-042 · REV C, NOVEMBER 2026 · DRAFT RUN), because that is data the heading does not hold. A loading state uses the destination's own geometry, so a panel being fetched still reads as that panel; spinners and skeleton blobs do not belong here.
+Buttons (primary, secondary, ghost, danger, inverse, link), IconButton with tooltip, Status (tone derived from the status text), Tag, RecordLink, Avatar and Person, Card and CardHeader, Stat and stat-strip, Progress, Meter, KeyValues, EmptyState, Callout, LoadingRows, PageHeader, Tabs, Segmented, Field, Input, Textarea, SearchField, Select, Checkbox, Switch, RadioCards, Tooltip, Popover, Dialog, Drawer, Menu, Toast, Stepper, Timeline, DataTable, Toolbar and FilterChips.
 
-## Do's and Don'ts
+Domain patterns in [patterns.tsx](prototype/src/app/patterns.tsx): RecordThread, HealthDots (schedule, cost, material), SlaClock, StockMeter (free, reserved, held, on order) and ApprovalDialog (evidence, decision, reason, audit note).
 
-- Do lead with real linked examples: SO-0196, PRJ-0264, BOM-042, WO-0187 and AST-0042.
-- Do show held stock and approval states honestly; route links are demonstrations based on fixture data.
-- Do give hover, focus and reduced-motion states equal care.
-- Do measure the rendered result rather than the declared CSS: a font family declared but never imported, or a color inherited from a rejected concept, still ships.
-- Don't leave untamed browser defaults (blue selection, cobalt focus rings, stock scrollbars, a mismatched `theme-color`) inside an ink and copper surface.
-- Don't fill the page with interchangeable metric cards or ornamental gradients.
-- Don't claim a workflow is automated when the prototype only simulates it locally.
+## Rules
+
+- Lead with the decision or exception, then the list. No walls of interchangeable KPI cards.
+- Every record ID is a link to its record.
+- Money is shown in Indian units (₹48.50 L, ₹1.42 Cr); dates as 18 Nov 2026.
+- Simulated actions say what they did; the demo never claims a live integration.
+- Loading placeholders take the shape of the content that is coming.

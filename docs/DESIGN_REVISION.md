@@ -1,3 +1,5 @@
+> **Superseded 4 November 2026.** This describes the rejected v0.3 ink/copper "route sheet" concept. The current design is Threadline. See [DESIGN.md](../DESIGN.md).
+
 # Product interface revision
 
 The user asked again for a less generic interface and a real entry page. The new direction replaces both the green editorial and cool-gray/cobalt concepts. It draws from an engineering job traveller: ink #172320, mineral paper #E6ECE6, copper #F07946, off-white records, condensed Barlow headings, Plex work text and numbered handoffs.
