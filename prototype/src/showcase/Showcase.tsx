@@ -1,95 +1,191 @@
 import { ArrowRight, Menu as MenuIcon, X } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { Logo } from "../app/brand";
-import { useRoute } from "../app/router";
-import { CountUp, Reveal } from "./motion";
+import { navigate, useRoute } from "../app/router";
+import { Reveal } from "./motion";
 import { Flows } from "./Flows";
 import { Hero } from "./Hero";
 import { JobThread } from "./JobThread";
 import { ModuleMap } from "./ModuleMap";
-import { Controls, Delivery, Roles } from "./Sections";
+import { Preview } from "./Preview";
+import { Controls, Delivery } from "./Sections";
 import { Verticals } from "./Verticals";
 import "./showcase.css";
 
-const LINKS = [
-  ["thread", "How it works"],
-  ["modules", "Modules"],
-  ["industries", "Industries"],
-  ["flows", "Flows"],
-  ["controls", "Controls"],
-  ["delivery", "Delivery"],
-] as const;
+const CaseStudy = lazy(() => import("./CaseStudy"));
 
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+type Page = "home" | "case-study";
+
+/** Section links on the product tour, plus the case study page. */
+const LINKS: { id: string; label: string }[] = [
+  { id: "thread", label: "How it works" },
+  { id: "modules", label: "Modules" },
+  { id: "industries", label: "Industries" },
+  { id: "flows", label: "Flows" },
+  { id: "controls", label: "Controls" },
+  { id: "case-study", label: "Case study" },
+];
+
+const NAV_OFFSET = 88;
+
+function scrollToSection(id: string, behavior: ScrollBehavior = "smooth") {
+  const el = document.getElementById(id);
+  if (!el) return;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET + 8, behavior });
 }
 
-function Nav() {
+/** Which tour section sits under the reading line (35% down the viewport). */
+function useActiveSection(page: Page) {
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<string | null>(page === "case-study" ? "case-study" : null);
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 24);
-    on();
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      setScrolled(window.scrollY > 12);
+      if (page === "case-study") {
+        setActive("case-study");
+        return;
+      }
+      const line = window.innerHeight * 0.35;
+      let hit: string | null = null;
+      for (const { id } of LINKS) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top <= line && r.bottom > line) hit = id;
+      }
+      setActive(hit);
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    measure();
     window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
-  }, []);
+    window.addEventListener("resize", on);
+    return () => {
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+      cancelAnimationFrame(raf);
+    };
+  }, [page]);
+  return { scrolled, active };
+}
+
+function Nav({ page }: { page: Page }) {
+  const { scrolled, active } = useActiveSection(page);
+  const [open, setOpen] = useState(false);
+  const linksRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [ind, setInd] = useState<{ x: number; w: number } | null>(null);
+
+  // Slide the indicator under the active link; re-measure when fonts or widths change.
+  const place = useCallback(() => {
+    const box = linksRef.current;
+    const a = active && box?.querySelector<HTMLElement>(`[data-id="${active}"]`);
+    setInd(a ? { x: a.offsetLeft, w: a.offsetWidth } : null);
+  }, [active]);
+  useLayoutEffect(place, [place]);
+  useEffect(() => {
+    const box = linksRef.current;
+    if (!box || !("ResizeObserver" in window)) return;
+    const ro = new ResizeObserver(place);
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [place]);
+
+  // Mobile menu: close on Escape, outside click, or widening past the breakpoint.
+  useEffect(() => {
+    if (!open) return;
+    panelRef.current?.querySelector<HTMLElement>("a")?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!panelRef.current?.contains(t) && !toggleRef.current?.contains(t)) setOpen(false);
+    };
+    const mq = window.matchMedia("(min-width: 1081px)");
+    const onMq = () => mq.matches && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    mq.addEventListener("change", onMq);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+      mq.removeEventListener("change", onMq);
+    };
+  }, [open]);
+
+  const go = (id: string) => (e: MouseEvent) => {
+    e.preventDefault();
+    setOpen(false);
+    if (id === "case-study") navigate("/case-study");
+    else if (page === "home") scrollToSection(id);
+    else navigate(`/?s=${id}`);
+  };
+  const hrefFor = (id: string) => (id === "case-study" ? "#/case-study" : `#/?s=${id}`);
+
   return (
-    <header className={`sc-nav ${scrolled ? "is-scrolled" : ""} ${open ? "is-open" : ""}`}>
-      <div className="sc-wrap sc-nav-inner">
-        <a href="#/" className="sc-nav-brand" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-          <Logo inverse={!scrolled} />
+    <header className={`sc-nav ${scrolled || open ? "is-floating" : ""} ${open ? "is-open" : ""}`}>
+      <div className="sc-nav-bar">
+        <a
+          href="#/"
+          className="sc-nav-brand"
+          aria-label="Threadline, product tour"
+          onClick={(e) => {
+            e.preventDefault();
+            setOpen(false);
+            if (page === "home") window.scrollTo({ top: 0, behavior: "smooth" });
+            else navigate("/");
+          }}
+        >
+          <Logo inverse />
         </a>
-        <nav className="sc-nav-links" aria-label="Sections">
-          {LINKS.map(([id, label]) => (
-            <a key={id} href={`#/?s=${id}`} onClick={(e) => { e.preventDefault(); setOpen(false); scrollTo(id); }}>
-              {label}
+        <nav className="sc-nav-links" aria-label="Product tour" ref={linksRef}>
+          <span className={`sc-nav-ind ${ind ? "is-on" : ""}`} style={ind ? { transform: `translateX(${ind.x}px)`, width: ind.w } : undefined} aria-hidden />
+          {LINKS.map((l) => (
+            <a key={l.id} data-id={l.id} href={hrefFor(l.id)} onClick={go(l.id)} className={active === l.id ? "is-active" : ""} aria-current={active === l.id ? (l.id === "case-study" ? "page" : "location") : undefined}>
+              {l.label}
             </a>
           ))}
         </nav>
         <div className="sc-nav-end">
-          <a className="btn btn-primary btn-sm" href="#/app/dashboard">
-            Open live demo <ArrowRight size={14} aria-hidden />
+          <a className="btn btn-primary btn-sm sc-nav-cta" href="#/app/dashboard">
+            <span>Open live demo</span> <ArrowRight size={14} aria-hidden />
           </a>
-          <button className="sc-nav-toggle icon-btn" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-            {open ? <X size={18} /> : <MenuIcon size={18} />}
+          <button ref={toggleRef} className="sc-nav-toggle" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="sc-nav-panel" onClick={() => setOpen((o) => !o)}>
+            {open ? <X size={18} aria-hidden /> : <MenuIcon size={18} aria-hidden />}
           </button>
         </div>
       </div>
-    </header>
-  );
-}
-
-function Proof() {
-  const items: [number, string, string][] = [
-    [11, "", "connected modules in one release"],
-    [7, "", "business verticals on one data model"],
-    [219, "", "scope requirements mapped to screens"],
-    [12, "", "end-to-end flows across modules"],
-    [200, "+", "named users planned for"],
-  ];
-  return (
-    <section className="sc-proof" aria-label="Scope at a glance">
-      <div className="sc-wrap sc-proof-inner">
-        {items.map(([n, s, l]) => (
-          <div key={l} className="sc-proof-item">
-            <span className="sc-proof-n t-display">
-              <CountUp to={n} suffix={s} />
-            </span>
-            <span className="sc-proof-l">{l}</span>
-          </div>
-        ))}
+      <div className="sc-nav-panel" id="sc-nav-panel" ref={panelRef} hidden={!open}>
+        <nav aria-label="Product tour, menu">
+          {LINKS.map((l) => (
+            <a key={l.id} href={hrefFor(l.id)} onClick={go(l.id)} className={active === l.id ? "is-active" : ""} aria-current={active === l.id ? "location" : undefined}>
+              {l.label}
+              <ArrowRight size={15} aria-hidden />
+            </a>
+          ))}
+        </nav>
+        <a className="btn btn-primary btn-block" href="#/app/dashboard">
+          Open the live demo <ArrowRight size={16} aria-hidden />
+        </a>
       </div>
-    </section>
+    </header>
   );
 }
 
 function FinalCta() {
   return (
     <section className="sc-final">
-      <div className="sc-grid-bg" aria-hidden />
       <Reveal className="sc-wrap sc-final-inner">
         <h2 className="sc-h2 t-display">See PRJ-0264 for yourself</h2>
-        <p className="sc-lede">Approve the requisition, try to issue held stock, move the panel through its stages and dispatch an engineer to the P1 ticket. It's all running in your browser.</p>
+        <p className="sc-lede">Approve the requisition, try to issue held stock, move the panel through its stages and dispatch an engineer to the P1 ticket.</p>
         <div className="sc-hero-ctas">
           <a className="btn btn-primary btn-lg sc-cta" href="#/app/dashboard">
             Open the live demo <ArrowRight size={18} aria-hidden />
@@ -98,6 +194,9 @@ function FinalCta() {
             Start at the project
           </a>
         </div>
+        <a className="sc-final-link" href="#/case-study">
+          Or read how it was designed and built <ArrowRight size={14} aria-hidden />
+        </a>
       </Reveal>
     </section>
   );
@@ -109,42 +208,76 @@ function Footer() {
       <div className="sc-wrap sc-footer-inner">
         <Logo />
         <p>Threadline is a demonstration ERP designed and engineered by Prakash Infotech. Records shown belong to a fictional ABC Limited workspace and are illustrative only.</p>
-        <p className="sc-footer-meta">Prototype v1.0 · November 2026</p>
+        <nav className="sc-footer-links" aria-label="Footer">
+          <a href="#/">Product tour</a>
+          <a href="#/case-study">Case study</a>
+          <a href="#/app/dashboard">Live demo</a>
+        </nav>
+        <p className="sc-footer-meta">Prototype · November 2026</p>
       </div>
     </footer>
   );
 }
 
+function Home() {
+  return (
+    <>
+      <Hero />
+      <Preview />
+      <JobThread />
+      <ModuleMap />
+      <Verticals />
+      <Flows />
+      <Controls />
+      <Delivery />
+      <FinalCta />
+    </>
+  );
+}
+
 export default function Showcase() {
   const route = useRoute();
+  const page: Page = route.path[0] === "case-study" ? "case-study" : "home";
+  const lastPage = useRef<Page | null>(null);
+
   useEffect(() => {
-    document.title = "Threadline · One connected ERP for engineering, panels and field service";
-  }, []);
-  // Deep link to a section: #/?s=flows
+    document.title = page === "case-study" ? "Case study · Threadline" : "Threadline · One connected ERP for engineering, panels and field service";
+  }, [page]);
+
+  // The router keeps scroll position inside the showcase; a new page starts at the top,
+  // and a deep link (#/?s=flows) lands on its section.
+  const s = route.query.get("s");
+  useLayoutEffect(() => {
+    const changed = lastPage.current !== null && lastPage.current !== page;
+    lastPage.current = page;
+    if (changed && !s) window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, [page, s]);
   useEffect(() => {
-    const s = route.query.get("s");
-    if (s) setTimeout(() => scrollTo(s), 60);
-  }, [route.query]);
+    if (!s || page !== "home") return;
+    const t = setTimeout(() => scrollToSection(s, window.scrollY < 40 ? "smooth" : "instant"), 60);
+    return () => clearTimeout(t);
+  }, [s, page, route.query]);
+
   // Dev-only: #/?only=flows renders a single section for visual checks.
   const only = import.meta.env.DEV ? route.query.get("only") : null;
-  if (only) {
-    const one: Record<string, ReactNode> = { thread: <JobThread />, modules: <ModuleMap />, industries: <Verticals />, flows: <Flows />, controls: <Controls />, roles: <Roles />, delivery: <Delivery />, final: <FinalCta /> };
+  if (only && page === "home") {
+    const one: Record<string, ReactNode> = { hero: <Hero />, preview: <Preview />, thread: <JobThread />, modules: <ModuleMap />, industries: <Verticals />, flows: <Flows />, controls: <Controls />, delivery: <Delivery />, final: <FinalCta /> };
     return <div className="sc">{one[only]}</div>;
   }
   return (
     <div className="sc">
-      <Nav />
-      <main>
-        <Hero />
-        <Proof />
-        <JobThread />
-        <ModuleMap />
-        <Verticals />
-        <Flows />
-        <Controls />
-        <Roles />
-        <Delivery />
-        <FinalCta />
+      <a className="sc-skip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>
+        Skip to content
+      </a>
+      <Nav page={page} />
+      <main id="main" tabIndex={-1}>
+        {page === "case-study" ? (
+          <Suspense fallback={<div className="cs-fallback" aria-busy="true" />}>
+            <CaseStudy />
+          </Suspense>
+        ) : (
+          <Home />
+        )}
       </main>
       <Footer />
     </div>

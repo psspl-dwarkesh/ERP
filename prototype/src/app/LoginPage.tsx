@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Eye, EyeOff, KeyRound, LockKeyhole, Mail } from 
 import { useEffect, useState, type FormEvent } from "react";
 import { demoAccounts, signIn, type DemoAccount } from "../api/session";
 import { Avatar, Button, Callout, Field, Input } from "../ds/components";
+import { ThreadArt } from "../showcase/ThreadArt";
 import { Logo } from "./brand";
 import { navigate, useRoute } from "./router";
 
@@ -19,7 +20,18 @@ export function LoginPage() {
 
   useEffect(() => {
     document.title = "Sign in · Threadline";
-    demoAccounts().then(setAccounts).catch(() => setAccounts([]));
+    // #/login?as=<email> (from the showcase "open the demo as" links) pre-fills that demo account.
+    const as = route.query.get("as")?.toLowerCase();
+    demoAccounts()
+      .then((list) => {
+        setAccounts(list);
+        const a = as && list.find((x) => x.email.toLowerCase() === as);
+        if (a) {
+          setEmail(a.email);
+          setPassword(DEMO_PASSWORD);
+        }
+      })
+      .catch(() => setAccounts([]));
   }, []);
 
   const submit = async (e?: FormEvent) => {
@@ -51,11 +63,7 @@ export function LoginPage() {
   return (
     <div className="login">
       <aside className="login-brand" aria-hidden>
-        <div className="login-grid" />
-        <svg className="login-thread" viewBox="0 0 600 800" preserveAspectRatio="none">
-          <path d="M-20 620 C 120 620, 160 420, 300 420 S 460 260, 640 220" />
-          <path className="login-thread-pulse" d="M-20 620 C 120 620, 160 420, 300 420 S 460 260, 640 220" />
-        </svg>
+        <ThreadArt align="xMaxYMid" parallax={false} />
         <Logo inverse />
         <div className="login-brand-copy">
           <p className="login-brand-title t-display">One job. Every handoff. One record.</p>

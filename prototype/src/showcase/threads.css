@@ -1,0 +1,31 @@
+/* Thread background art (showcase hero, case-study header, sign-in panel). */
+.thr { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; }
+.thr-layer { position: absolute; inset: -28px; width: calc(100% + 56px); height: calc(100% + 56px); max-width: none; transition: transform 1.4s var(--ease-out); }
+.thr-far { opacity: 0.55; filter: blur(0.6px); }
+.thr-near { opacity: 0.9; }
+.thr-strand { fill: none; stroke-width: 1.2; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.thr-far .thr-strand { stroke-width: 1; }
+.thr-knot { animation: thr-breathe 9s var(--ease-in-out) infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes thr-breathe { 50% { opacity: 0.6; } }
+
+/* Light pulses: a short dash runs the strand, then rests out of sight. Staggered so they never sync. */
+.thr-pulse path { fill: none; stroke-linecap: round; stroke-dasharray: 46 1954; stroke-dashoffset: 60; animation: thr-run 12s linear infinite; }
+.thr-pulse-core { stroke-width: 1.6; }
+.thr-pulse-halo { stroke-width: 6; }
+.thr-pulse-1 path { animation-duration: 15s; animation-delay: -6s; }
+.thr-pulse-2 path { animation-duration: 18s; animation-delay: -11s; }
+@keyframes thr-run {
+  0% { stroke-dashoffset: 60; }
+  62%, 100% { stroke-dashoffset: -1060; }
+}
+.thr.is-paused .thr-pulse path,
+.thr.is-paused .thr-knot { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .thr-layer { transition: none; transform: none !important; }
+  .thr-pulse { display: none; }
+  .thr-knot { animation: none; }
+}
+@media (forced-colors: active) {
+  .thr { display: none; }
+}

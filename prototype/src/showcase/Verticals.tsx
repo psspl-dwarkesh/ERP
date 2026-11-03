@@ -1,6 +1,6 @@
 import { ArrowRight, Gauge } from "lucide-react";
 import { useState } from "react";
-import { MODULES } from "../app/modules";
+import { moduleDef } from "../app/modules";
 import { href } from "../app/router";
 import { VERTICALS } from "./content";
 import { Reveal } from "./motion";
@@ -37,31 +37,19 @@ export function Verticals() {
                 </li>
               ))}
             </ol>
-            <div className="sc-vert-grid">
-              <div>
-                <p className="sc-mini-heading">Modules involved</p>
-                <div className="sc-mod-chips">
-                  {MODULES.map((m) => {
-                    const on = v.modules.includes(m.key);
-                    const Icon = m.icon;
-                    return (
-                      <span key={m.key} className={`sc-mod-chip ${on ? "is-on" : ""}`}>
-                        <Icon size={13} aria-hidden />
-                        {m.label}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="sc-vert-side">
-                <a className="sc-example" href={href.record(v.example.id)}>
-                  <span className="mono">{v.example.id}</span>
-                  <b>{v.example.title}</b>
-                  <small>{v.example.detail}</small>
-                  <ArrowRight size={16} aria-hidden className="sc-example-arrow" />
-                </a>
+            <div className="sc-vert-foot">
+              <a className="sc-example" href={href.record(v.example.id)}>
+                <span className="mono">{v.example.id}</span>
+                <b>{v.example.title}</b>
+                <small>{v.example.detail}</small>
+                <ArrowRight size={16} aria-hidden className="sc-example-arrow" />
+              </a>
+              <div className="sc-vert-meta">
                 <p className="sc-measure">
                   <Gauge size={15} aria-hidden /> {v.measure}
+                </p>
+                <p className="sc-vert-mods">
+                  {v.modules.map((m) => moduleDef(m).label).join(" · ")}
                 </p>
               </div>
             </div>

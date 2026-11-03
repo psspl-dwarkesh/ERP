@@ -8,7 +8,13 @@
   box-sizing: border-box;
 }
 
+/*
+ * Fluid root size. Every token is rem, so this one line scales type, space, sidebar and top bar:
+ * 100% (16px) up to an 1800px-wide window, then a straight ramp to 114.3% (18.3px) at 2400px, then flat.
+ * Percentages keep the visitor's own browser font-size preference as the floor.
+ */
 html {
+  font-size: clamp(100%, 57.14% + 0.381vw, 114.29%);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   color-scheme: light;

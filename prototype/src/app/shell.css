@@ -109,7 +109,7 @@
   align-items: center;
   gap: var(--space-3);
   height: var(--topbar-h);
-  padding: 0 var(--space-6);
+  padding: 0 var(--content-pad-x);
   background: rgba(255, 255, 255, 0.86);
   backdrop-filter: saturate(1.4) blur(10px);
   border-bottom: 1px solid var(--line-default);
@@ -142,7 +142,7 @@
 .user-chip-name { color: var(--fg-strong); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .user-chip-role { color: var(--fg-muted); font-size: var(--text-xs); }
 
-.content { flex: 1; width: 100%; max-width: var(--content-max); margin: 0 auto; padding: var(--space-6) var(--space-8) var(--space-16); }
+.content { flex: 1; width: 100%; max-width: var(--content-max); margin: 0 auto; padding: var(--content-pad-y) var(--content-pad-x) var(--space-16); }
 .module { display: flex; flex-direction: column; gap: var(--space-6); animation: module-in var(--dur-slow) var(--ease-out); }
 @keyframes module-in {
   from { opacity: 0; transform: translateY(6px); }
@@ -213,6 +213,21 @@
 .palette-empty { padding: 32px; text-align: center; color: var(--fg-muted); }
 
 /* ---- Responsive ---- */
+/* Big screens: record drawers widen with the type so a 520px drawer does not read as a sliver. */
+@media (min-width: 1800px) {
+  .drawer { min-width: min(580px, 100vw); }
+  .topbar-search { width: min(520px, 100%); }
+}
+@media (min-width: 2400px) {
+  .drawer { min-width: min(660px, 100vw); }
+  .palette { width: min(720px, calc(100vw - 24px)); }
+}
+/* Short laptop screens (1366x768, 1280x800 minus browser chrome): tighter vertical rhythm. */
+@media (max-height: 760px) and (min-width: 1025px) {
+  .sidebar-top { padding: 14px 18px 10px; }
+  .nav-group { padding-top: 10px; }
+  .nav-item { height: 34px; }
+}
 @media (max-width: 1024px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
   .sidebar {

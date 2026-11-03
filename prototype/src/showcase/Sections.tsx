@@ -1,7 +1,26 @@
 import { ArrowRight, Check, CircleDashed, FileClock, KeyRound, Lock, ShieldCheck, UserCheck } from "lucide-react";
-import { useState } from "react";
+import { DEMO_PEOPLE, viewAs } from "../api/session";
+import { API_MODE } from "../api/store";
+import { navigate } from "../app/router";
 import { prefersReducedMotion, Reveal, useTicker } from "./motion";
-import { ROLES } from "./content";
+
+/** Open the workspace as a demo person: a role switch in the browser demo, sign-in with that account in API mode. */
+const VIEW_AS = [
+  { user: "USR-0002", role: "Project manager", to: "/app/projects/PRJ-0264" },
+  { user: "USR-0003", role: "Stores & QC", to: "/app/inventory" },
+  { user: "USR-0004", role: "Service coordinator", to: "/app/assets" },
+  { user: "USR-0006", role: "HR & payroll", to: "/app/payroll" },
+];
+
+function openAs(user: string, to: string) {
+  const p = DEMO_PEOPLE.find((x) => x.id === user);
+  if (API_MODE === "remote") {
+    navigate(`/login?as=${encodeURIComponent(p?.email ?? "")}&next=${encodeURIComponent(to)}`);
+    return;
+  }
+  viewAs(user);
+  navigate(to);
+}
 
 /* ---------------------------------------------------------------- Controls (dark band) */
 const CHAIN = [
@@ -80,6 +99,16 @@ export function Controls() {
               ))}
             </div>
             <p className="sc-ctrl-note">Salary fields stay with the HR & payroll role, even for administrators.</p>
+            <div className="sc-viewas">
+              <p>Open the demo as</p>
+              <div className="sc-viewas-list">
+                {VIEW_AS.map((v) => (
+                  <button key={v.user} type="button" className="sc-viewas-btn" onClick={() => openAs(v.user, v.to)}>
+                    {v.role} <ArrowRight size={13} aria-hidden />
+                  </button>
+                ))}
+              </div>
+            </div>
           </Reveal>
           <Reveal className="sc-ctrl-card" delay={200}>
             <p className="sc-ctrl-title"><FileClock size={16} aria-hidden /> Audit trail, as it happens</p>
@@ -102,48 +131,6 @@ export function Controls() {
   );
 }
 
-/* ---------------------------------------------------------------- Roles */
-export function Roles() {
-  const [k, setK] = useState(ROLES[0].key);
-  const r = ROLES.find((x) => x.key === k)!;
-  return (
-    <section className="sc-section sc-roles" id="roles">
-      <div className="sc-wrap">
-        <div className="sc-head">
-          <h2 className="sc-h2 t-display">Each role opens on the work it owns</h2>
-          <p className="sc-lede">The same records, filtered and ranked for the person looking. Pick a role and open the demo as them.</p>
-        </div>
-        <Reveal className="sc-role-layout">
-          <div className="sc-role-tabs" role="tablist" aria-label="Roles">
-            {ROLES.map((x) => (
-              <button key={x.key} role="tab" aria-selected={x.key === k} className={`sc-role-tab ${x.key === k ? "is-active" : ""}`} onClick={() => setK(x.key)}>
-                {x.role}
-              </button>
-            ))}
-          </div>
-          <div className="sc-role-panel" key={r.key} role="tabpanel">
-            <div>
-              <h3 className="sc-h3">{r.role}</h3>
-              <p className="sc-role-sees">{r.sees}</p>
-            </div>
-            <ul className="sc-checks">
-              {r.does.map((d) => (
-                <li key={d}>
-                  <Check size={15} aria-hidden />
-                  {d}
-                </li>
-              ))}
-            </ul>
-            <a className="btn btn-primary" href={r.to}>
-              See their view <ArrowRight size={16} aria-hidden />
-            </a>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
 /* ---------------------------------------------------------------- Delivery & honesty */
 const PHASES = [
   { name: "Discovery & FRD", detail: "Workshops turn the scope's 219 requirements and 28 open decisions into a signed FRD." },
@@ -159,7 +146,7 @@ export function Delivery() {
       <div className="sc-wrap">
         <div className="sc-head">
           <h2 className="sc-h2 t-display">From scope to one go-live</h2>
-          <p className="sc-lede">The delivery model the scope asks for: one integrated release, accepted only after combined testing.</p>
+          <p className="sc-lede">The delivery model the scope asks for: one integrated release, accepted only after combined testing. <a className="sc-inline-link" href="#/case-study">How the prototype was built</a></p>
         </div>
         <Reveal as="div" className="sc-phases">
           {PHASES.map((p, i) => (
@@ -183,8 +170,8 @@ export function Delivery() {
           <Reveal className="sc-honest-card sc-honest-muted" delay={100}>
             <p className="sc-mini-heading">What a production rollout adds</p>
             <ul className="sc-checks sc-checks-muted">
-              <li><CircleDashed size={15} aria-hidden /> Node + PostgreSQL backend, real authentication and row-level access</li>
-              <li><CircleDashed size={15} aria-hidden /> Accounting, attendance-device, bank and SSO integrations, once decided</li>
+              <li><CircleDashed size={15} aria-hidden /> Production identity (SSO, MFA) and data scopes by project, site and department</li>
+              <li><CircleDashed size={15} aria-hidden /> Accounting, attendance-device and bank integrations, once decided</li>
               <li><CircleDashed size={15} aria-hidden /> Statutory payroll rules after legal review</li>
               <li><CircleDashed size={15} aria-hidden /> Data migration, load testing for 200+ users, backup and restore</li>
             </ul>

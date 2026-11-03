@@ -96,12 +96,3 @@ export const FLOWS: Flow[] = [
   { id: "E2E-11", name: "Inventory correction & audit", steps: [{ label: "Count", module: "inventory" }, { label: "Variance approval", module: "users" }, { label: "Ledger & valuation", module: "inventory" }, { label: "Project impact", module: "projects" }, { label: "Audit report", module: "reports" }], gate: "Adjustments need an approver other than the counter", exception: "Corrections reverse, never overwrite" },
   { id: "E2E-12", name: "Offboarding & asset recovery", steps: [{ label: "Exit", module: "hr" }, { label: "Revoke access", module: "users" }, { label: "Recover tools", module: "assets" }, { label: "Settle claims & pay", module: "payroll" }, { label: "Reassign approvals", module: "users" }], gate: "No exit closes with open custody", exception: "Delegated approvals keep work moving" },
 ];
-
-/* ---------------------------------------------------------------- Roles */
-export const ROLES = [
-  { key: "ops", role: "Operations head", sees: "Exceptions across every module: at-risk projects, approvals over ₹2 L, SLA breaches.", does: ["Approves PR-0084 with the RFQ evidence attached", "Drills from order book to unbilled milestones", "Sees who is deployed where"], to: "#/app/dashboard" },
-  { key: "pm", role: "Project manager", sees: "Milestones, gates, material readiness and cost against budget for their projects.", does: ["Spots the missing I/O modules on BOM-042", "Raises a change request with impact", "Approves the team's timesheets"], to: "#/app/projects/PRJ-0264" },
-  { key: "stores", role: "Stores & QC", sees: "What's free, reserved, on hold and in transit — by store and site.", does: ["Holds GRN-0073 at incoming QC", "Issues kitting stock to WO-0187", "Runs a cycle count with variance approval"], to: "#/app/inventory" },
-  { key: "service", role: "Service coordinator", sees: "Tickets by SLA deadline with the contract entitlement already resolved.", does: ["Dispatches Karan to SR-0148", "Checks visits used on AMC-0031", "Schedules the calibration due Thursday"], to: "#/app/assets" },
-  { key: "hr", role: "HR & payroll", sees: "A restricted workspace: deployments, attendance exceptions and payroll readiness.", does: ["Clears attendance corrections before the run", "Blocks the run until bank details verify", "Approves site travel claims"], to: "#/app/payroll" },
-];
