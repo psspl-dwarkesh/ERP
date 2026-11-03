@@ -8,6 +8,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  check,
   boolean,
   date,
   index,
@@ -280,7 +281,10 @@ export const items = pgTable("items", {
   serialized: boolean("serialized").notNull(),
   status: text("status").notNull(),
   lastMovement: day("last_movement").notNull(),
-});
+}, (t) => [
+  // Stock can never go negative, whatever path writes it.
+  check("items_quantities_non_negative", sql`${t.onHand} >= 0 and ${t.reserved} >= 0 and ${t.quarantined} >= 0 and ${t.onOrder} >= 0`),
+]);
 
 export const stockMovements = pgTable(
   "stock_movements",
@@ -513,7 +517,11 @@ export const poLines = pgTable(
     rejected: integer("rejected").notNull(),
     uom: text("uom").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.poId, t.seq] })],
+  (t) => [
+    primaryKey({ columns: [t.poId, t.seq] }),
+    // Never receive more than ordered; rejected units are part of what arrived.
+    check("po_lines_receipt_bounds", sql`${t.received} between 0 and ${t.ordered} and ${t.rejected} between 0 and ${t.received}`),
+  ],
 );
 
 /* ================================================================ Commercial */
@@ -642,7 +650,11 @@ export const subcontractLines = pgTable(
     unitValue: money("unit_value").notNull(),
     note: text("note").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.issueId, t.seq] })],
+  (t) => [
+    primaryKey({ columns: [t.issueId, t.seq] }),
+    // Material at a partner: what is accounted for can't exceed what was issued.
+    check("subcontract_lines_accounted", sql`${t.consumed} >= 0 and ${t.returned} >= 0 and ${t.damaged} >= 0 and ${t.consumed} + ${t.returned} + ${t.damaged} <= ${t.issued}`),
+  ],
 );
 
 /* ================================================================ Exit & handover (E2E-12) */
@@ -693,4 +705,8 @@ export const accountingPostings = pgTable("accounting_postings", {
   supersededBy: text("superseded_by"),
   note: text("note").notNull(),
   createdAt: ts("created_at").notNull().defaultNow(),
-});
+}, (t) => [
+  check("postings_amount_positive", sql`${t.amount} > 0`),
+  check("postings_state_known", sql`${t.state} in ('Queued', 'Sent', 'Acknowledged', 'Failed', 'Needs attention', 'Superseded')`),
+  index("postings_advice_idx").on(t.advice),
+]);

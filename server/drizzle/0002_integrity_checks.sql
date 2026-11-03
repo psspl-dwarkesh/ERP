@@ -1,0 +1,6 @@
+CREATE INDEX "postings_advice_idx" ON "accounting_postings" USING btree ("advice");--> statement-breakpoint
+ALTER TABLE "accounting_postings" ADD CONSTRAINT "postings_amount_positive" CHECK ("accounting_postings"."amount" > 0);--> statement-breakpoint
+ALTER TABLE "accounting_postings" ADD CONSTRAINT "postings_state_known" CHECK ("accounting_postings"."state" in ('Queued', 'Sent', 'Acknowledged', 'Failed', 'Needs attention', 'Superseded'));--> statement-breakpoint
+ALTER TABLE "items" ADD CONSTRAINT "items_quantities_non_negative" CHECK ("items"."on_hand" >= 0 and "items"."reserved" >= 0 and "items"."quarantined" >= 0 and "items"."on_order" >= 0);--> statement-breakpoint
+ALTER TABLE "po_lines" ADD CONSTRAINT "po_lines_receipt_bounds" CHECK ("po_lines"."received" between 0 and "po_lines"."ordered" and "po_lines"."rejected" between 0 and "po_lines"."received");--> statement-breakpoint
+ALTER TABLE "subcontract_lines" ADD CONSTRAINT "subcontract_lines_accounted" CHECK ("subcontract_lines"."consumed" >= 0 and "subcontract_lines"."returned" >= 0 and "subcontract_lines"."damaged" >= 0 and "subcontract_lines"."consumed" + "subcontract_lines"."returned" + "subcontract_lines"."damaged" <= "subcontract_lines"."issued");

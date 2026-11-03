@@ -15,6 +15,13 @@
       "when": 1793736827165,
       "tag": "0001_custody_exits_outbox",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793741162319,
+      "tag": "0002_integrity_checks",
+      "breakpoints": true
     }
   ]
 }
