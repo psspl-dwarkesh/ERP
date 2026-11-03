@@ -1,4 +1,4 @@
-import { Lock, UserSearch } from "lucide-react";
+import { UserSearch } from "lucide-react";
 import { date, relativeDay } from "../../api/format";
 import type { Person as PersonT, Project } from "../../api/types";
 import { navigate } from "../../app/router";
@@ -85,11 +85,6 @@ export function ResourcesView({ projects, people, loading }: { projects: Project
               </EmptyState>
             }
           />
-        </div>
-        <div className="prj-table-foot">
-          <span className="row" style={{ gap: 6 }}>
-            <Lock size={13} aria-hidden /> Utilisation comes from approved timesheets. Pay and personal fields stay in People; projects only see labour cost as an aggregate.
-          </span>
         </div>
       </Card>
     </div>

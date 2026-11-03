@@ -1,6 +1,6 @@
-import { Lock } from "lucide-react";
+import { PenLine, Lock } from "lucide-react";
 import type { Role } from "../../api/types";
-import { Callout, Drawer, EmptyState, KeyValues, LoadingRows, Person, Tag } from "../../ds/components";
+import { Button, SoonButton, Callout, Drawer, EmptyState, KeyValues, LoadingRows, Person, Tag } from "../../ds/components";
 import { MATRIX_MODULES, PRIVILEGED, RULES, USERS, levelInfo, type Level } from "./data";
 import { LevelBadge } from "./RolesMatrix";
 
@@ -17,6 +17,7 @@ export function RoleDrawer({ id, roles, loading, onClose }: { id?: string; roles
       status={r && PRIVILEGED.includes(r.id) ? <Tag tone="warn" icon={Lock}>Privileged · MFA required</Tag> : undefined}
       title={r?.name ?? (loading ? "Loading role…" : "Role not found")}
       subtitle={r?.description}
+      footer={r ? <><Button variant="ghost" onClick={onClose}>Close</Button><SoonButton icon={PenLine} what="Change this role's access per module. Changes need a second administrator and are audited.">Edit permissions</SoonButton></> : undefined}
     >
       {!r ? (
         loading ? <LoadingRows rows={6} columns={2} /> : <EmptyState title={`${id} isn't in this workspace`} />

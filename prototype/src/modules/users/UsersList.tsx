@@ -62,7 +62,7 @@ export function UsersList({ roles, onOpenRole }: { roles: Role[]; onOpenRole: (i
       {(mfaGap.length > 0 || stopgap.length > 0) && (
         <Callout tone="warn" title="Privileged-account review: 2 items before the November review closes">
           {mfaGap.map((u) => `${u.name} (${u.roleId === "ROLE-07" ? "Finance owner" : u.roleId}) has not enrolled MFA`).join("; ")}
-          {stopgap.length ? `; ${stopgap[0].name} works on a stopgap Project manager role because no Purchase role exists.` : "."} Identity provider and SSO are still open decision USR-007.
+          {stopgap.length ? `; ${stopgap[0].name} works on a stopgap Project manager role because no Purchase role exists.` : "."}
         </Callout>
       )}
       <Toolbar end={<SearchField value={q} onChange={setQ} placeholder="Search name, email, role" width={260} />}>

@@ -6,12 +6,12 @@ import { useQuery } from "../../api/hooks";
 import type { Project, PurchaseRequest } from "../../api/types";
 import { FLAGSHIP_THREAD, HealthDots, RecordThread, type ThreadNode } from "../../app/patterns";
 import { href, setTab } from "../../app/router";
-import { Button, ButtonLink, Callout, Card, CardHeader, EmptyState, LoadingRows, PageHeader, Person, Stat, Status, Tabs, downloadCsv, useToast } from "../../ds/components";
+import { Button, ButtonLink, Callout, Card, CardHeader, EmptyState, LoadingRows, PageHeader, Person, Status, Tabs, downloadCsv, useToast } from "../../ds/components";
 import { ChangeRequestDialog } from "./ChangeRequestDialog";
 import { MaterialsTab } from "./MaterialsTab";
 import { OverviewTab } from "./OverviewTab";
 import { ActivityTab, BillingTab, DocumentsTab } from "./RecordTabs";
-import { attention, margin, milestoneVariance, nextMilestone } from "./util";
+import { attention } from "./util";
 
 export function ProjectDetail({ id, tab }: { id: string; tab: string }) {
   const project = useQuery(() => api.project(id), [id]);
@@ -54,10 +54,6 @@ export function ProjectDetail({ id, tab }: { id: string; tab: string }) {
   const mine = (prs.data ?? []).filter((r) => r.projectId === p.id);
   const pendingPr = mine.find((r) => r.status === "Awaiting approval");
   const a = attention(p);
-  const m = margin(p);
-  const next = nextMilestone(p);
-  const done = p.milestones.filter((x) => x.status === "Done").length;
-  const nextBillable = p.milestones.find((x) => x.status !== "Done" && x.billable);
   const bom = (boms.data ?? []).find((b) => b.id === p.bom || b.projectId === p.id);
 
   const thread = buildThread(p, {
@@ -138,26 +134,11 @@ export function ProjectDetail({ id, tab }: { id: string; tab: string }) {
         </Callout>
       )}
 
-      <div className="stat-strip">
-        <Stat label="Progress" value={`${p.progress}%`} foot={`${done} of ${p.milestones.length} milestones done`} />
-        <Stat
-          label="Next milestone"
-          value={<span className="prj-stat-text">{next ? (next.gate ?? next.name) : "All done"}</span>}
-          tone={next && milestoneVariance(next).tone === "risk" ? "risk" : undefined}
-          foot={next ? `${date(next.due, true)} · ${next.status} · ${milestoneVariance(next).text.toLowerCase()}` : "Ready for closure"}
-        />
-        <Stat label="Estimated margin" value={`${m.pct.toFixed(1)}%`} tone={m.pct < 10 ? "warn" : undefined} foot={`${inr(m.value)} on ${inr(p.contractValue)} contract`} />
-        <Stat
-          label="Billed"
-          value={inr(p.billed)}
-          foot={nextBillable ? `${Math.round((p.billed / p.contractValue) * 100)}% · next ${inr(nextBillable.billable!)} at ${nextBillable.gate ?? nextBillable.name}` : `${Math.round((p.billed / p.contractValue) * 100)}% of contract`}
-        />
-      </div>
 
       <Card>
         <CardHeader
           title="Linked records"
-          description={p.id === "PRJ-0264" ? "Customer order to installed asset and this morning's service ticket. Each card opens its record." : "Every record this project created or depends on. Each card opens its record."}
+          description="Each card opens its record."
         />
         {thread.length > 1 ? (
           <RecordThread nodes={thread} />

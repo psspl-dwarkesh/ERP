@@ -1,9 +1,9 @@
-import { ClipboardCheck, History, KeySquare, Users } from "lucide-react";
+import { ClipboardCheck, History, KeySquare, UserPlus, Users } from "lucide-react";
 import { api } from "../../api/client";
 import { useQuery } from "../../api/hooks";
 import { ModuleFrame } from "../../app/Shell";
 import { navigate, setTab, useRoute } from "../../app/router";
-import { PageHeader, Tabs } from "../../ds/components";
+import { PageHeader, SoonButton, Tabs } from "../../ds/components";
 import { ApprovalRules } from "./ApprovalRules";
 import { AuditLog } from "./AuditLog";
 import { RoleDrawer } from "./RoleDrawer";
@@ -27,11 +27,11 @@ export default function UsersPage() {
       <PageHeader
         crumbs={[{ label: "ABC Limited" }, { label: "Administration" }, { label: "Users & Access" }]}
         title="Users & Access"
-        description="Who can see, change and approve what — and the trail that proves it. One privileged account still needs MFA before the November access review closes."
+        description="Who can see, change and approve what, and the audit trail behind it."
+        actions={<SoonButton icon={UserPlus} what="Create an account, assign a role and send a sign-in link. Every change is audited.">Invite user</SoonButton>}
         meta={
           <>
             <span>{USERS.filter((u) => u.status === "Active").length} active users · {roles.data?.length ?? "–"} roles</span>
-            <span>Sign-in provider: decision USR-007 pending</span>
           </>
         }
       />

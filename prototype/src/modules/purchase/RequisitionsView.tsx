@@ -88,13 +88,7 @@ export function RequisitionsView({ prs, approvals, loading, onNew }: { prs: Purc
       })}
       <Card padded={false}>
         <div className="pur-table-head">
-          <Toolbar
-            end={
-              <Button size="sm" icon={Plus} onClick={onNew}>
-                New requisition
-              </Button>
-            }
-          >
+          <Toolbar>
             <SearchField value={q} onChange={setQ} placeholder="Search title, source, project or requester" label="Search requisitions" width={320} />
             <FilterChips
               label="Status"
@@ -143,7 +137,6 @@ export function RequisitionsView({ prs, approvals, loading, onNew }: { prs: Purc
             <span>
               {rows.length} shown · {inr(rows.reduce((s, p) => s + p.value, 0))}
             </span>
-            <span className="pur-foot-note">Above ₹2 L the operations head approves; below, the purchase head. A budget check against the project runs first.</span>
           </div>
         )}
       </Card>

@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, CircleDot, FilePen, Flag, OctagonAlert, ShieldAlert, Users, Wallet } from "lucide-react";
+import { FilePen, Flag, ShieldAlert, Users, Wallet } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../api/client";
 import { ago, date, inr } from "../../api/format";
@@ -22,13 +22,12 @@ export function OverviewTab({ p, onRaiseChange }: { p: Project; onRaiseChange: (
   const team = (people.data ?? []).filter((x) => p.team.includes(x.id));
   const changes = (approvals.data ?? []).filter((x) => x.type === CHANGE_REQUEST_TYPE && x.reference === p.id);
   const asset = (assets.data ?? []).find((x) => x.id === p.installedAsset || x.projectId === p.id);
-  const siteAsset = !asset ? (assets.data ?? []).find((x) => x.customer === p.customer && x.site === p.site) : undefined;
 
   return (
     <div className="grid grid-main-aside">
       <div className="stack" style={{ gap: "var(--space-5)" }}>
         <Card>
-          <CardHeader icon={Flag} title="Milestones & gates" description="Contractual milestones with the technical hold point each one closes. Select a step for detail." />
+          <CardHeader icon={Flag} title="Milestones & gates" description="Select a step to highlight it below." />
           <Stepper
             active={active}
             onSelect={setActive}
@@ -56,7 +55,6 @@ export function OverviewTab({ p, onRaiseChange }: { p: Project; onRaiseChange: (
               );
             })}
           </ul>
-          <p className="prj-card-note">Billable column: value invoiced when the milestone is accepted. Gates without a value release the next billable step.</p>
         </Card>
 
         <BudgetPanel p={p} />
@@ -65,7 +63,7 @@ export function OverviewTab({ p, onRaiseChange }: { p: Project; onRaiseChange: (
           <CardHeader
             icon={ShieldAlert}
             title="Risks"
-            description={p.risks.length ? `${p.risks.length} open · reviewed in the weekly site meeting` : "Nothing open"}
+            description={p.risks.length ? `${p.risks.length} open` : "Nothing open"}
           />
           {p.risks.length === 0 ? (
             <EmptyState icon={ShieldAlert} title="No open risks on this project">
@@ -93,7 +91,7 @@ export function OverviewTab({ p, onRaiseChange }: { p: Project; onRaiseChange: (
           <CardHeader
             icon={FilePen}
             title="Change requests"
-            description="Scope, schedule and cost variations. Nothing changes the budget or dates until it is approved."
+            description="Budget and dates change only after approval."
             actions={
               <Button size="sm" icon={FilePen} onClick={onRaiseChange} disabled={p.status === "Closed"}>
                 Raise
@@ -152,42 +150,6 @@ export function OverviewTab({ p, onRaiseChange }: { p: Project; onRaiseChange: (
           )}
         </Card>
 
-        <Card>
-          <CardHeader icon={CheckCircle2} title="Gates & handover" description="Hold points that must pass before the customer accepts." />
-          <ul className="prj-gates">
-            {p.milestones
-              .filter((m) => m.gate)
-              .map((m) => {
-                const Icon = m.status === "Done" ? CheckCircle2 : m.status === "Blocked" || m.status === "Late" ? OctagonAlert : m.status === "In progress" ? CircleDot : Circle;
-                return (
-                  <li key={m.id} className={cx("prj-gate", `tone-${milestoneTone(m)}`)}>
-                    <Icon size={16} aria-hidden />
-                    <span className="prj-gate-name">{m.gate}</span>
-                    <span className="prj-gate-date cell-num">{date(m.done ?? m.due, true)}</span>
-                    <Status size="sm">{m.status}</Status>
-                  </li>
-                );
-              })}
-          </ul>
-          <div className="prj-handover">
-            <p className="prj-handover-title">Installed base</p>
-            {asset ? (
-              <p>
-                <RecordLink id={asset.id}>{asset.name}</RecordLink>
-                <br />
-                {p.installedAsset === asset.id
-                  ? `This project upgrades an asset the customer already owns${asset.contractId ? `, covered by ${asset.contractId}` : ""}. It stays one asset record; the project is linked to it, not merged.`
-                  : "Created from this project at handover."}
-              </p>
-            ) : ["CSV / Manufacturing IT", "O&M", "AMC", "Calibration"].includes(p.vertical) ? (
-              <p>Service engagement — no equipment is handed over, so no installed asset is created.</p>
-            ) : (
-              <p>
-                SAT acceptance will add this {p.vertical === "Panel assembly" ? "panel" : "system"} to {p.customer}'s installed base as a customer-owned asset{siteAsset ? <>, alongside <RecordLink id={siteAsset.id} /> at this site</> : ""}. Warranty starts from the SAT date on the handover record.
-              </p>
-            )}
-          </div>
-        </Card>
 
         <Card>
           <CardHeader title="Contract & references" />
@@ -199,12 +161,12 @@ export function OverviewTab({ p, onRaiseChange }: { p: Project; onRaiseChange: (
               { label: "Sales order", value: p.salesOrder ? <RecordLink id={p.salesOrder} /> : <span className="t-muted">Not linked</span> },
               { label: "Engineering BOM", value: p.bom ? <RecordLink id={p.bom} /> : <span className="t-muted">None</span> },
               { label: "Work order", value: p.workOrder ? <RecordLink id={p.workOrder} /> : <span className="t-muted">None</span> },
+              { label: "Installed asset", value: asset ? <RecordLink id={asset.id} /> : <span className="t-muted">{["CSV / Manufacturing IT", "O&M", "AMC", "Calibration"].includes(p.vertical) ? "Not applicable" : "Created at SAT"}</span> },
               { label: "Vertical", value: p.vertical },
               { label: "Start", value: date(p.start) },
               { label: "Contractual due", value: date(p.due) },
             ]}
           />
-          {p.salesOrder && <p className="prj-card-note">Customer, site, vertical and value came from {p.salesOrder} and can only change through a change request.</p>}
         </Card>
       </div>
 
@@ -226,7 +188,7 @@ function BudgetPanel({ p }: { p: Project }) {
   const budgetAt = (p.budget / max) * 100;
   return (
     <Card>
-      <CardHeader icon={Wallet} title="Budget & margin" description="Each figure states its cost source. Labour arrives as an aggregate from approved timesheets — no individual pay." />
+      <CardHeader icon={Wallet} title="Budget & margin" description="Illustrative figures · labour is an aggregate from approved timesheets" />
       <div className="prj-budget">
         {rows.map((r) => (
           <div key={r.key} className="prj-budget-row">
@@ -267,7 +229,6 @@ function BudgetPanel({ p }: { p: Project }) {
           </span>
         </div>
       </div>
-      <p className="prj-card-note">Estimated margin = contract value − the higher of budget and committed. Figures are illustrative; the cost source definitions are pending FRD sign-off.</p>
     </Card>
   );
 }

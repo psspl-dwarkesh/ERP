@@ -4,7 +4,7 @@
  * can't close while any line is open.
  */
 import { CheckCircle2, Circle, DoorOpen, ShieldCheck, TriangleAlert } from "lucide-react";
-import { Fragment, useState } from "react";
+import { useEffect, Fragment, useState } from "react";
 import { api } from "../../api/client";
 import { ago, date, daysFrom, relativeDay } from "../../api/format";
 import { useMutation, useQuery } from "../../api/hooks";
@@ -72,8 +72,10 @@ function ExitCard({ c, lateLeave }: { c: ExitCase; lateLeave: { id: string; from
   const finish = async () => {
     const r = await close.run(c.id);
     if (r) toast({ title: `${c.id} closed`, body: `Every line on ${c.person}'s exit is evidenced. Nothing is left in their name.` });
-    else if (close.error) toast({ title: "Exit can't close yet", body: close.error, tone: "risk" });
   };
+  useEffect(() => {
+    if (close.error) toast({ title: "Exit can't close yet", body: close.error, tone: "risk" });
+  }, [close.error, toast]);
 
   return (
     <Card className="hr-exit-card">

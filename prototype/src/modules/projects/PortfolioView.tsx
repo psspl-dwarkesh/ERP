@@ -18,13 +18,12 @@ import {
   RecordLink,
   SearchField,
   Select,
-  Stat,
   Status,
   Toolbar,
   toneFor,
   type Column,
 } from "../../ds/components";
-import { STATUS_ORDER, attention, milestoneVariance } from "./util";
+import { STATUS_ORDER, attention } from "./util";
 
 type StatusFilter = "all" | Project["status"];
 
@@ -46,19 +45,8 @@ export function PortfolioView({ projects, loading }: { projects: Project[]; load
   const statuses = STATUS_ORDER.filter((s) => counts(s) > 0);
   const flagged = projects.map((p) => ({ p, a: attention(p) })).filter((x) => x.a) as { p: Project; a: NonNullable<ReturnType<typeof attention>> }[];
 
-  const live = projects.filter((p) => p.status !== "Closed");
-  const contract = live.reduce((s, p) => s + p.contractValue, 0);
-  const billed = live.reduce((s, p) => s + p.billed, 0);
-  const budget = live.reduce((s, p) => s + p.budget, 0);
-  const committed = live.reduce((s, p) => s + p.committed, 0);
-  const gates = live.flatMap((p) => p.milestones.filter((m) => m.status !== "Done" && m.gate && daysFrom(m.due) >= 0 && daysFrom(m.due) <= 14));
-  const gatesBillable = gates.reduce((s, m) => s + (m.billable ?? 0), 0);
 
   const filtersOn = q || status !== "all" || vertical !== "all";
-  const overdue = rows.filter((p) => {
-    const m = p.milestones.find((x) => x.status !== "Done");
-    return m && milestoneVariance(m).tone === "risk";
-  }).length;
 
   const columns: Column<Project>[] = [
     {
@@ -146,12 +134,6 @@ export function PortfolioView({ projects, loading }: { projects: Project[]; load
         )
       )}
 
-      <div className="stat-strip">
-        <Stat label="Live contract value" value={loading ? "–" : inr(contract)} foot={`${live.length} projects · budgeted margin ${contract ? Math.round(((contract - budget) / contract) * 100) : 0}%`} />
-        <Stat label="Billed to date" value={loading ? "–" : inr(billed)} foot={`${contract ? Math.round((billed / contract) * 100) : 0}% of contract value`} />
-        <Stat label="Committed against budget" value={loading ? "–" : `${budget ? Math.round((committed / budget) * 100) : 0}%`} foot={`${inr(committed)} of ${inr(budget)} · POs and approved PRs`} />
-        <Stat label="Gates in the next 14 days" value={loading ? "–" : gates.length} tone={gates.some((g) => g.status === "Blocked") ? "risk" : undefined} foot={gates.length ? `${gates.filter((g) => g.status === "Blocked").length} blocked · ${inr(gatesBillable)} billable on completion` : "Nothing due"} onClick={() => navigate("/app/projects?tab=timeline")} />
-      </div>
 
       <Card padded={false}>
         <div className="prj-table-head">
@@ -212,10 +194,6 @@ export function PortfolioView({ projects, loading }: { projects: Project[]; load
           <div className="prj-table-foot">
             <span>
               {rows.length} of {projects.length} projects · {inr(rows.reduce((s, p) => s + p.contractValue, 0))} contract value
-            </span>
-            <span className="prj-table-foot-note">
-              Health dots: schedule · cost · material
-              {overdue ? ` · ${overdue} next milestone${overdue === 1 ? "" : "s"} overdue` : ""}
             </span>
           </div>
         )}

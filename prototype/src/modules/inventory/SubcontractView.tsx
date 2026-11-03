@@ -3,8 +3,8 @@
  * Material at a partner's shop is still company stock. Every unit issued must end
  * as consumed, returned, damaged or visibly outstanding — never silently zeroed.
  */
-import { ClipboardCheck, Factory, PackageCheck, ShieldCheck, TriangleAlert } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ClipboardCheck, Factory, PackageCheck, TriangleAlert } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../../api/client";
 import { date, daysFrom, inr, relativeDay } from "../../api/format";
 import { useMutation, useQuery } from "../../api/hooks";
@@ -22,7 +22,6 @@ import {
   KeyValues,
   LoadingRows,
   RecordLink,
-  Stat,
   Status,
   Textarea,
   Tooltip,
@@ -38,10 +37,7 @@ export function SubcontractView({ highlight }: { highlight?: string }) {
 
   const list = issues.data ?? [];
   const totals = useMemo(() => {
-    const lines = list.flatMap((si) => si.lines);
     return {
-      outstanding: lines.reduce((a, l) => a + outstandingOf(l) * l.unitValue, 0),
-      damaged: lines.reduce((a, l) => a + l.damaged * l.unitValue, 0),
       overdue: list.filter((si) => si.status === "Open" && daysFrom(si.reconcileBy) < 0).length,
       noCustodian: list.filter((si) => /no named custodian/i.test(si.custodian)).length,
     };
@@ -55,16 +51,10 @@ export function SubcontractView({ highlight }: { highlight?: string }) {
     <div className="stack" style={{ gap: "var(--space-5)" }}>
       {(totals.overdue > 0 || totals.noCustodian > 0) && (
         <Callout tone="warn" title={`${totals.overdue} reconciliation${totals.overdue === 1 ? "" : "s"} overdue · ${totals.noCustodian} issue without a named custodian`}>
-          Material at a partner's shop is still company stock. Until it is reconciled, nobody can say whether it was used, returned or lost.
+          Material at a partner's shop is still company stock until it is reconciled.
         </Callout>
       )}
 
-      <div className="stat-strip">
-        <Stat label="Outstanding at partners" value={inr(totals.outstanding)} foot="Issued, not yet consumed, returned or written off" />
-        <Stat label="Damaged, awaiting variance" value={inr(totals.damaged)} tone={totals.damaged ? "warn" : undefined} foot="Needs the partner's report and an approver" />
-        <Stat label="Open issues" value={list.filter((s) => s.status !== "Closed").length} foot={`${list.reduce((a, s) => a + s.lines.length, 0)} material lines`} />
-        <Stat label="Overdue reconciliations" value={totals.overdue} tone={totals.overdue ? "risk" : undefined} foot="Past the agreed reconcile-by date" />
-      </div>
 
       {list.map((si) => (
         <IssueCard
@@ -97,8 +87,11 @@ function IssueCard({ si, highlighted, pendingApproval, onEdit, onReview }: { si:
           ? { title: `${si.id} reconciled and closed`, body: "Every issued unit is accounted for." }
           : { title: `${si.id} sent for variance approval`, body: "Damaged material needs an approver who didn't record it.", tone: "warn" },
       );
-    } else if (close.error) toast({ title: "Can't close yet", body: close.error, tone: "risk" });
+    }
   };
+  useEffect(() => {
+    if (close.error) toast({ title: "Can't close yet", body: close.error, tone: "risk" });
+  }, [close.error, toast]);
 
   return (
     <Card className={highlighted ? "inv-sc-card is-highlighted" : "inv-sc-card"}>
@@ -176,9 +169,7 @@ function IssueCard({ si, highlighted, pendingApproval, onEdit, onReview }: { si:
       </div>
 
       <div className="inv-sc-foot">
-        <p className="inv-sc-identity">
-          <ShieldCheck size={15} aria-hidden /> Every line holds: issued = consumed + returned + damaged + outstanding. Outstanding only falls through a recorded movement.
-        </p>
+        <span />
         {si.status === "Open" && (
           <Tooltip content={outstanding ? "Everything issued must be accounted for first" : "Close, or send damage for variance approval"}>
             <span>

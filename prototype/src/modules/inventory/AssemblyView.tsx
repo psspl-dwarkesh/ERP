@@ -90,7 +90,6 @@ export function AssemblyView({ selectedId, items, movements }: { selectedId?: st
         <div className="section-head">
           <div>
             <h2 className="section-title">Work orders</h2>
-            <p className="section-description">Each pins one BOM revision for its whole life.</p>
           </div>
         </div>
         <DataTable caption="Work orders" loading={workOrders.loading} rows={wos} columns={columns} activeId={wo?.id} onRowClick={(w) => openInventoryRecord(w.id, "assembly")} />
@@ -266,7 +265,7 @@ function WorkOrderPanel({ wo, items, movements }: { wo: WorkOrder; items: Item[]
                 </Button>
               )
             )}
-            {active && <span className="inv-footnote">Owner: {active.owner}. Completing records today's date on the stage.</span>}
+            {active && <span className="inv-footnote">Owner: {active.owner}</span>}
           </div>
         </div>
 
@@ -281,7 +280,6 @@ function WorkOrderPanel({ wo, items, movements }: { wo: WorkOrder; items: Item[]
             <GateRow ok={wo.qc === "Passed"} label="Production QC passed" detail={`QC is ${wo.qc.toLowerCase()} · ${wo.stages.find((s) => s.key === "testing")?.owner ?? "QC"}`} />
             <GateRow ok label="Serial tagged" detail={wo.serial} />
           </ul>
-          <p className="inv-footnote">Dispatch needs a passed QC record first. Finished goods are received under the serial with their test result.</p>
           <Button icon={ClipboardCheck} block disabled={wo.stages.find((s) => s.key === "testing")?.status !== "Active"} onClick={() => setQcOpen(true)}>
             Record QC result
           </Button>

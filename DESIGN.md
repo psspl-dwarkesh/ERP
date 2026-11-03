@@ -52,7 +52,7 @@ Every control is ours. Radix supplies behaviour (focus traps, keyboard, ARIA); t
 
 ## Components
 
-Buttons (primary, secondary, ghost, danger, inverse, link), IconButton with tooltip, Status (tone derived from the status text), Tag, RecordLink, Avatar and Person, Card and CardHeader, Stat and stat-strip, Progress, Meter, KeyValues, EmptyState, Callout, LoadingRows, PageHeader, Tabs, Segmented, Field, Input, Textarea, SearchField, Select, Checkbox, Switch, RadioCards, Tooltip, Popover, Dialog, Drawer, Menu, Toast, Stepper, Timeline, DataTable, Toolbar and FilterChips.
+Buttons (primary, secondary, ghost, danger, inverse, link), IconButton with tooltip, SoonTag / ComingSoon / SoonButton (an honest "Coming soon" with what the feature will do — never a control that silently does nothing), Status (tone derived from the status text), Tag, RecordLink, Avatar and Person, Card and CardHeader, Stat and stat-strip, Progress, Meter, KeyValues, EmptyState, Callout, LoadingRows, PageHeader, Tabs, Segmented, Field, Input, Textarea, SearchField, Select, Checkbox, Switch, RadioCards, Tooltip, Popover, Dialog, Drawer, Menu, Toast, Stepper, Timeline, DataTable, Toolbar and FilterChips.
 
 Domain patterns in [patterns.tsx](prototype/src/app/patterns.tsx): RecordThread, HealthDots (schedule, cost, material), SlaClock, StockMeter (free, reserved, held, on order) and ApprovalDialog (evidence, decision, reason, audit note).
 

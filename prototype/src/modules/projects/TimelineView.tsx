@@ -36,7 +36,7 @@ export function TimelineView({ projects, loading }: { projects: Project[]; loadi
         <div className="card-padded" style={{ paddingBottom: "var(--space-3)" }}>
           <CardHeader
             title="Milestones across the portfolio"
-            description="Bars run from start to contractual due date; the fill is progress. Hover or focus a diamond for the gate."
+            description="Start to contractual due date; fill shows progress"
             actions={
               <div className="prj-legend" aria-label="Legend">
                 <span><i className="prj-legend-dia tone-ok" /> Done</span>
@@ -93,7 +93,7 @@ export function TimelineView({ projects, loading }: { projects: Project[]; loadi
       </Card>
 
       <Card>
-        <CardHeader icon={CalendarClock} title="Due in the next 30 days" description="Open milestones by date, with the gate they close and what they release for billing." />
+        <CardHeader icon={CalendarClock} title="Due in the next 30 days" description="Open milestones by date" />
         {upcoming.length === 0 ? (
           <EmptyState icon={CalendarClock} title="No milestones due in the next 30 days">
             The next gates fall later in the year; they will appear here a month ahead.
@@ -146,11 +146,11 @@ function MilestoneDiamond({ p, m }: { p: Project; m: Milestone }) {
         </span>
       }
     >
-      <button
-        type="button"
+      <a
+        href={href.record(p.id)}
         className={cx("prj-diamond", `tone-${milestoneTone(m)}`, m.gate && "has-gate")}
         style={{ left: `${pos(at)}%` }}
-        aria-label={`${p.id} ${m.name}${m.gate ? `, gate ${m.gate}` : ""}, ${m.status}, ${date(at)}`}
+        aria-label={`${p.id} ${m.name}${m.gate ? `, gate ${m.gate}` : ""}, ${m.status}, ${date(at)}. Open project`}
       />
     </Tooltip>
   );

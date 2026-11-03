@@ -23,9 +23,9 @@ export function ContractsView({ contracts, tickets, loading, activeId }: { contr
             key={c.id}
             tone="warn"
             title={`${c.id} · ${c.customer} expires ${date(c.end, true)}, in ${w.left} days`}
-            action={<ButtonLink to={href.module("crm")} size="sm" variant="primary" iconRight={ArrowRight}>Open renewal in CRM</ButtonLink>}
+            action={<ButtonLink to={href.module("crm", "renewals")} size="sm" variant="primary" iconRight={ArrowRight}>Open renewal in CRM</ButtonLink>}
           >
-            {c.visitsUsed} of {c.visitsIncluded} included visits used at {inr(c.annualValue)} a year. Price the renewal on this year's actual usage before the customer's budget closes.
+            {c.visitsUsed} of {c.visitsIncluded} included visits used at {inr(c.annualValue)} a year.
           </Callout>
         );
       })}
@@ -77,7 +77,6 @@ export function ContractsView({ contracts, tickets, loading, activeId }: { contr
           );
         })}
       </div>
-      <p className="ast-footnote">Exclusions and coverage windows are captured from the signed contract; the demo shows the entitlements the service desk resolves on every ticket.</p>
     </div>
   );
 }
@@ -101,7 +100,7 @@ export function ContractDrawer({ id, contracts, tickets, loading, onClose }: { i
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>Close</Button>
-          {c && contractWindow(c).renewal && <ButtonLink to={href.module("crm")} variant="primary" iconRight={ArrowRight}>Renewal in CRM</ButtonLink>}
+          {c && contractWindow(c).renewal && <ButtonLink to={href.module("crm", "renewals")} variant="primary" iconRight={ArrowRight}>Renewal in CRM</ButtonLink>}
         </>
       }
     >

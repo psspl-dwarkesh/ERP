@@ -16,6 +16,7 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  Hourglass,
   Info,
   Loader2,
   OctagonAlert,
@@ -348,6 +349,53 @@ export function Callout({ tone = "info", title, children, action, icon }: { tone
   );
 }
 
+/* ================================================================== Coming soon */
+/** Small badge for a feature that is planned but not built in this release. */
+export function SoonTag({ label = "Coming soon" }: { label?: string }) {
+  return (
+    <span className="soon-tag">
+      <Hourglass size={11} aria-hidden />
+      {label}
+    </span>
+  );
+}
+
+/**
+ * A feature that isn't built yet, said plainly: what it is and what it will do.
+ * `inline` sits inside a card or drawer section; the default is a dashed panel.
+ */
+export function ComingSoon({ title, children, inline, icon: Icon = Hourglass }: { title: string; children?: ReactNode; inline?: boolean; icon?: LucideIcon }) {
+  return (
+    <div className={cx("soon", inline && "soon-inline")} role="note">
+      <span className="soon-icon">
+        <Icon size={inline ? 15 : 18} aria-hidden />
+      </span>
+      <div className="soon-body">
+        <p className="soon-title">
+          {title} <SoonTag />
+        </p>
+        {children && <p className="soon-text">{children}</p>}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A control for a planned action: looks like a button, never pretends to work.
+ * Hover or focus says what it will do; the tag says it isn't available yet.
+ */
+export function SoonButton({ children, what, icon: Icon, size = "md" }: { children: ReactNode; what: string; icon?: LucideIcon; size?: ButtonSize }) {
+  return (
+    <Tooltip content={what}>
+      <button type="button" className={cx("btn", "btn-secondary", `btn-${size}`, "btn-soon")} aria-disabled="true" aria-label={`${typeof children === "string" ? children : "Action"} — coming soon. ${what}`} onClick={(e) => e.preventDefault()}>
+        {Icon && <Icon size={size === "sm" ? 14 : 16} aria-hidden />}
+        <span>{children}</span>
+        <SoonTag label="Soon" />
+      </button>
+    </Tooltip>
+  );
+}
+
 /** Placeholder lines shaped like the content that will arrive. */
 export function LoadingRows({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) {
   return (
@@ -639,6 +687,11 @@ export function Popover({ trigger, children, align = "end", width = 360 }: { tri
   );
 }
 
+/** A click on a toast is not a click outside the open dialog or drawer. */
+function keepOpenForToasts(e: { target: EventTarget | null; preventDefault: () => void }) {
+  if (e.target instanceof Element && e.target.closest(".toasts")) e.preventDefault();
+}
+
 export function Dialog({
   open,
   onOpenChange,
@@ -664,7 +717,7 @@ export function Dialog({
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
         <RDialog.Overlay className="overlay" />
-        <RDialog.Content className={cx("dialog", `dialog-${size}`)} aria-describedby={description ? undefined : undefined}>
+        <RDialog.Content className={cx("dialog", `dialog-${size}`)} aria-describedby={description ? undefined : undefined} onInteractOutside={keepOpenForToasts}>
           <div className="dialog-header">
             {Icon && (
               <span className={cx("dialog-icon", tone && `tone-${tone}`)}>
@@ -714,7 +767,7 @@ export function Drawer({
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
         <RDialog.Overlay className="overlay overlay-drawer" />
-        <RDialog.Content className="drawer" style={{ width: `min(${width}px, 100vw)` }}>
+        <RDialog.Content className="drawer" style={{ width: `min(${width}px, 100vw)` }} onInteractOutside={keepOpenForToasts}>
           <div className="drawer-header">
             <div className="drawer-heading">
               {(id || status) && (
@@ -741,7 +794,7 @@ export function Drawer({
 }
 
 export type MenuItem =
-  | { label: string; icon?: LucideIcon; onSelect: () => void; tone?: "risk"; shortcut?: string; detail?: string; disabled?: boolean }
+  | { label: string; icon?: LucideIcon; onSelect: () => void; tone?: "risk"; shortcut?: string; detail?: string; disabled?: boolean; soon?: boolean }
   | { separator: true }
   | { heading: string };
 
@@ -761,13 +814,13 @@ export function Menu({ trigger, items, align = "end" }: { trigger: ReactNode; it
               );
             const Icon = item.icon;
             return (
-              <RMenu.Item key={i} className={cx("menu-item", item.tone === "risk" && "is-risk")} onSelect={item.onSelect} disabled={item.disabled}>
+              <RMenu.Item key={i} className={cx("menu-item", item.tone === "risk" && "is-risk", item.soon && "is-soon")} onSelect={item.onSelect} disabled={item.disabled || item.soon}>
                 {Icon && <Icon size={15} aria-hidden className="menu-item-icon" />}
                 <span className="menu-item-text">
                   {item.label}
                   {item.detail && <span className="menu-item-detail">{item.detail}</span>}
                 </span>
-                {item.shortcut && <span className="menu-shortcut">{item.shortcut}</span>}
+                {item.soon ? <SoonTag label="Soon" /> : item.shortcut && <span className="menu-shortcut">{item.shortcut}</span>}
               </RMenu.Item>
             );
           })}
@@ -963,11 +1016,19 @@ export function DataTable<T extends { id: string }>({
               <tr
                 key={row.id}
                 className={cx(onRowClick && "is-clickable", sel.has(row.id) && "is-selected", activeId === row.id && "is-active")}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                onClick={
+                  onRowClick
+                    ? (e) => {
+                        // A button, link or field inside the row does its own job; it doesn't also open the row.
+                        if ((e.target as Element).closest("button, a, input, textarea, label, [role=menuitem], [role=checkbox], [role=combobox]")) return;
+                        onRowClick(row);
+                      }
+                    : undefined
+                }
                 onKeyDown={
                   onRowClick
                     ? (e) => {
-                        if (e.key === "Enter") onRowClick(row);
+                        if (e.key === "Enter" && e.target === e.currentTarget) onRowClick(row);
                       }
                     : undefined
                 }

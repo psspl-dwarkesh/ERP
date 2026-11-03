@@ -36,3 +36,8 @@
 .guide-done { color: var(--ok-fg); font-weight: var(--weight-semibold); }
 @media (max-width: 720px) { .guide-fab span:not(.guide-fab-count) { display: none; } }
 .sidebar-note-dot.is-live { background: #3ecf8e; box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.18); }
+/* Never sit over a drawer's or dialog's footer buttons: step aside while one is open. */
+body:has(.drawer[data-state="open"]) .guide-fab,
+body:has(.drawer[data-state="open"]) .guide,
+body:has(.dialog[data-state="open"]) .guide-fab,
+body:has(.dialog[data-state="open"]) .guide { display: none; }

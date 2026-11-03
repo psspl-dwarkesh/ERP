@@ -1,12 +1,11 @@
 import { Download, KanbanSquare, List, Plus, RefreshCcw } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../api/client";
-import { TODAY } from "../../api/fixtures";
-import { date, daysFrom, inr } from "../../api/format";
+import { date, daysFrom } from "../../api/format";
 import { useQuery } from "../../api/hooks";
 import { ModuleFrame } from "../../app/Shell";
 import { navigate, setTab, useRoute } from "../../app/router";
-import { Button, PageHeader, Stat, Tabs, downloadCsv, useToast } from "../../ds/components";
+import { Button, PageHeader, Tabs, downloadCsv, useToast } from "../../ds/components";
 import { AccountDrawer } from "./AccountDrawer";
 import { NewOpportunityDialog } from "./NewOpportunityDialog";
 import { OpportunityDrawer } from "./OpportunityDrawer";
@@ -31,15 +30,6 @@ export default function CrmPage() {
 
   const rows = opps.data ?? [];
   const openRows = rows.filter(isOpen);
-  const pipelineWeighted = openRows.reduce((a, o) => a + weighted(o), 0);
-  const pipelineTotal = openRows.reduce((a, o) => a + o.value, 0);
-  const won = rows.filter((o) => o.stage === "Won");
-  const lost = rows.filter((o) => o.stage === "Lost");
-  const decided = won.length + lost.length;
-  const winRate = decided ? Math.round((won.length / decided) * 100) : 0;
-  const wonValueShare = decided ? Math.round((won.reduce((a, o) => a + o.value, 0) / [...won, ...lost].reduce((a, o) => a + o.value, 0)) * 100) : 0;
-  const month = TODAY.slice(0, 7);
-  const closing = openRows.filter((o) => o.closeDate.startsWith(month));
   const dueSoon = openRows.filter((o) => daysFrom(o.nextActionDue) <= 2).sort((a, b) => a.nextActionDue.localeCompare(b.nextActionDue));
   const first = dueSoon[0];
 
@@ -77,18 +67,6 @@ export default function CrmPage() {
         }
       />
 
-      <div className="stat-strip">
-        <Stat label="Weighted pipeline" value={opps.loading ? "–" : inr(pipelineWeighted)} foot={`${inr(pipelineTotal)} across ${openRows.length} open deals`} />
-        <Stat label="Win rate, this year" value={opps.loading ? "–" : `${winRate}%`} foot={`${won.length} won of ${decided} decided · ${wonValueShare}% by value`} />
-        <Stat label="Closing in November" value={opps.loading ? "–" : closing.length} foot={closing.length ? `${inr(closing.reduce((a, o) => a + o.value, 0))} · ${closing.map((o) => o.id).join(", ")}` : "Nothing expected to close"} />
-        <Stat
-          label="Follow-ups due ≤ 2 days"
-          value={opps.loading ? "–" : dueSoon.length}
-          tone={dueSoon.some((o) => daysFrom(o.nextActionDue) < 0) ? "risk" : dueSoon.length ? "warn" : undefined}
-          foot={dueSoon.length ? dueSoon.map((o) => o.owner.split(" ")[0]).filter((v, i, a) => a.indexOf(v) === i).join(", ") : "All next actions scheduled"}
-          onClick={() => (recordId ? navigate("/app/crm?tab=list") : setTab("list"))}
-        />
-      </div>
 
       <Tabs
         value={tab}

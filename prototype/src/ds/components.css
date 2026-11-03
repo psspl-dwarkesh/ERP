@@ -932,3 +932,44 @@ button.step-inner:hover .step-label { color: var(--fg-strong); }
 .flush-table .table-wrap { border: 0; border-top: 1px solid var(--line-subtle); border-radius: 0 0 var(--radius-lg) var(--radius-lg); box-shadow: none; }
 .flush-table .loading-rows { border: 0; border-radius: 0; }
 .t-risk { color: var(--risk-fg); font-weight: var(--weight-semibold); }
+
+/* ------------------------------------------------------------------ Coming soon */
+.soon-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 7px;
+  border: 1px dashed var(--slate-300);
+  border-radius: var(--radius-full);
+  background: var(--bg-subtle);
+  color: var(--fg-muted);
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.soon {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-subtle);
+}
+.soon-inline { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); }
+.soon-icon { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: var(--radius-md); background: var(--bg-muted); color: var(--fg-muted); }
+.soon-inline .soon-icon { width: 26px; height: 26px; border-radius: var(--radius-sm); }
+.soon-body { min-width: 0; flex: 1; }
+.soon-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--fg-strong); font-weight: var(--weight-semibold); font-size: var(--text-md); }
+.soon-text { margin-top: 2px; color: var(--fg-muted); font-size: var(--text-sm); }
+.btn-soon { color: var(--fg-muted); border-style: dashed; box-shadow: none; cursor: default; }
+.btn-soon:hover { background: var(--bg-surface) !important; border-color: var(--line-strong) !important; }
+.btn-soon:active { transform: none !important; }
+.btn-soon .soon-tag { height: 18px; padding: 0 6px; border: 0; background: var(--bg-muted); }
+.menu-item.is-soon[data-disabled] { opacity: 1; color: var(--fg-muted); }
+.menu-item.is-soon .menu-item-icon { opacity: 0.6; }
+/* While a drawer is open its footer holds the actions: keep toasts clear of it. */
+body:has(.drawer) .toasts { right: auto; left: var(--space-5); }

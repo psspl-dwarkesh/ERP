@@ -4,7 +4,7 @@ import { api } from "../../api/client";
 import { date, inr, num, relativeDay } from "../../api/format";
 import { useMutation, useQuery } from "../../api/hooks";
 import type { PurchaseOrder } from "../../api/types";
-import { Button, Callout, Dialog, Drawer, EmptyState, Field, Input, KeyValues, LoadingRows, Meter, RecordLink, Status, useToast } from "../../ds/components";
+import { Button, Callout, ComingSoon, Dialog, Drawer, EmptyState, Field, Input, KeyValues, LoadingRows, Meter, RecordLink, Status, useToast } from "../../ds/components";
 import { recordReceipt } from "./commands";
 import { poOverdue, poTotals } from "./util";
 
@@ -136,9 +136,7 @@ export function OrderDrawer({ id, onClose }: { id: string; onClose: () => void }
               </ul>
             </section>
 
-            <Callout tone="neutral" icon={Scale} title="Invoice matching is not designed yet">
-              Whether supplier invoices are recorded and matched here or in the external accounting system is an open decision (PUR-015, accounting owner undecided). Until then, no invoiced quantity is tracked on these lines.
-            </Callout>
+            <ComingSoon inline icon={Scale} title="Invoice matching">Match supplier invoices to these receipts line by line before payment.</ComingSoon>
           </>
         )}
       </Drawer>

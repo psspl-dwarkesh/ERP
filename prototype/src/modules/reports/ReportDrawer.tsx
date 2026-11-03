@@ -4,7 +4,7 @@ import { api } from "../../api/client";
 import { useQuery } from "../../api/hooks";
 import type { ReportDef } from "../../api/types";
 import { moduleDef } from "../../app/modules";
-import { Button, Callout, DataTable, Drawer, EmptyState, KeyValues, LoadingRows, Tag, downloadCsv, useToast, type Column } from "../../ds/components";
+import { Button, Callout, DataTable, Drawer, EmptyState, ComingSoon, KeyValues, LoadingRows, Tag, downloadCsv, useToast, type Column } from "../../ds/components";
 import { logReportExport } from "./commands";
 import { PREVIEWS, PROPOSED, type PreviewRow } from "./previews";
 
@@ -94,7 +94,7 @@ export function ReportDrawer({ report, loading, onClose, id }: { id?: string; re
 
           {report.restricted ? (
             <Callout tone="violet" icon={Lock} title="You don't have access to this report's data">
-              {report.name} is restricted to {report.owner} because it contains {report.module === "payroll" ? "salary and bank details" : report.module === "users" ? "permission changes and personal activity" : "stock valuation"}. Operations head has View on {moduleDef(report.module).label} but not this report. Ask the System administrator for access; requests and any export are recorded (RPT-016, USR-016).
+              {report.name} is restricted to {report.owner} because it contains {report.module === "payroll" ? "salary and bank details" : report.module === "users" ? "permission changes and personal activity" : "stock valuation"}. Ask the System administrator for access.
             </Callout>
           ) : preview ? (
             <section className="stack-sm stack">
@@ -113,16 +113,8 @@ export function ReportDrawer({ report, loading, onClose, id }: { id?: string; re
           ) : build ? (
             <LoadingRows rows={5} columns={5} />
           ) : (
-            <section className="rpt-pending">
-              <span className="rpt-pending-icon">
-                <FileClock size={20} aria-hidden />
-              </span>
-              <div>
-                <h3 className="rpt-h">Sample layout pending sign-off</h3>
-                <p className="rpt-small">
-                  {report.owner} hasn't accepted a sample output yet. Per RPT-018, the layout is validated with them before the FRD is signed, so this report shows no numbers until then rather than numbers nobody agreed to.
-                </p>
-              </div>
+            <div className="stack-sm stack">
+              <ComingSoon icon={FileClock} title="Report layout">Shows figures once {report.owner} accepts a sample layout.</ComingSoon>
               {PROPOSED[report.id] && (
                 <div className="rpt-proposed" aria-label="Proposed columns">
                   {PROPOSED[report.id].map((c) => (
@@ -130,7 +122,7 @@ export function ReportDrawer({ report, loading, onClose, id }: { id?: string; re
                   ))}
                 </div>
               )}
-            </section>
+            </div>
           )}
         </>
       )}

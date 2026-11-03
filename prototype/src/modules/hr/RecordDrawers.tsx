@@ -47,7 +47,7 @@ export function ClaimDrawer({ id, onClose }: { id?: string; onClose: () => void 
                 </ul>
               </section>
             )}
-            <p className="hr-small t-muted">Payout route (payroll or payables) is decision PAY-013. The traveller can't approve their own claim.</p>
+            <p className="hr-small t-muted">The traveller can't approve their own claim.</p>
           </>
         )}
       </Drawer>

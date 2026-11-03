@@ -1,4 +1,4 @@
-import { ArrowUpRight, FileClock, Lock, RefreshCw, Table2 } from "lucide-react";
+import { ArrowUpRight, Lock, RefreshCw, Table2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { api } from "../../api/client";
 import { useQuery } from "../../api/hooks";
@@ -6,7 +6,7 @@ import type { ModuleKey, ReportDef } from "../../api/types";
 import { moduleDef } from "../../app/modules";
 import { ModuleFrame } from "../../app/Shell";
 import { navigate, useRoute } from "../../app/router";
-import { EmptyState, FilterChips, LoadingRows, PageHeader, SearchField, Tag, Toolbar, cx } from "../../ds/components";
+import { EmptyState, FilterChips, LoadingRows, PageHeader, SearchField, SoonTag, Tag, Toolbar, cx } from "../../ds/components";
 import { PREVIEWS } from "./previews";
 import { ReportDrawer } from "./ReportDrawer";
 import "./reports.css";
@@ -28,7 +28,6 @@ export default function ReportsPage() {
 
   const open = (id: string) => navigate(`/app/reports/${id}`);
   const ready = list.filter((r) => PREVIEWS[r.id] && !r.restricted).length;
-  const restricted = list.filter((r) => r.restricted).length;
   const report = list.find((r) => r.id === route.recordId);
 
   return (
@@ -36,13 +35,7 @@ export default function ReportsPage() {
       <PageHeader
         crumbs={[{ label: "ABC Limited" }, { label: "Administration" }, { label: "Reports" }]}
         title="Reports"
-        description={reports.loading ? "Loading the catalogue…" : `${list.length} reports in the catalogue. ${ready} have a live preview from demo records; ${list.length - ready - restricted} wait for an accepted sample layout; ${restricted} are restricted to their owners.`}
-        meta={
-          <>
-            <span>Times in IST · monthly cut-off at 23:59 on the last day</span>
-            <span>Scheduled email delivery: decision RPT-015 pending</span>
-          </>
-        }
+        description={reports.loading ? "Loading the catalogue…" : `${ready} of ${list.length} reports ready to view and export · times in IST`}
       />
 
       <Toolbar end={<SearchField value={q} onChange={setQ} placeholder="Search reports" width={260} />}>
@@ -86,7 +79,7 @@ function ReportCard({ r, active, onOpen }: { r: ReportDef; active: boolean; onOp
         ) : live ? (
           <Tag tone="accent" icon={Table2}>Live preview</Tag>
         ) : (
-          <Tag icon={FileClock}>Sample pending</Tag>
+          <SoonTag />
         )}
         <ArrowUpRight size={16} aria-hidden className="rpt-card-go" />
       </span>

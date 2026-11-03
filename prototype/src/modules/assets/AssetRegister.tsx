@@ -144,8 +144,6 @@ export function AssetRegister({ assets, loading, activeId }: { assets: Asset[]; 
         <SearchField value={q} onChange={setQ} placeholder="Search asset, serial, customer" label="Search assets" />
       </Toolbar>
 
-      {own === "Company" && <p className="ast-footnote">Company-owned assets are ABC's fixed assets and tools. Depreciation treatment is an open finance decision and isn't shown here.</p>}
-      {own === "Customer" && <p className="ast-footnote">Customer-installed equipment belongs to the customer. ABC holds service history and contract cover, never book value.</p>}
 
       <DataTable
         caption="Asset register"
@@ -199,8 +197,8 @@ export function AssetDrawer({ id, assets, loading, onClose }: { id: string; asse
               <p className="ast-own-title">{a.ownership === "Customer" ? `Customer-owned · ${a.customer}, ${a.site}` : `Company-owned · ABC Limited, ${a.site}`}</p>
               <p className="ast-footnote">
                 {a.ownership === "Customer"
-                  ? "Not on ABC's fixed-asset register. ABC keeps service history, contract cover and spares used against it."
-                  : `ABC fixed asset held by ${a.custodian}. Depreciation treatment is an open finance decision.`}
+                  ? "Service history and contract cover are kept here; it isn't on ABC's fixed-asset register."
+                  : `ABC fixed asset held by ${a.custodian}.`}
               </p>
             </div>
           </div>
@@ -271,7 +269,7 @@ export function AssetDrawer({ id, assets, loading, onClose }: { id: string; asse
                       <div className="list-row-title">Installed by</div>
                       <div className="list-row-sub">{origin ? origin.name : "Original installation project (archived)"}</div>
                     </div>
-                    <RecordLink id={a.projectId} />
+                    {origin ? <RecordLink id={a.projectId} /> : <span className="mono t-muted">{a.projectId}</span>}
                   </li>
                 )}
                 {upgrade && (

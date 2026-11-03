@@ -7,7 +7,7 @@ import { useQuery } from "../../api/hooks";
 import type { Approval, Bom, BomLine, Item } from "../../api/types";
 import { ApprovalDialog } from "../../app/patterns";
 import { href } from "../../app/router";
-import { Button, ButtonLink, Callout, Card, CardHeader, DataTable, EmptyState, KeyValues, LoadingRows, RecordLink, Status, Timeline, type Column } from "../../ds/components";
+import { Button, ButtonLink, Callout, Card, CardHeader, DataTable, EmptyState, KeyValues, LoadingRows, RecordLink, Status, type Column } from "../../ds/components";
 import { freeQty } from "./shared";
 
 type Row = BomLine & { id: string; free: number; shortage: number; held: number };
@@ -103,7 +103,7 @@ export function MrpView({ items, highlight }: { items: Item[]; highlight?: strin
           Showing the BOM that drives the flagship job instead.
         </Callout>
       )}
-      <div className="grid grid-main-aside">
+      <div className="grid grid-main-aside" style={{ alignItems: "start" }}>
         <div className="stack" style={{ gap: "var(--space-4)", minWidth: 0 }}>
           <Card className={highlight?.startsWith("BOM-042") ? "inv-focus" : undefined}>
             <CardHeader
@@ -116,7 +116,7 @@ export function MrpView({ items, highlight }: { items: Item[]; highlight?: strin
                     Demand: {wo ? <RecordLink id={wo.id} /> : null} for <RecordLink id={bom.projectId} />
                   </span>
                   <span className="row" style={{ gap: 4 }}>
-                    <Clock3 size={13} aria-hidden /> Run {date(NOW, true)}, {time(NOW)} IST against rev {bom.revision}
+                    <Clock3 size={13} aria-hidden /> Run {date(NOW, true)}, {time(NOW)}
                   </span>
                 </span>
               }
@@ -146,16 +146,6 @@ export function MrpView({ items, highlight }: { items: Item[]; highlight?: strin
             )}
           </Card>
 
-          <Card>
-            <CardHeader title="Revision history" description="One released revision at a time; proposals sit beside it, never in place of it." />
-            <Timeline
-              items={[
-                ...(revD ? [{ id: "d", tone: revD.status === "Approved" ? ("ok" as const) : ("warn" as const), title: <span><strong>Rev D</strong> · {revD.status === "Pending" ? "in approval" : revD.status.toLowerCase()}</span>, meta: `Proposed ${date(revD.submitted)} by ${revD.maker}` }] : []),
-                { id: "c", tone: "accent" as const, title: <span><strong>Rev C</strong> · released and frozen</span>, meta: `Released ${bom.releasedOn ? date(bom.releasedOn) : ""} · pinned by ${wo?.id ?? "work orders"}` },
-                { id: "b", tone: "neutral" as const, title: <span><strong>Rev B</strong> · superseded</span>, meta: "Replaced when rev C was released" },
-              ]}
-            />
-          </Card>
         </div>
 
         <div className="stack" style={{ gap: "var(--space-4)" }}>
@@ -179,7 +169,7 @@ export function MrpView({ items, highlight }: { items: Item[]; highlight?: strin
                     <Lock size={14} aria-hidden /> Impact on released work order
                   </p>
                   <p>
-                    {wo ? <RecordLink id={wo.id} /> : "The work order"} stays pinned to rev C for its whole life. It hasn't passed wiring, so adopting D means re-kitting the changed lines before assembly. Whether released work orders follow a new revision is still an open decision.
+                    {wo ? <RecordLink id={wo.id} /> : "The work order"} stays pinned to rev C for its whole life. Adopting D means re-kitting the changed lines before assembly.
                   </p>
                 </div>
                 <Button variant={revD.status === "Pending" ? "primary" : "secondary"} icon={ShieldCheck} onClick={() => setOpenApproval(revD)}>
@@ -197,9 +187,6 @@ export function MrpView({ items, highlight }: { items: Item[]; highlight?: strin
         <div className="inv-mrp">
           <DataTable caption={`Material requirements for ${bom.id} rev ${bom.revision}`} rows={rows} columns={columns} />
         </div>
-        <p className="inv-footnote">
-          Shortage = required − reserved − free − on order. Quarantined stock is never counted as free. The run keeps its timestamp, so a later run can't silently overwrite this demand.
-        </p>
       </section>
       <ApprovalDialog approval={openApproval} open={!!openApproval} onOpenChange={(o) => !o && setOpenApproval(null)} />
     </div>

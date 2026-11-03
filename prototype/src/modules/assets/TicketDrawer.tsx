@@ -271,7 +271,7 @@ export function TicketDrawer({ id, tickets, loading, onClose }: { id: string; ti
             <KeyValues
               columns={3}
               items={[
-                { label: "Installed by", value: asset.projectId ? <RecordLink id={asset.projectId} /> : "—" },
+                { label: "Installed by", value: asset.projectId ? (projects.data?.some((p) => p.id === asset.projectId) ? <RecordLink id={asset.projectId} /> : <span className="mono t-muted">{asset.projectId} · archived</span>) : "—" },
                 { label: "Open upgrade", value: upgrade ? <RecordLink id={upgrade.id} /> : <span className="t-muted">None</span> },
                 { label: "Warranty", value: asset.warrantyEnd ? (daysFrom(asset.warrantyEnd) < 0 ? `Expired ${date(asset.warrantyEnd)}` : `Until ${date(asset.warrantyEnd)}`) : "None recorded" },
               ]}
@@ -322,11 +322,11 @@ export function TicketDrawer({ id, tickets, loading, onClose }: { id: string; ti
         </div>
         {!open ? (
           <Callout tone="ok" title="Visit closed">
-            The worksheet is locked with the visit report. Corrections are made by a revisit on the same ticket lineage.
+            The worksheet is locked with the visit report.
           </Callout>
         ) : (
           <>
-            {t.status !== "On site" && <p className="ast-footnote">The engineer fills this on site. You can prepare it now; nothing posts until the ticket is resolved.</p>}
+            {t.status !== "On site" && <p className="ast-footnote">Filled on site. Nothing posts until the ticket is resolved.</p>}
             <div className="ast-checks">
               {checklist.map((c) => (
                 <Checkbox key={c} checked={!!draft.checks[c]} onChange={(v) => setDraft((d) => ({ ...d, checks: { ...d.checks, [c]: v } }))} label={c} />

@@ -4,7 +4,7 @@ import { inr } from "../../api/format";
 import { useQuery } from "../../api/hooks";
 import { ModuleFrame } from "../../app/Shell";
 import { navigate, setTab, useRoute } from "../../app/router";
-import { Button, PageHeader, Stat, Tabs, downloadCsv, useToast } from "../../ds/components";
+import { Button, PageHeader, Tabs, downloadCsv, useToast } from "../../ds/components";
 import { AdviceDrawer } from "./AdviceDrawer";
 import { BillingView } from "./Billing";
 import { OrderDrawer } from "./OrderDrawer";
@@ -12,7 +12,7 @@ import { OrdersView } from "./Orders";
 import { QuotationDrawer } from "./QuotationDrawer";
 import { QuotationsView } from "./Quotations";
 import { ReconciliationView } from "./ReconciliationView";
-import { adviceStatus, unbilled, validity } from "./shared";
+import { adviceStatus, unbilled } from "./shared";
 import "./sales.css";
 
 const TABS = ["orders", "quotations", "billing", "reconciliation"] as const;
@@ -33,12 +33,10 @@ export default function SalesPage() {
   const close = () => navigate(`/app/sales?tab=${tab}`);
 
   const openOrders = (orders.data ?? []).filter((o) => o.status !== "Closed");
-  const book = openOrders.reduce((a, o) => a + o.value, 0);
   const unbilledTotal = openOrders.reduce((a, o) => a + unbilled(o), 0);
   const statuses = (advices.data ?? []).map((b) => adviceStatus(b, approvals.data ?? []));
   const mismatches = statuses.filter((s) => s === "Mismatch").length;
   const inReview = statuses.filter((s) => s === "Ready for review").length;
-  const expiring = (quotes.data ?? []).filter((q) => validity(q).tone === "warn");
   const loading = orders.loading || advices.loading;
   const postings = useQuery(api.postings);
   const outboxIssues = (postings.data ?? []).filter((p) => p.state === "Failed" || p.state === "Needs attention").length;
@@ -70,12 +68,6 @@ export default function SalesPage() {
         }
       />
 
-      <div className="stat-strip">
-        <Stat label="Open order book" value={loading ? "–" : inr(book)} foot={`${openOrders.length} orders in fulfilment`} onClick={() => (recordId ? navigate("/app/sales?tab=orders") : setTab("orders"))} />
-        <Stat label="Unbilled" value={loading ? "–" : inr(unbilledTotal)} foot="Order value not yet in billing advice" />
-        <Stat label="Billing exceptions" value={loading ? "–" : mismatches} tone={mismatches ? "risk" : undefined} foot={mismatches ? "Advice and invoice disagree" : "Nothing to reconcile"} onClick={() => (recordId ? navigate("/app/sales?tab=billing") : setTab("billing"))} />
-        <Stat label="Quotes expiring ≤ 21 days" value={quotes.loading ? "–" : expiring.length} tone={expiring.length ? "warn" : undefined} foot={expiring.map((q) => q.id).join(", ") || "None"} onClick={() => (recordId ? navigate("/app/sales?tab=quotations") : setTab("quotations"))} />
-      </div>
 
       <Tabs
         value={tab}

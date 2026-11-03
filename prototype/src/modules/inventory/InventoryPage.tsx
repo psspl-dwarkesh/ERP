@@ -26,12 +26,12 @@ function tabForRecord(id?: string): InvTab | undefined {
 }
 
 const DESCRIPTIONS: Record<InvTab, string> = {
-  stock: "What you can actually issue. Reserved and quarantined stock are shown, never counted as free.",
-  movements: "Every receipt, issue, transfer, return and adjustment with its source document.",
-  mrp: "Released BOM requirements against free, reserved and on-order stock, with what covers each shortage.",
-  assembly: "Panel work orders from kitting to dispatch, with the material and QC gates that hold them.",
-  subcontract: "Material issued to partner shops: what was used, returned, damaged and is still outstanding.",
-  counts: "Cycle counts, variances and the approvals that turn them into ledger adjustments.",
+  stock: "Free stock is what you can issue. Reserved and held stock never count as free.",
+  movements: "Receipts, issues, transfers, returns and adjustments.",
+  mrp: "Released BOM demand against stock, and what covers each shortage.",
+  assembly: "Panel work orders from kitting to dispatch.",
+  subcontract: "Material at partner shops and what is still outstanding.",
+  counts: "Cycle counts and variance approvals.",
 };
 
 export default function InventoryPage() {

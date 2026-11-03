@@ -8,6 +8,7 @@ import { href } from "../../app/router";
 import {
   Button,
   ButtonLink,
+  SoonButton,
   Callout,
   Drawer,
   EmptyState,
@@ -116,9 +117,7 @@ export function OpportunityDrawer({ id, onClose }: { id: string | undefined; onC
                 Open {linked[0].id}
               </ButtonLink>
             ) : (
-              <Button variant="primary" icon={FileText} disabled={!isOpen(o)} onClick={() => toast({ title: "Quotation draft requested", body: `Sales will see ${o.id}'s account, vertical and value pre-filled (illustrative).`, tone: "info" })}>
-                Start quotation
-              </Button>
+              <SoonButton icon={FileText} what="Start a quotation in Sales with this account, vertical and value filled in.">Start quotation</SoonButton>
             )}
           </>
         ) : undefined

@@ -10,6 +10,8 @@ import {
   Button,
   ButtonLink,
   Callout,
+  ComingSoon,
+  SoonButton,
   Card,
   CardHeader,
   DataTable,
@@ -18,11 +20,9 @@ import {
   KeyValues,
   LoadingRows,
   PageHeader,
-  RecordLink,
   Status,
   Stepper,
   Switch,
-  Tag,
   Tooltip,
   cx,
   useToast,
@@ -124,7 +124,7 @@ export default function PayrollPage() {
             <CardHeader
               eyebrow={run.id}
               title={`${run.period} run readiness`}
-              description="Prechecks run before anything is computed. An exception is a row with an owner, not a hidden count."
+              description="Prechecks that must pass before the run is computed."
               actions={<Status>{run.status}</Status>}
             />
             <Stepper
@@ -192,13 +192,17 @@ export default function PayrollPage() {
               <span className="pay-small t-muted">
                 {blocked.length} blocked · {warnings.length} warning{warnings.length === 1 ? "" : "s"}. Warnings can go to review with a note; blocked checks can't.
               </span>
-              <Tooltip content={blocked.length ? `Blocked: ${blocked.map((b) => b.detail).join("; ")}. Clear it to submit.` : "Send the preview to the Finance owner for review"}>
-                <span tabIndex={blocked.length ? 0 : -1} className="pay-submit-wrap">
-                  <Button variant="primary" iconRight={ArrowRight} disabled={blocked.length > 0} onClick={() => toast({ title: "Submitted for review", body: "Finance owner notified (illustrative)." })}>
-                    Submit for review
-                  </Button>
-                </span>
-              </Tooltip>
+              {blocked.length ? (
+                <Tooltip content={`Blocked: ${blocked.map((b) => b.detail).join("; ")}. Clear it to submit.`}>
+                  <span tabIndex={0} className="pay-submit-wrap">
+                    <Button variant="primary" iconRight={ArrowRight} disabled>
+                      Submit for review
+                    </Button>
+                  </span>
+                </Tooltip>
+              ) : (
+                <SoonButton icon={ArrowRight} what="Send the computed preview to the Finance owner for review.">Submit for review</SoonButton>
+              )}
             </div>
           </Card>
 
@@ -230,44 +234,10 @@ export default function PayrollPage() {
             </Card>
 
             <Callout tone="warn" title="Statutory rules aren't calculated here">
-              PF, ESIC, professional tax and TDS applicability is open decision PAY-008. The deduction totals are illustrative placeholders; no formula has run and nothing is filed.
+              PF, ESIC, professional tax and TDS are not computed. Deduction totals are placeholders and nothing is filed.
             </Callout>
 
-            <Card>
-              <CardHeader title="Outputs after lock" description="Separate, individually authorised" icon={Landmark} />
-              <ul className="divider-list">
-                <li className="list-row">
-                  <div className="list-row-main">
-                    <div className="list-row-title">Payslips</div>
-                    <div className="list-row-sub">Released to employees after lock</div>
-                  </div>
-                  <Tag>After lock</Tag>
-                </li>
-                <li className="list-row">
-                  <div className="list-row-main">
-                    <div className="list-row-title">Payroll register</div>
-                    <div className="list-row-sub">
-                      <RecordLink id="RPT-PAY-01" quiet /> · restricted report
-                    </div>
-                  </div>
-                  <Tag tone="violet" icon={Lock}>Restricted</Tag>
-                </li>
-                <li className="list-row">
-                  <div className="list-row-main">
-                    <div className="list-row-title">Bank payment file</div>
-                    <div className="list-row-sub">Format per bank; no real submission in the demo</div>
-                  </div>
-                  <Tag>After lock</Tag>
-                </li>
-                <li className="list-row">
-                  <div className="list-row-main">
-                    <div className="list-row-title">Accounting journal</div>
-                    <div className="list-row-sub">Handoff owner and interface undecided (PAY-015)</div>
-                  </div>
-                  <Tag tone="warn">Decision pending</Tag>
-                </li>
-              </ul>
-            </Card>
+            <ComingSoon icon={Landmark} title="Payslips, bank file & journal">Generated once a run is approved and locked. Pay calculation isn't part of this release.</ComingSoon>
           </div>
         </div>
       )}
@@ -277,7 +247,7 @@ export default function PayrollPage() {
           <h2 className="section-title">Run history</h2>
           <span className="pay-small t-muted">Locked runs can't be edited; a reversal needs a reason and the Finance owner</span>
         </div>
-        <DataTable rows={runs.data ?? []} loading={runs.loading} columns={columns} onRowClick={(r) => navigate(r.id === CURRENT ? "/app/payroll" : `/app/payroll/${r.id}`)} activeId={recordId} caption="Pay runs" />
+        <DataTable rows={runs.data ?? []} loading={runs.loading} columns={columns} onRowClick={(r) => navigate(`/app/payroll/${r.id}`)} activeId={recordId} caption="Pay runs" />
       </section>
 
       <RunDrawer id={recordId} runs={runs.data} loading={runs.loading} show={show} onClose={() => navigate("/app/payroll")} />
@@ -286,7 +256,6 @@ export default function PayrollPage() {
 }
 
 function RunDrawer({ id, runs, loading, show, onClose }: { id?: string; runs?: PayrollRun[]; loading: boolean; show: boolean; onClose: () => void }) {
-  const toast = useToast();
   const r = runs?.find((x) => x.id === id);
   const lock = id ? LOCKS[id] : undefined;
   const money = (v: number) => (show ? inr(v) : "₹ •••••");
@@ -300,9 +269,7 @@ function RunDrawer({ id, runs, loading, show, onClose }: { id?: string; runs?: P
       subtitle={lock ? `Locked ${date(lock.on)} by ${lock.by} · approved by ${lock.checker}` : undefined}
       footer={
         r?.status === "Locked" ? (
-          <Button variant="danger" onClick={() => toast({ title: "Reversal needs a reason and the Finance owner", body: "Raise it as an approval; the locked run stays intact until it's approved (illustrative).", tone: "warn" })}>
-            Request reversal
-          </Button>
+          <SoonButton what="Raise a reversal with a reason; the locked run stays intact until the Finance owner approves.">Request reversal</SoonButton>
         ) : undefined
       }
     >

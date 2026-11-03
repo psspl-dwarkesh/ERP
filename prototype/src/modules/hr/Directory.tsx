@@ -73,7 +73,7 @@ export function Directory({ rows, loading, onOpen, activeId }: { rows: PersonT[]
           />
         </Toolbar>
         <DataTable rows={visible} columns={columns} loading={loading} onRowClick={(p) => onOpen(p.id)} activeId={activeId} caption="People directory" />
-        <p className="hr-small t-muted">The demo directory holds 13 representative people of the 214 on payroll. Contract staff are flagged; whether they sit in payroll is decision HR-021.</p>
+        <p className="hr-small t-muted">The demo directory holds 13 representative people of the 214 on payroll. Contract staff are flagged.</p>
       </div>
     </div>
   );

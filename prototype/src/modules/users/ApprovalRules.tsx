@@ -44,7 +44,7 @@ export function ApprovalRules() {
   return (
     <div className="stack" style={{ gap: "var(--space-5)" }}>
       <DataTable rows={RULES} columns={columns} loading={approvals.loading} caption="Approval rules" />
-      <p className="usr-small t-muted">Thresholds and hierarchy are drawn from the scope document and are illustrative until confirmed in the FRD (USR-005, USR-014). Every rule change is logged with before and after values.</p>
+      <p className="usr-small t-muted">Thresholds are illustrative until confirmed.</p>
 
       <div className="grid grid-2">
         <Card>

@@ -4,7 +4,7 @@ import { api } from "../../api/client";
 import { date, inr } from "../../api/format";
 import { useQuery } from "../../api/hooks";
 import type { PurchaseOrder, Vendor } from "../../api/types";
-import { Button, Callout, Card, DataTable, Drawer, EmptyState, KeyValues, LoadingRows, Progress, RecordLink, SearchField, Select, Status, Toolbar, type Column } from "../../ds/components";
+import { Button, Callout, ComingSoon, Card, DataTable, Drawer, EmptyState, KeyValues, LoadingRows, Progress, RecordLink, SearchField, Select, Status, Toolbar, type Column } from "../../ds/components";
 import { Stars } from "./Stars";
 import { openRecord } from "./util";
 
@@ -130,9 +130,7 @@ export function VendorDrawer({ id, onClose }: { id: string; onClose: () => void 
               { label: "Open orders", value: openPOs(v, pos.data ?? []) },
             ]}
           />
-          <Callout tone="neutral" icon={ShieldQuestion} title="Tax and compliance fields pending">
-            GSTIN, PAN, MSME status and bank details wait on the approved vendor-master field list (PUR-001). They are not shown or stored in this prototype.
-          </Callout>
+          <ComingSoon inline icon={ShieldQuestion} title="Tax & compliance details">GSTIN, PAN, MSME status and bank details on the vendor master.</ComingSoon>
           <section>
             <h3 className="pur-sub">Quotes</h3>
             {quotes.length === 0 ? (

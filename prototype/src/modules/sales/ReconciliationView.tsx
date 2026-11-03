@@ -5,7 +5,7 @@
  * closes only when accounting's acknowledgement agrees with the advice.
  */
 import { CircleSlash, KeyRound, RefreshCw, Send, ShieldCheck, Split, Stamp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { ago, inr } from "../../api/format";
 import { useMutation, useQuery } from "../../api/hooks";
@@ -39,11 +39,15 @@ export function ReconciliationView({ onOpen }: { onOpen: (id: string) => void })
   const difference = attention.reduce((a, p) => a + (p.amount - (p.posted ?? 0)), 0);
   const notPosted = (advices.data ?? []).filter((b) => !rows.some((p) => p.advice === b.id) && b.status !== "Posted");
 
-  const run = async (label: string, fn: () => Promise<unknown>, err: () => string | null) => {
+  const run = async (label: string, fn: () => Promise<unknown>) => {
     const r = await fn();
     if (r) toast({ title: label });
-    else if (err()) toast({ title: "Not done", body: err()!, tone: "risk" });
   };
+  // A refused command reports through the mutation's error state (read after it settles, not from this render's closure).
+  const failure = send.error ?? retry.error ?? queue.error;
+  useEffect(() => {
+    if (failure) toast({ title: "Not done", body: failure, tone: "risk" });
+  }, [failure, toast]);
 
   const columns: Column<AccountingPosting & { id: string }>[] = [
     {
@@ -93,7 +97,7 @@ export function ReconciliationView({ onOpen }: { onOpen: (id: string) => void })
       align: "right",
       cell: (p) =>
         p.state === "Queued" ? (
-          <Button size="sm" icon={Send} loading={send.pending} onClick={() => run(`${p.key} sent to accounting`, () => send.run(p.key), () => send.error)}>
+          <Button size="sm" icon={Send} loading={send.pending} onClick={() => run(`${p.key} sent to accounting`, () => send.run(p.key))}>
             Send
           </Button>
         ) : p.state === "Sent" ? (
@@ -101,7 +105,7 @@ export function ReconciliationView({ onOpen }: { onOpen: (id: string) => void })
             Record answer
           </Button>
         ) : p.state === "Failed" ? (
-          <Button size="sm" icon={RefreshCw} loading={retry.pending} onClick={() => run(`${p.key} retried under the same key`, () => retry.run(p.key), () => retry.error)}>
+          <Button size="sm" icon={RefreshCw} loading={retry.pending} onClick={() => run(`${p.key} retried under the same key`, () => retry.run(p.key))}>
             Retry
           </Button>
         ) : p.state === "Needs attention" ? (
@@ -150,7 +154,7 @@ export function ReconciliationView({ onOpen }: { onOpen: (id: string) => void })
                       {b.customer} · {inr(b.value)} {appr && appr.status === "Pending" ? `· waiting on ${appr.level.split(" · ")[1] ?? "approval"}` : ""}
                     </div>
                   </div>
-                  <Button size="sm" loading={queue.pending} onClick={() => run(`${b.id} queued under ${b.id}/R1`, () => queue.run(b.id), () => queue.error)}>
+                  <Button size="sm" loading={queue.pending} onClick={() => run(`${b.id} queued under ${b.id}/R1`, () => queue.run(b.id))}>
                     Queue for accounting
                   </Button>
                 </li>

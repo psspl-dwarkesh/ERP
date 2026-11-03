@@ -4,7 +4,7 @@ import { date } from "../../api/format";
 import { useQuery } from "../../api/hooks";
 import { ModuleFrame } from "../../app/Shell";
 import { navigate, setTab, useRoute } from "../../app/router";
-import { Button, Callout, PageHeader, RecordLink, Stat, Tabs, downloadCsv, useToast } from "../../ds/components";
+import { Button, Callout, PageHeader, RecordLink, Tabs, downloadCsv, useToast } from "../../ds/components";
 import { ClaimsView } from "./Claims";
 import { DeploymentRoster } from "./Deployment";
 import { Directory } from "./Directory";
@@ -34,7 +34,6 @@ export default function HrPage() {
 
   const list = people.data ?? [];
   const deployed = list.filter((p) => p.status === "Deployed").length;
-  const avgUtil = list.length ? Math.round(list.reduce((a, p) => a + p.utilisation, 0) / list.length) : 0;
   const pendingLeave = (leave.data ?? []).filter((l) => l.status === "Pending").length;
   const pendingClaims = (claims.data ?? []).filter((c) => c.status === "Pending").length;
   const certs = expiringCerts(list);
@@ -46,7 +45,7 @@ export default function HrPage() {
       <PageHeader
         crumbs={[{ label: "ABC Limited" }, { label: "People" }]}
         title="People"
-        description={people.loading ? "Loading the directory…" : `${deployed} of ${list.length} people are deployed today. ${certs.length} site certificate${certs.length === 1 ? "" : "s"} expire within 30 days, and ${pendingLeave + pendingClaims} requests wait for a manager.`}
+        description={people.loading ? "Loading the directory…" : `${deployed} of ${list.length} people deployed today · ${pendingLeave + pendingClaims} requests waiting for a manager`}
         actions={
           <Button
             icon={Download}
@@ -72,16 +71,10 @@ export default function HrPage() {
               <RecordLink id={c.person.id}>{c.person.name}</RecordLink> — {c.cert.name}, {date(c.cert.expires, true)} ({c.days} days)
             </span>
           ))}
-          . Reminders went to each person and their manager.
+          .
         </Callout>
       )}
 
-      <div className="stat-strip">
-        <Stat label="Deployed today" value={people.loading ? "–" : `${deployed} / ${list.length}`} foot="On projects, tickets or contracts" onClick={() => go("deployment")} />
-        <Stat label="Average utilisation" value={people.loading ? "–" : `${avgUtil}%`} foot={`${list.filter((p) => p.utilisation >= 90).length} people at 90% or more`} />
-        <Stat label="Leave to decide" value={leave.loading ? "–" : pendingLeave} tone={pendingLeave ? "warn" : undefined} foot="Checked against the roster" onClick={() => go("leave")} />
-        <Stat label="Claims to approve" value={claims.loading ? "–" : pendingClaims} tone={pendingClaims ? "warn" : undefined} foot="Before the payroll cut-off" onClick={() => go("claims")} />
-      </div>
 
       <Tabs
         value={tab}

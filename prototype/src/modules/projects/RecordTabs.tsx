@@ -1,11 +1,11 @@
-import { Activity, FileCheck2, FileText, History, ReceiptIndianRupee } from "lucide-react";
+import { Activity, FileCheck2, FileText, History, ReceiptIndianRupee, Upload } from "lucide-react";
 import { api } from "../../api/client";
 import { TODAY } from "../../api/fixtures";
 import { ago, date, inr, time } from "../../api/format";
 import { useQuery } from "../../api/hooks";
 import type { BillingAdvice, Milestone, Project, ProjectDocument, Tone } from "../../api/types";
 import { href } from "../../app/router";
-import { ButtonLink, Callout, Card, CardHeader, DataTable, EmptyState, LoadingRows, Meter, RecordLink, Status, Tag, Timeline, cx, type Column } from "../../ds/components";
+import { ButtonLink, Callout, Card, CardHeader, DataTable, EmptyState, LoadingRows, Meter, RecordLink, SoonButton, Status, Tag, Timeline, cx, type Column } from "../../ds/components";
 import { daysBetween } from "./util";
 
 /* ================================================================== Documents */
@@ -66,7 +66,7 @@ export function DocumentsTab({ p }: { p: Project }) {
         )}
         <Card padded={false}>
           <div className="card-padded" style={{ paddingBottom: 0 }}>
-            <CardHeader icon={FileText} title="Controlled document register" description="Drawings, specifications, protocols and transmittals. Superseded revisions stay on file for audit." />
+            <CardHeader icon={FileText} title="Document register" description={`${docs.length} controlled document${docs.length === 1 ? "" : "s"}`} actions={<SoonButton size="sm" icon={Upload} what="Attach a new revision. It goes to review, and only approved revisions can be issued to site.">Upload revision</SoonButton>} />
           </div>
           <div className="prj-flush">
             <DataTable
@@ -83,7 +83,7 @@ export function DocumentsTab({ p }: { p: Project }) {
         </Card>
       </div>
       <Card>
-        <CardHeader icon={FileCheck2} title="Evidence for open gates" description="Each hold point needs its protocol or certificate approved before it can close." />
+        <CardHeader icon={FileCheck2} title="Evidence for open gates" description="Approved protocol or certificate per hold point" />
         {gateDocs.length === 0 ? (
           <EmptyState icon={FileCheck2} title="No open gates">All technical hold points on this project have closed.</EmptyState>
         ) : (
@@ -213,7 +213,6 @@ export function BillingTab({ p }: { p: Project }) {
             </div>
           </>
         )}
-        <p className="prj-card-note">Invoices are raised in the external accounting system. How advice reaches it, and who owns retention and tax, are open decisions — this view does not post anything.</p>
       </Card>
     </div>
   );
@@ -263,7 +262,7 @@ export function ActivityTab({ p }: { p: Project }) {
 
   return (
     <Card>
-      <CardHeader icon={History} title="Activity" description={`Everything recorded on ${p.id} and its ${refs.size - 1} linked records, newest first.`} />
+      <CardHeader icon={History} title="Activity" description={`${p.id} and ${refs.size - 1} linked records, newest first`} />
       {events.length === 0 ? (
         <EmptyState icon={Activity} title="No activity recorded yet">
           Approvals, receipts, stage completions and billing on this project or its linked records will be logged here with who did it and when.

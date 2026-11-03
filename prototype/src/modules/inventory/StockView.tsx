@@ -21,7 +21,6 @@ import {
   RecordLink,
   SearchField,
   Select,
-  Stat,
   Status,
   Tag,
   Textarea,
@@ -43,9 +42,6 @@ export function StockView({ items, loading }: { items: Item[]; loading: boolean 
   const below = items.filter((i) => freeQty(i) < i.reorderLevel);
   const held = items.filter((i) => i.quarantined > 0);
   const heldUnits = held.reduce((a, i) => a + i.quarantined, 0);
-  const reservedValue = items.reduce((a, i) => a + i.reserved * i.unitCost, 0);
-  const heldValue = held.reduce((a, i) => a + i.quarantined * i.unitCost, 0);
-  const stockValue = items.reduce((a, i) => a + i.onHand * i.unitCost, 0);
   const warehouses = [...new Set(items.map((i) => i.warehouse))];
 
   const rows = items.filter((i) => {
@@ -56,7 +52,6 @@ export function StockView({ items, loading }: { items: Item[]; loading: boolean 
     return !t || `${i.id} ${i.name} ${i.make} ${i.category} ${i.bin}`.toLowerCase().includes(t);
   });
 
-  const statuses = (["QC hold", "Out of stock", "Low stock", "Reserved", "Available"] as const).filter((s) => items.some((i) => i.status === s));
   const firstHeld = held[0];
 
   const columns: Column<Item>[] = [
@@ -128,16 +123,10 @@ export function StockView({ items, loading }: { items: Item[]; loading: boolean 
             </Button>
           }
         >
-          <RefText text="GRN-0073 from Orbit Process Solutions (PO-0109). PRJ-0264 needs them for the loop test on 10 Nov. Quarantined stock never counts as free, so it can't be issued or kitted." />
+          <RefText text="GRN-0073 from Orbit Process Solutions (PO-0109). PRJ-0264 needs them for the loop test on 10 Nov. Held stock can't be issued or kitted." />
         </Callout>
       )}
 
-      <div className="stat-strip">
-        <Stat label="Below reorder level" value={loading ? "–" : below.length} tone={below.length ? "warn" : undefined} foot="Free stock under the reorder point" onClick={() => setFilter("reorder")} />
-        <Stat label="On QC hold" value={loading ? "–" : inr(heldValue)} foot={`${heldUnits} units · can't be issued`} onClick={() => setFilter("QC hold")} />
-        <Stat label="Reserved for jobs" value={loading ? "–" : inr(reservedValue)} foot={`${items.filter((i) => i.reserved > 0).length} items held for projects & work orders`} />
-        <Stat label="Stock value at cost" value={loading ? "–" : inr(stockValue)} foot="Costing method pending approval" />
-      </div>
 
       <div className="stack" style={{ gap: "var(--space-3)" }}>
         <Toolbar
@@ -159,7 +148,8 @@ export function StockView({ items, loading }: { items: Item[]; loading: boolean 
             options={[
               { value: "all", label: "All", count: items.length },
               { value: "reorder", label: "Below reorder", count: below.length },
-              ...statuses.map((s) => ({ value: s, label: s, count: items.filter((i) => i.status === s).length })),
+              ...(held.length ? [{ value: "QC hold" as StockFilter, label: "QC hold", count: held.length }] : []),
+              ...(items.some((i) => i.status === "Out of stock") ? [{ value: "Out of stock" as StockFilter, label: "Out of stock", count: items.filter((i) => i.status === "Out of stock").length }] : []),
             ]}
           />
         </Toolbar>
@@ -313,7 +303,6 @@ export function ItemDrawer({ id, items, loading, onClose }: { id: string; items:
                 { label: "Last movement", value: `${date(item.lastMovement)} · ${relativeDay(item.lastMovement)}` },
               ]}
             />
-            <p className="inv-footnote">Valued at standard unit cost for review. The costing method and posting rules are still pending approval (INV-012).</p>
           </section>
 
           <section className="stack-sm stack">

@@ -11,7 +11,7 @@ export function RolesMatrix({ roles, loading, onOpen, activeId }: { roles: Role[
   return (
     <div className="stack">
       <Callout tone="ok" title="Segregation of duties holds across all 8 roles">
-        No role can both raise and approve the same document. System administrators manage access but have no business approvals and no salary visibility; payroll is edited by HR &amp; payroll and approved by the Finance owner.
+        No role can both raise and approve the same document. Administrators manage access but approve nothing.
       </Callout>
 
       <div className="usr-legend" aria-label="Permission levels">

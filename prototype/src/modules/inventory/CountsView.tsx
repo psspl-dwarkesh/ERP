@@ -1,11 +1,11 @@
-import { ClipboardList, Info, Scale, ShieldCheck } from "lucide-react";
+import { ClipboardList, Scale, ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { date, inr, num, time } from "../../api/format";
 import { useMutation } from "../../api/hooks";
 import type { Item, StockMovement } from "../../api/types";
 import {
   Button,
-  Callout,
+
   Card,
   CardHeader,
   DataTable,
@@ -45,7 +45,7 @@ export function CountsView({ items, movements, loading }: { items: Item[]; movem
         <div className="section-head">
           <div>
             <h2 className="section-title">Variances waiting for approval</h2>
-            <p className="section-description">A count can't approve its own variance. The count team records, a reviewer decides, the ledger gets a new movement.</p>
+            <p className="section-description">The counter can't approve their own variance.</p>
           </div>
         </div>
         {loading ? (
@@ -108,19 +108,7 @@ export function CountsView({ items, movements, loading }: { items: Item[]; movem
         <CountSession items={items} movements={movements} loading={loading} />
         <div className="stack" style={{ gap: "var(--space-4)" }}>
           <Card>
-            <CardHeader icon={Scale} title="What a variance changes" />
-            <div className="stack" style={{ gap: "var(--space-3)" }}>
-              <p className="inv-body">Approval posts an adjustment to the ledger and moves on-hand. Reserved stays with its job, so free stock absorbs the difference first.</p>
-              <Callout tone="info" icon={Info} title="Valuation rules pending">
-                Value at stake uses standard unit cost so a reviewer sees money, not just quantity. The costing method and financial posting are still to be approved (INV-012); nothing posts to accounting.
-              </Callout>
-              <Callout tone="warn" title="Negative stock is not allowed">
-                Until the policy is decided, an adjustment that would leave less on hand than is reserved is refused.
-              </Callout>
-            </div>
-          </Card>
-          <Card>
-            <CardHeader title="Decided adjustments" description="Posted rows are never edited; a wrong one is reversed by a new movement." />
+            <CardHeader title="Decided adjustments" />
             {decided.length === 0 ? (
               <p className="t-muted inv-footnote">None yet in this demo period.</p>
             ) : (

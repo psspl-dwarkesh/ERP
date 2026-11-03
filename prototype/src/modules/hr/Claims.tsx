@@ -54,7 +54,7 @@ export function ClaimsView({ claims, people, loading, onOpen, activeId }: { clai
     <div className="stack">
       {pending.length > 0 && (
         <Callout tone="info" title={`${pending.length} claims pending · ${inr(pending.reduce((a, c) => a + c.amount, 0), { compact: false })}`}>
-          Claims are approved by the claimant's reporting manager — never by the traveller. Whether approved claims pay out through payroll or payables is decision PAY-013; the demo stops at Approved.
+          The claimant's reporting manager approves; nobody approves their own claim.
         </Callout>
       )}
       <DataTable rows={claims} columns={columns} loading={loading} onRowClick={(c) => onOpen(c.id)} activeId={activeId} caption="Expense claims" />

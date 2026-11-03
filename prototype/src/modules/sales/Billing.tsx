@@ -159,7 +159,7 @@ export function BillingView({ onOpen, activeId }: { onOpen: (id: string) => void
       )}
 
       <Callout tone="info" icon={Landmark} title="Threadline raises billing advice. Accounting issues the tax invoice.">
-        Whether tax invoices are generated here or in the external accounting system is still open (decision SAL-013). Until it's decided, an advice carries the evidence and value, accounting returns its invoice reference, and the two are reconciled. Nothing in this demo posts to an accounting system.
+        Accounting returns its invoice reference and the two are reconciled. Nothing in this demo posts to an accounting system.
       </Callout>
 
       <section className="stack-sm stack">

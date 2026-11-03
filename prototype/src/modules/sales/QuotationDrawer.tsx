@@ -3,11 +3,10 @@ import { api } from "../../api/client";
 import { date, inr } from "../../api/format";
 import { useQuery } from "../../api/hooks";
 import { href } from "../../app/router";
-import { ButtonLink, Callout, Drawer, EmptyState, KeyValues, LoadingRows, Person, RecordLink, Status, Tag, Timeline, useToast, Button } from "../../ds/components";
+import { ButtonLink, Callout, Drawer, EmptyState, KeyValues, LoadingRows, Person, RecordLink, SoonButton, Status, Tag, Timeline } from "../../ds/components";
 import { QUOTE_DETAIL, validity } from "./shared";
 
 export function QuotationDrawer({ id, onClose }: { id: string | undefined; onClose: () => void }) {
-  const toast = useToast();
   const quotes = useQuery(api.quotations);
   const orders = useQuery(api.salesOrders);
   const q = quotes.data?.find((x) => x.id === id);
@@ -33,10 +32,8 @@ export function QuotationDrawer({ id, onClose }: { id: string | undefined; onClo
             </ButtonLink>
           ) : (
             <>
-              <Button onClick={() => toast({ title: `Rev ${String.fromCharCode(q.revision.charCodeAt(0) + 1)} drafted from ${q.id}`, body: `Rev ${q.revision} stays on record as superseded once the new revision is sent (illustrative).`, tone: "info" })}>New revision</Button>
-              <Button variant="primary" disabled={q.status !== "Sent"} onClick={() => toast({ title: "Acceptance recorded (illustrative)", body: `An order would be created pinned to ${q.id} rev ${q.revision} — price is never re-entered.`, tone: "info" })}>
-                Record acceptance
-              </Button>
+              <SoonButton what="Draft the next revision; this one stays on record as superseded once it is sent.">New revision</SoonButton>
+              <SoonButton what="Turn the accepted revision into a sales order at the quoted price.">Record acceptance</SoonButton>
             </>
           )
         ) : undefined

@@ -135,7 +135,6 @@ export function DeploymentRoster({ people, leave, loading }: { people: Person[];
           })}
         </div>
       </div>
-      <p className="hr-small t-muted">Assignments and leave come from the records; planned bookings are illustrative. A booking against a closed project, or one that overlaps leave, is flagged when it's made (HR-009).</p>
     </div>
   );
 }

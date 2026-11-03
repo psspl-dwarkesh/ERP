@@ -1,4 +1,4 @@
-import { FileBadge2, FileQuestion, Gauge, Ruler } from "lucide-react";
+import { FileBadge2, Gauge, Ruler } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { date } from "../../api/format";
@@ -7,6 +7,7 @@ import type { CalibrationJob } from "../../api/types";
 import {
   Button,
   Callout,
+  ComingSoon,
   DataTable,
   Drawer,
   EmptyState,
@@ -99,7 +100,7 @@ export function CalibrationView({ jobs, loading, activeId }: { jobs: Calibration
           ))}
           {failing.map((j) => (
             <Callout key={j.id} tone="warn" title={`${j.id}: ${j.points.filter((p) => !p.pass).length} point out of tolerance on ${j.asset.toLowerCase()}`} action={<Button size="sm" variant="primary" onClick={() => openAssetsRecord(j.id, "calibration")}>Decide disposition</Button>}>
-              A failed point is a state change, not a comment. The instrument stays out of use until it is adjusted and re-verified or recertified.
+              The instrument stays out of use until it is adjusted and re-verified, or recertified.
             </Callout>
           ))}
         </div>
@@ -188,7 +189,7 @@ export function CalibrationDrawer({ id, jobs, loading, onClose }: { id: string; 
         />
         <KeyValues
           items={[
-            { label: "Reference standard", value: ref.id ? <span className="row" style={{ gap: 8 }}><RecordLink id={ref.id} /><span>{ref.label} · the result is only as good as this standard</span></span> : <span className="t-muted">{ref.label}</span> },
+            { label: "Reference standard", value: ref.id ? <span className="row" style={{ gap: 8 }}><RecordLink id={ref.id} /><span>{ref.label}</span></span> : <span className="t-muted">{ref.label}</span> },
           ]}
         />
       </section>
@@ -235,7 +236,7 @@ export function CalibrationDrawer({ id, jobs, loading, onClose }: { id: string; 
           const a = analyse(p);
           return (
             <Callout key={p.nominal} tone="risk" title={`${p.nominal} point reads ${fmt(a.dev)} ${a.unit} against ${p.tolerance}`}>
-              Outside tolerance by {Math.abs(a.over).toFixed(3)} {a.unit}. The lower points pass, so this is a span error at the top of the range rather than a zero offset. {j.assetId} can't be issued to jobs that need a calibrated standard until it is adjusted and re-verified, or recertified.
+              Outside tolerance by {Math.abs(a.over).toFixed(3)} {a.unit}. {j.assetId} stays out of use until it is adjusted and re-verified, or recertified.
             </Callout>
           );
         })}
@@ -254,7 +255,7 @@ export function CalibrationDrawer({ id, jobs, loading, onClose }: { id: string; 
               { value: "external", title: "External recertification", detail: recert ? `${recert.id} is ${recert.status.toLowerCase()} for this` : "Raise a requisition for the lab" },
             ]}
           />
-          <Field label="Reason" required htmlFor="cal-note" error={m.error} hint="Kept with the readings. Reviewed readings are never edited; a correction is a new event.">
+          <Field label="Reason" required htmlFor="cal-note" error={m.error} hint="Kept with the readings.">
             <Textarea id="cal-note" rows={2} value={note} invalid={!!m.error} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Span drift at 10 bar; zero and mid-range fine" />
           </Field>
         </section>
@@ -274,9 +275,7 @@ export function CalibrationDrawer({ id, jobs, loading, onClose }: { id: string; 
         ) : (
           <p className="ast-footnote">Not issued. {fails.length ? "Blocked by the out-of-tolerance point." : j.points.length ? "Waiting for review of the readings." : "Issued after the readings are reviewed."}</p>
         )}
-        <Callout tone="info" icon={FileQuestion} title="Open in scope: certificate authoring or attachment only">
-          Whether Threadline generates the certificate or stores the lab's PDF is undecided. Both paths end in the same review action, which sets the next due date.
-        </Callout>
+        {!j.certificate && <ComingSoon inline icon={FileBadge2} title="Certificate upload">Attach the lab's certificate PDF; accepting it sets the next due date.</ComingSoon>}
       </section>
     </Drawer>
   );

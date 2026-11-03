@@ -1,4 +1,4 @@
-import { Download, Lock, Truck } from "lucide-react";
+import { Download, Truck } from "lucide-react";
 import { useState } from "react";
 import { date, num, time } from "../../api/format";
 import { useMutation } from "../../api/hooks";
@@ -123,7 +123,7 @@ export function MovementsView({ movements, items, loading, highlight }: { moveme
             </Button>
           }
         >
-          Dispatched {date(m.at, true)} on <RefText text={m.reference} />. It belongs to neither store until the site acknowledges, so it is never available twice.
+          Dispatched {date(m.at, true)} on <RefText text={m.reference} />. It counts as stock at site once acknowledged.
           {ack.error && <span className="inv-inline-error"> {ack.error}</span>}
         </Callout>
       ))}
@@ -167,9 +167,6 @@ export function MovementsView({ movements, items, loading, highlight }: { moveme
           </EmptyState>
         }
       />
-      <p className="inv-footnote row" style={{ gap: 6 }}>
-        <Lock size={13} aria-hidden /> Posted movements are never edited or deleted. A wrong entry is corrected by a compensating movement that references it.
-      </p>
     </div>
   );
 }
