@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Desktop audit harness</title>
+    <style>
+      body { margin: 0; background: #101512; color: #dfe6dd; font: 12px/1.4 ui-monospace, monospace; }
+      #stage { position: absolute; top: 0; left: 0; }
+      iframe { border: 0; display: block; background: #fff; }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <script>
+      // Not part of the product. Measures the built app at widths the host
+      // browser window cannot reach, by loading it in a same-origin iframe
+      // whose media queries resolve against the iframe's own width.
+      const ROUTES = ["welcome","dashboard","projects","inventory","assets","purchase","sales","crm","hr","payroll","user-management","reports"];
+      const NOISE = ["grid-progress","plate-runner","plate-tick","entry-route-arrow","monogram","entry-logo-mark"];
+
+      const parse = (s) => {
+        const n = (s || "").match(/[\d.]+/g);
+        if (!n || n.length < 3) return null;
+        return [Number(n[0]), Number(n[1]), Number(n[2]), n.length > 3 ? Number(n[3]) : 1];
+      };
+      const lum = (c) => {
+        const v = [c[0], c[1], c[2]].map((x) => {
+          const s = x / 255;
+          return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+      };
+      const mix = (fg, alpha, bg) => fg.map((c, i) => c * alpha + bg[i] * (1 - alpha));
+      const blend = (win, el) => {
+        const stack = [];
+        let opacity = 1;
+        let node = el;
+        while (node && node !== win.document.documentElement) {
+          const style = win.getComputedStyle(node);
+          const c = parse(style.backgroundColor);
+          if (c && c[3] > 0) stack.push(c);
+          opacity *= Number(style.opacity || 1);
+          node = node.parentElement;
+        }
+        let bg = [230, 236, 230];
+        for (let i = stack.length - 1; i >= 0; i -= 1) bg = mix(stack[i].slice(0, 3), stack[i][3], bg);
+        return { bg, opacity };
+      };
+      const ratio = (f, b) => {
+        const hi = Math.max(lum(f), lum(b)), lo = Math.min(lum(f), lum(b));
+        return (hi + 0.05) / (lo + 0.05);
+      };
+
+      // A wide table inside `.table-scroll` is intentional; the page must not
+      // scroll. Only flag geometry that no scrollable ancestor can account for.
+      const scrollsInAncestor = (win, el) => {
+        let node = el.parentElement;
+        while (node && node !== win.document.documentElement) {
+          const ox = win.getComputedStyle(node).overflowX;
+          if ((ox === "auto" || ox === "scroll") && node.scrollWidth > node.clientWidth + 1) return true;
+          node = node.parentElement;
+        }
+        return false;
+      };
+
+      function inspect(win, label) {
+        const doc = win.document;
+        // A hidden document freezes CSS animations at currentTime 0, and
+        // fill-mode: both then holds the "from" opacity, which would measure
+        // content as invisible. Every animation here settles back to its base
+        // style, so cancelling reproduces the steady state a user sees.
+        for (const a of doc.getAnimations({ subtree: true })) {
+          try { a.cancel(); } catch (error) { /* ignore */ }
+        }
+        const root = doc.documentElement;
+        const vw = win.innerWidth;
+        const offenders = [];
+        const contrast = [];
+        let min = 99;
+        for (const el of doc.querySelectorAll("body *")) {
+          const cs = win.getComputedStyle(el);
+          if (cs.display === "none" || cs.visibility === "hidden" || Number(cs.opacity) === 0) continue;
+          const r = el.getBoundingClientRect();
+          if (!r.width || !r.height) continue;
+          if (NOISE.some((n) => (el.className || "").toString().includes(n))) continue;
+          const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+          if (r.right > vw + 1 && el.scrollWidth <= r.width + 1 && !scrollsInAncestor(win, el)) {
+            offenders.push({ t: el.tagName, c: (el.className || "").toString().slice(0, 42), right: Math.round(r.right) });
+          }
+          if (!hasText) continue;
+          const size = parseFloat(cs.fontSize);
+          if (size > 0 && size < min) min = size;
+          const large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
+          const fgRaw = parse(cs.color);
+          if (!fgRaw) continue;
+          const { bg, opacity } = blend(win, el);
+          const alpha = Math.min(1, fgRaw[3] * opacity);
+          const fg = alpha >= 1 ? fgRaw.slice(0, 3) : mix(fgRaw.slice(0, 3), alpha, bg);
+          const cr = ratio(fg, bg);
+          if (cr < (large ? 3 : 4.5)) {
+            contrast.push({ x: Math.round(cr * 10) / 10, s: size, f: cs.color, on: bg.map(Math.round).join(","), t: el.textContent.trim().slice(0, 26) });
+          }
+        }
+        const blue = [];
+        for (const el of doc.querySelectorAll("body *")) {
+          const cs = win.getComputedStyle(el);
+          for (const p of ["color", "backgroundColor", "outlineColor", "borderTopColor", "caretColor", "fill", "stroke"]) {
+            const c = parse(cs[p]);
+            if (!c) continue;
+            const [r, g, b] = c;
+            if (b > r && b >= g && b - r > 18 && b - g > 8) {
+              blue.push({ p, v: cs[p].slice(0, 24), c: (el.className || "").toString().slice(0, 30) });
+            }
+          }
+        }
+        const heading = doc.querySelector("h1")?.textContent.trim().slice(0, 60) ?? "(none)";
+        return {
+          label,
+          viewport: `${vw}x${win.innerHeight}`,
+          docScrollX: root.scrollWidth > vw + 1,
+          offenders: offenders.slice(0, 8),
+          offenderCount: offenders.length,
+          minFont: Math.round(min * 100) / 100,
+          contrastFailures: contrast.length,
+          contrastSample: contrast.slice(0, 4),
+          residualBlue: blue.length,
+          blueSample: blue.slice(0, 3),
+          barlow: doc.fonts.check('600 120px "Barlow Condensed"'),
+          heading,
+        };
+      }
+
+      window.audit = (route, w, h) => new Promise((resolve) => {
+        const frame = document.createElement("iframe");
+        frame.style.width = `${w}px`;
+        frame.style.height = `${h}px`;
+        frame.src = `/index.html#${route}`;
+        document.getElementById("stage").appendChild(frame);
+        frame.addEventListener("load", () => {
+          const win = frame.contentWindow;
+          const done = () => setTimeout(() => {
+            let out;
+            try {
+              out = inspect(win, route);
+            } catch (error) {
+              out = { label: route, error: String(error) };
+            }
+            frame.remove();
+            resolve(out);
+          }, 1300);
+          if (win.document.fonts?.ready) win.document.fonts.ready.then(done, done);
+          else done();
+        }, { once: true });
+      });
+      window.ROUTES = ROUTES;
+    </script>
+  </body>
+</html>

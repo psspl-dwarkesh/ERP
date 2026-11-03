@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { DataGrid, ProductTabs, ProductCommand } from "./components/product-ui";
-import { OperationsHome } from "./components/operations-home";
+// The operations desk is the only surface that draws charts, so it loads with
+// them on demand; the entry page never pays for the chart runtime.
+const OperationsHome = lazy(() =>
+  import("./components/operations-home").then((m) => ({
+    default: m.OperationsHome,
+  })),
+);
 import { EntryPage } from "./components/entry-page";
 import {
   ArrowUpRight,
@@ -49,15 +55,6 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import {
   assets,
   approvals,
@@ -164,6 +161,28 @@ function Logo({ light = false }: { light?: boolean }) {
         <small>ENGINEERING OPERATIONS</small>
       </div>
     </div>
+  );
+}
+// Placeholder for the operations desk while its chart runtime downloads.
+// It mirrors the dispatch panel's ruled geometry rather than showing a spinner.
+function DeskLoading() {
+  return (
+    <section className="desk-loading" aria-busy="true" aria-label="Loading the operations desk">
+      <div className="desk-loading-head">
+        <span className="desk-loading-title" />
+        <span className="desk-loading-chip" />
+      </div>
+      <div className="desk-loading-rows">
+        {[0, 1, 2].map((row) => (
+          <div className="desk-loading-row" key={row}>
+            <span className="desk-loading-symbol" />
+            <span className="desk-loading-line" />
+            <span className="desk-loading-line short" />
+            <span className="desk-loading-action" />
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 function App() {
@@ -371,21 +390,23 @@ function App() {
   }
   function dashboard() {
     return (
-      <OperationsHome
-        role={role}
-        period={period}
-        onPeriod={setPeriod}
-        decisions={decisions}
-        go={(to, sub) => go(to as Route, sub)}
-        onApproval={(a) =>
-          setModal({ kind: "approval", title: a.title, approval: a })
-        }
-        onProject={(p) => {
-          go("Projects", "Project detail");
-          setSelected(p);
-        }}
-        onExport={() => exportRows(projects, "portfolio")}
-      />
+      <Suspense fallback={<DeskLoading />}>
+        <OperationsHome
+          role={role}
+          period={period}
+          onPeriod={setPeriod}
+          decisions={decisions}
+          go={(to, sub) => go(to as Route, sub)}
+          onApproval={(a) =>
+            setModal({ kind: "approval", title: a.title, approval: a })
+          }
+          onProject={(p) => {
+            go("Projects", "Project detail");
+            setSelected(p);
+          }}
+          onExport={() => exportRows(projects, "portfolio")}
+        />
+      </Suspense>
     );
   }
   function projectDetail() {

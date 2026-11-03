@@ -348,3 +348,28 @@ a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 td, .app-shell .grid-col-value, .app-shell .grid-col-date, .app-shell .grid-record small,
 .desk-kpis button strong, .dispatch-num { font-variant-numeric: tabular-nums; }
+
+/* Operations desk placeholder, shown while the chart runtime loads. */
+.desk-loading { background: var(--record); border: 1px solid var(--border); }
+.desk-loading-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(16px, 2.4vw, 24px); border-bottom: 1px solid var(--border); }
+.desk-loading-title { display: block; width: min(240px, 46%); height: 20px; background: #dfe4db; }
+.desk-loading-chip { display: block; width: 92px; height: 20px; background: #dfe4db; }
+.desk-loading-rows { padding: 4px clamp(16px, 2.4vw, 24px) 18px; }
+.desk-loading-row { display: grid; grid-template-columns: 26px minmax(0, 1.6fr) minmax(0, 1fr) 104px; align-items: center; gap: 16px; min-height: 62px; border-bottom: 1px solid #e4e6df; }
+.desk-loading-row:last-child { border-bottom: 0; }
+.desk-loading-symbol { width: 22px; height: 22px; border: 1px solid #cfd6cc; }
+.desk-loading-line { height: 11px; background: #dfe4db; }
+.desk-loading-line.short { height: 11px; width: 62%; }
+.desk-loading-action { height: 30px; background: #dfe4db; }
+@media (prefers-reduced-motion: no-preference) {
+  .desk-loading :is(.desk-loading-title, .desk-loading-chip, .desk-loading-line, .desk-loading-action) {
+    background-image: linear-gradient(90deg, #dfe4db 0%, #cfd7cd 46%, #dfe4db 92%);
+    background-size: 240% 100%;
+    animation: desk-loading-sweep 1.15s ease-in-out infinite;
+  }
+  @keyframes desk-loading-sweep { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+}
+@media (max-width: 900px) {
+  .desk-loading-row { grid-template-columns: 26px minmax(0, 1fr) 84px; }
+  .desk-loading-row .desk-loading-line.short { display: none; }
+}
