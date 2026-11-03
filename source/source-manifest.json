@@ -1,0 +1,29 @@
+{
+  "original_file": "C:\\Users\\dwarkesh.vajjala\\Downloads\\ABC_Limited_ERP_Detailed_Scope_of_Work_v2.docx",
+  "sha256": "2e9443390d3622ee3926ed969fbc2e1b25e05de7b43b516807946189ea4eba84",
+  "extraction": "OOXML text in body order; table cells separated by |; not a byte-identical rendering",
+  "paragraphs_and_rows": 726,
+  "parts": [
+    "[Content_Types].xml",
+    "_rels/.rels",
+    "docProps/core.xml",
+    "docProps/app.xml",
+    "word/document.xml",
+    "word/_rels/document.xml.rels",
+    "word/styles.xml",
+    "word/stylesWithEffects.xml",
+    "word/settings.xml",
+    "word/webSettings.xml",
+    "word/fontTable.xml",
+    "word/theme/theme1.xml",
+    "customXml/item1.xml",
+    "customXml/_rels/item1.xml.rels",
+    "customXml/itemProps1.xml",
+    "word/numbering.xml",
+    "word/header1.xml",
+    "word/footer1.xml",
+    "docProps/thumbnail.jpeg"
+  ],
+  "tracked_insertions": 0,
+  "tracked_deletions": 0
+}

@@ -1,0 +1,11 @@
+prototype/node_modules/
+prototype/dist/
+*.log
+.env
+.env.*
+!.env.example
+
+# Per-machine agent tooling and local tool consent
+.impeccable/config.local.json
+.agents/
+.codex/

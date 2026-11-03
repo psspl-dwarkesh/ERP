@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-03T00:00:00+05:30",
+  "title": "Design System: ABC ERP",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "primary", "displayName": "Route Ink" },
+      "mineral-paper": { "role": "neutral", "displayName": "Mineral Paper" },
+      "copper": { "role": "accent", "displayName": "Signal Copper" },
+      "record": { "role": "neutral", "displayName": "Record Surface" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Industrial Display", "purpose": "Entry headline." },
+      "title": { "displayName": "Operating Title", "purpose": "Portal page title." },
+      "identifier": { "displayName": "Record ID", "purpose": "Job, document and stage identifiers." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "route-enter", "value": "600ms ease-out", "purpose": "Single entry route reveal; disabled for reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "portal-mobile", "value": "767px" },
+      { "name": "entry-mobile", "value": "650px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Current workflow action or direct route entry.",
+      "html": "<button class=\"ds-action\">OPEN RECORD</button>",
+      "css": ".ds-action{background:#F07946;color:#172320;border:1px solid #C9542B;border-radius:0;padding:10px 16px;font:600 12px 'IBM Plex Sans',sans-serif}.ds-action:focus-visible{outline:2px solid #172320;outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Engineering Job Traveller",
+    "overview": "One connected job provides the visual and informational spine. The entry tells the handoff story; operating views keep the records and next action close together.",
+    "keyCharacteristics": ["Industrial typography", "Ruled record surfaces", "Copper active state", "Linked handoff examples"],
+    "rules": [
+      { "name": "Decision first", "body": "Place current exceptions and next actions before summary metrics.", "section": "components" }
+    ],
+    "dos": ["Use real linked fixture IDs and explicit states.", "Preserve readable data density."],
+    "donts": ["Use generic metric-card hero layouts.", "Imply local simulations are live ERP transactions."]
+  }
+}

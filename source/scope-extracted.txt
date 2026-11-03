@@ -1,0 +1,726 @@
+ABC LIMITED
+Integrated ERP System
+Detailed Scope of Work
+Functional baseline for FRD preparation, estimation and customer sign-off
+DOCUMENT STATUS  •  DRAFT FOR CUSTOMER VALIDATION
+
+VERSION    2.0
+PREPARED    03 November 2026
+SOLUTION RESPONSIBILITY    Full ERP: frontend, backend, database and APIs
+BUSINESS MODEL    Single legal entity | 7 business verticals
+RELEASE MODEL    All 11 requested modules in one production release
+USER POPULATION    200+ users (peak concurrency to be confirmed)
+Important: This document is a detailed discovery SoW, not a signed contract or approved FRD.
+Items marked V or D must be agreed before they become committed implementation scope. Exact screen-level rules, field specifications and integrations will be finalized in the FRD.
+
+Document control and reading guide
+Item | Definition
+Document purpose | Capture the functional scope, boundaries, integration points, controls, dependencies and decisions needed to prepare a production-ready FRD.
+Customer | ABC Limited (single legal entity).
+Source of scope | Customer-confirmed answers in this engagement; customer-provided screenshot naming 11 modules; publicly available client business website (reference list in Appendix C).
+Not included | Signed requirements approval, production UI specification, data migration assessment, statutory legal opinion, target architecture decision or commercial estimate.
+Version control | Version 2.0 | Draft | Update on workshop decisions and maintain sign-off record.
+
+Requirement confidence / approval status
+Mark | Details / decisions
+C | Confirmed | Meaning: Directly requested capability or business area.Contractual implication: Capability is part of proposed baseline; detailed validation and acceptance criteria remain to be specified.
+V | Validate | Meaning: Recommended decomposition, process control or likely functionality based on requested modules and domain.Contractual implication: Not an approved commitment until validated and included in signed FRD/SoW.
+D | Decision | Meaning: Unresolved design choice, external dependency or potential scope boundary.Contractual implication: Do not estimate or implement as fixed scope without explicit decision and change evaluation.
+
+Usage principle: An item marked C confirms the capability category, not the exact fields, formulas, security rules, statutory treatment, automation depth or acceptance tests. Module availability does not automatically approve all suggested features.
+Contents
+1  Business and operating context
+2  Objectives, delivery scope and boundaries
+3  Functional architecture and master-process model
+4  Detailed module-wise scope (11 modules)
+5  Cross-module end-to-end business scenarios
+6  Master data and operational data governance
+7  Role permissions, approvals and audit controls
+8  Interfaces, finance boundary and data migration
+9  Non-functional and production requirements
+10  Reports, dashboards and KPI governance
+11  Verification, UAT and acceptance
+12  Deliverables, responsibility and rollout
+13  Exclusions and change control
+14  Open decision register and risks
+Appendices  FRD template, glossary and discovery basis
+Executive scope snapshot
+Dimension | Customer instruction / baseline
+Build model | New custom ERP: frontend, backend, database, integration APIs and production deployment work.
+Organization | One company; branch, department, job site, warehouse and project are operational dimensions, not independent legal entities.
+Business verticals | Turnkey automation & engineering; panel assembly; instrumentation trading; calibration; AMC; O&M; CSV/manufacturing IT.
+Core modules | Project, Asset, Inventory, Payroll, HR, User Management, Purchase, Sales, CRM, Dashboard, Reports.
+Extended processes | Panel assembly/manufacturing embedded within Inventory & Project; service ticket/AMC/O&M embedded within Asset & Project, no extra named module.
+Scale | 200+ users; concurrent user count, transaction volumes and peak capacity open.
+Go-live expectation | All 11 modules in one production release; internal staged engineering/test waves permitted, not separate production phase rollouts.
+Accounting | Question Q9 answered “Yes”; treated as probable external accounting arrangement, but vendor, sync direction and ownership are unresolved.
+Unconfirmed | Detailed project lifecycle, payroll statutory specifics, tax invoicing owner, deployment stack, external integrations, data volumes and migration scope.
+
+1. Business and operating context
+The customer’s published business information describes industrial automation/turnkey projects, electrical and instrumentation solutions, calibration, computerized system validation, manufacturing IT, annual maintenance contracts and operations & maintenance. It also references engineering design, commissioning, service teams and calibration activities. This supports an engineering-and-service-centric operating model rather than a purely distribution-focused ERP. Public website descriptions are contextual research, not evidence of implemented internal workflows.
+Design implication: the ERP should preserve a single chain of reference from customer enquiry to quotation/order, project or production execution, procurement, material movement, site delivery, installed asset and recurring support; HR timesheets, payroll-related cost and external finance references should reconcile along that chain.
+1.1 Business vertical coverage
+Vertical | Details / decisions
+Automation & turnkey engineering | ERP process emphasis: Long-cycle jobs, engineering deliverables, WBS, project procurement, sites, test/commissioning, milestones.Status: C
+Electrical panel manufacturing | ERP process emphasis: Engineering BOM/revisions, MRP, work orders, staged assembly, QC, finished goods.Status: C
+Instrumentation trading/supply | ERP process emphasis: Item/vendor/customer masters, sourcing, receiving, stock, serial trace, dispatch and returns.Status: C
+Calibration services | ERP process emphasis: Owned/customer instruments, schedules, calibration results/certificates and service commitments.Status: C for scope; validate depth
+AMC services | ERP process emphasis: Contracted assets, PM calendar, tickets, response SLA, technician/service reports, recurring charges.Status: C
+O&M contracts | ERP process emphasis: On-site staffing, work orders, tickets, visits, materials, service performance.Status: C
+CSV / manufacturing IT | ERP process emphasis: Service/project engagements, expert deployment, documents, milestone deliverables, resource costing.Status: C
+
+1.2 Stakeholder categories (illustrative, subject to confirmation)
+Business sponsor / operations head; engineering project manager; sales/presales; procurement; warehouse/site store; production lead; QA/QC and calibration; service desk/AMC coordinator; HR and payroll; finance/accounting owner; employee/field engineer; IT/security administrator; business intelligence/reporting owner; customer UAT and compliance reviewers.
+2. Objectives, delivery scope and boundaries
+2.1 Business outcomes
+Establish a consistent record of commercial, engineering, physical stock, field operations and people data.
+Reduce duplicate entries and manual handoffs among sales, engineering, purchasing, site stores, HR and service.
+Provide end-to-end traceability for BOM changes, purchase approvals, serial items, testing and site movement.
+Enable project, panel, contract and technician accountability and management insight.
+Support internal controls, audit evidence and privacy-aware permissions while allowing agreed accounting interoperability.
+2.2 Included software delivery work
+Business analysis, requirements workshops, FRD, workflow catalog, UI/UX specifications and approved wireframes.
+Application frontend, backend/business services, relational data model, secured APIs, scheduled/background jobs and integration adaptors.
+Configuration of masters, roles, approval rules, forms, reports, dashboards, document handling and notifications agreed in FRD.
+Functional/unit/integration/system/security/performance/UAT support and defect remediation.
+Environment build, production deployment, documentation, knowledge transfer, cutover and post-launch support under agreed terms.
+2.3 Scope organizing principle
+No new standalone modules are introduced beyond the eleven named modules. Panel manufacture is modeled as an Inventory/Project workflow; preventive/contract services are modeled through Asset/Project, with billing events passed to Sales. Shared authorization, documents, approvals, integrations, notifications and audit logging are foundational cross-module platform services.
+2.4 Delivery definition
+One production release comprising all eleven modules. Development and test can be organized into internal workstreams, but no individual module is deemed live/accepted before combined end-to-end testing, data reconciliation, security validation and business approval for the integrated release. Dates, warranty and support SLA remain unconfirmed.
+3. Functional architecture and process model
+3.1 Logical solution layers (technology-neutral)
+Layer | Details / decisions
+Presentation / application | Responsibility: Responsive ERP web UI, role-specific task queues, record views, forms, approval inbox, analytics and document attachments.Decision points: Native mobile app/offline field use not confirmed.
+Domain services | Responsibility: CRM, Sales, Projects, Procurement, Inventory + assembly, Asset + Service, HR, Payroll, User/Approvals, Reporting.Decision points: Module-specific transaction ownership and inter-module event granularity.
+Shared services | Responsibility: Identity/authentication, RBAC, approvals, notifications, file store, audit, search, ID generation and background jobs.Decision points: Identity provider, file retention, gateway provider.
+Data / integration | Responsibility: Operational system-of-record database, reporting data extracts, integration adapters and error/retry monitoring.Decision points: Database, messaging, reporting platform and accounting API.
+Operations | Responsibility: Application/environment configuration, deploy/release, monitoring, backup, recovery, observability and cybersecurity controls.Decision points: Hosting, RPO/RTO, availability, concurrency and support responsibilities.
+
+3.2 Canonical business linkages
+Customer / Lead -> Opportunity / RFQ -> Quotation -> Sales order / contract -> Project or sales fulfilment -> (BOM/MRP/PR/PO/GRN/QC/stock/assembly) -> Dispatch / commissioning -> Customer installed asset -> AMC/service ticket -> technician visit/spares -> recurring or chargeable billing event -> external accounting reconciliation. HR (attendance/deployment/timesheets/claims) contributes to labour allocation, project costing, service execution and payroll.
+3.3 Core state and approval design principles
+Each material document should have explicit draft/submitted/approved/rejected/cancelled/closed statuses suited to its life cycle; the final state model is an FRD deliverable.
+After approval, sensitive changes require revision/change record or controlled reversal rather than undetectable overwrite.
+All cross-module transactional handoffs carry origin ID, destination ID, outcome, time and error/retry state where asynchronous.
+Entitlements, financial approvals, inventory valuation and payroll processing require independent authority rules.
+Master IDs and cross-links should be generated consistently; no duplicate project/customer/material identities without controlled merge.
+4. Detailed module-wise functional scope
+Each requirement below is assigned a stable working identifier for the FRD backlog. Markers indicate whether it was explicitly confirmed (C), requires functional validation (V) or is a decision item (D). Future FRD shall expand each into preconditions, triggers, fields, validation rules, states, authorization rules, exception paths and acceptance tests.
+4.1 Project Management
+Manage engineering, turnkey, electrical, calibration, validation, and contracted service work from initiation to technical and commercial closure.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+PM-001 | Register multiple project types, including automation/turnkey engineering, electrical panel, instrumentation, calibration, O&M, AMC and computerized system validation engagements. | C
+PM-002 | Create project master with customer, order/contract references, site, owning business unit, planned dates, project manager, status and document links. | V
+PM-003 | Capture project scope, deliverables and contractual milestones against approved sales order / work order. | V
+PM-004 | Structure phases, work breakdown structure, task dependencies, assigned resources and planned/actual dates. | V
+PM-005 | Establish project budget by material, internal labour, subcontracting, travel, equipment and other cost categories. | V
+PM-006 | Track planned versus actual work, milestones, deliverables, progress and deviations with status history. | V
+PM-007 | Link engineering drawings, technical specifications, document revisions, approvals and transmittals to projects. | V
+PM-008 | Associate engineering BOM, project material requirements, stock reservations, purchases and site transfers to each project. | V
+PM-009 | Allocate engineers/technicians and record project/site timesheets, utilization, expenses and deployment dates. | V
+PM-010 | Track external subcontractors and work packages with progress, material accountability and deliverable status. | V
+PM-011 | Record project issues, risks, decisions, change requests and approved scope variations. | V
+PM-012 | Provide technical hold points / checklists for inspection, FAT, SAT, installation, loop testing, commissioning and customer acceptance as applicable. | V
+PM-013 | Support customer/site-specific quality documentation and validation deliverables by attachment and controlled revision. | V
+PM-014 | Record site dispatch, installation progress and completion certificates with linked inventory movements. | V
+PM-015 | Associate milestones, delivery evidence and approved variations with billing triggers for Sales. | V
+PM-016 | Provide project-wise contract value, committed cost, incurred cost, billed value and estimated margin using agreed financial source data. | V
+PM-017 | Support on-hold, cancelled and reopened projects with reason, approvals and audit trail. | V
+PM-018 | Manage handover from projects into installed-base asset register, warranty, service and AMC schedules. | V
+PM-019 | Manage completion, open punch list, lessons learned, documents archival and authorized project closure. | V
+PM-020 | Configure project-specific approval gates and notifications for budget, procurement, variations and closure. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Project, phase/WBS, task, project site, project resource allocation, project budget, risk/issue, deliverable, change request, milestone, project cost ledger, handover record.
+PRINCIPAL MODULE HANDOFFS
+CRM -> Sales -> Project -> Purchase/Inventory/HR -> Sales billing -> Asset/Service -> Reports.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Project cost basis; contract formats; WBS depth; document control expectations; project approval steps; timesheet approval and cost rates; whether FAT/SAT are workflows or document checklists.
+4.2 Asset Management and Embedded Service Operations
+Track company-owned assets and customer installed equipment while operating AMC, O&M, calibration and field-service processes within Project and Asset modules.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+AST-001 | Maintain internal company-owned asset register for computers, instruments, calibration equipment, vehicles and tools. | C
+AST-002 | Maintain separately identifiable customer-installed equipment and equipment supported under AMC/O&M contracts. | C
+AST-003 | Record asset identity, category, serial/tag number, manufacturer, model, ownership, location, custodian and lifecycle state. | V
+AST-004 | Maintain purchase/commissioning dates, vendor, warranty coverage, supporting documents and service history. | C
+AST-005 | Assign or transfer tools/instruments to employee, warehouse, branch or project site with acknowledgement and accountability. | V
+AST-006 | Track preventive maintenance schedules for applicable internal or customer assets. | C
+AST-007 | Track calibration due dates and reminders for relevant instruments and calibration masters. | C
+AST-008 | Store calibration reference, equipment, work performed, result, certificate attachment and next-due date. | V
+AST-009 | Register service contracts and relate the covered installed assets, sites, customer and contract validity. | C
+AST-010 | Record service contract entitlements, coverage windows, response commitments, exclusions and included visits. | V
+AST-011 | Create support tickets by customer, asset/site, problem category, priority and channel. | C
+AST-012 | Monitor service-level targets and escalation stages using contract-specific SLA configuration. | C
+AST-013 | Schedule preventive maintenance visits and corrective/breakdown interventions. | C
+AST-014 | Assign technician/engineer to tickets and service visits and capture allocation, status and visit outcomes. | C
+AST-015 | Generate service visit records with checklists, observation, materials/spares consumed and customer acknowledgement. | C
+AST-016 | Link spares consumption, site issues and returns to inventory and the relevant service job. | V
+AST-017 | Track claimable or chargeable service work and support recurring billing events routed to Sales/Accounting. | C
+AST-018 | Maintain warranty periods, warranty claims/service status and expiration reminders. | C
+AST-019 | Handle retirement, disposal, lost/damaged assets, customer asset replacement and equipment swap histories. | V
+AST-020 | Track maintenance cost and service activity history by equipment, installed base, contract and customer site. | V
+AST-021 | Allow separation of internal fixed-asset treatment from customer-owned asset records and service inventory. | V
+AST-022 | Provide service backlog, overdue calibration, approaching warranty expiry and SLA breach monitoring. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Internal asset, customer installed asset, asset assignment, maintenance plan, calibration event, AMC/O&M contract, SLA policy, ticket, service visit, work order, spare issue, warranty.
+PRINCIPAL MODULE HANDOFFS
+Project commissioning -> Installed asset -> Contract/ticket -> Technician -> Spares -> Service report -> Recurring/chargeable billing.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Calibration result/certificate authoring versus attachment-only; whether lab workflows require NABL-specific data controls; contract SLA clock rules; warranty inclusions; service mobile/offline needs.
+4.3 Inventory Management and Panel Manufacturing
+Provide material traceability and valuation across central warehouses, site stores and electrical panel assembly/finished goods, including engineering BOM and production work orders.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+INV-001 | Maintain item master by material class, technical description/specification, UOM, storage parameters and applicable tax classification. | V
+INV-002 | Support multiple warehouses, bins or project-site stores and separate stock ownership / availability states. | C
+INV-003 | Record inventory opening balances and approved receipts/issues/transfers with full document traceability. | V
+INV-004 | Record GRN-driven stock receipt with purchase-order reference and inspection status. | C
+INV-005 | Apply material inspection results and release/reject/quarantine stock according to agreed QC gates. | C
+INV-006 | Support item-level stock reservation for approved projects, jobs and panel assembly requirements. | C
+INV-007 | Support approved warehouse-to-warehouse and warehouse-to-project-site transfers, dispatch and site acknowledgement. | C
+INV-008 | Track serial numbers for selected items and equipment across receipt, movement, installation and return. | C
+INV-009 | Support supplier returns and customer/site-to-store returns with reason, condition and disposition. | C
+INV-010 | Track project/site-issued stock and balance quantities by responsible site/person or subcontractor. | C
+INV-011 | Issue materials to subcontractors and reconcile consumed, returned, damaged and outstanding quantities. | C
+INV-012 | Provide stock valuation and value movement history; costing method and financial posting rules to be approved. | C
+INV-013 | Define and maintain multi-level engineering BOMs for electrical panel and relevant manufactured assemblies. | C
+INV-014 | Support controlled BOM versions / revisions with approvals and effective dates. | V
+INV-015 | Calculate material requirements from released BOM and assembly work orders against available/reserved/on-order stock. | C
+INV-016 | Generate planned procurement/requisition suggestions or shortage lists from material requirements. | V
+INV-017 | Create assembly/production work orders linked to customer order, project, panel design and approved BOM. | C
+INV-018 | Track configurable production stages such as kitting, fabrication, wiring, assembly, testing, packing and dispatch as validated. | C
+INV-019 | Issue BOM components against work orders and record planned vs actual consumption, substitution and wastage. | V
+INV-020 | Record production quality inspection/test checkpoints, defects and rework dispositions. | C
+INV-021 | Receive completed panel/assembly as finished goods with serial/tag reference and tested status. | C
+INV-022 | Support partial completions, hold, rework and work-order cancellation with inventory reconciliation. | V
+INV-023 | Link finished-goods allocation, delivery and installation back to project/sales documents. | V
+INV-024 | Run stock counts and adjustments using authorized variance approval and adjustment reason. | V
+INV-025 | Provide stock ageing, slow/non-moving stock and min/reorder-level alerts as configurable options. | V
+INV-026 | Prevent negative available stock or unapproved use of quarantined material unless an authorized exception rule is defined. | V
+INV-027 | Support unit conversion, batch/lot numbers and manufacturer part alternatives only for item classes that require them. | V
+INV-028 | Maintain value, quantity and audit traceability for stock transferred between internal stores and project sites. | V
+INV-029 | Handle rejected/returned finished goods, replacements and rework work orders. | V
+INV-030 | Record production completion and QC evidence prior to finished-goods dispatch or commercial acceptance. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Item, UOM, warehouse/site location, stock balance/ledger, serial or lot, GRN, QC inspection, transfer, reservation, issue/return, stock count, BOM/revision, MRP run, production order, operation, finished good.
+PRINCIPAL MODULE HANDOFFS
+Engineering BOM -> MRP -> Purchase requisition -> PO/GRN/QC -> Stock issue -> Panel work order -> Inspection -> FG receipt -> Sales/project dispatch.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Stock valuation method (FIFO/weighted average/etc.); production routing granularity; whether BOM revision changes affect released orders; traceability depth; material serial/batch scope; site store control rules.
+4.4 Payroll Management
+Provide payroll processing as a requested ERP module, subject to confirmation of salary structures, statutory applicability, and reconciliation with HR and external accounting.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+PAY-001 | Provide a Payroll module as one of the requested eleven ERP modules. | C
+PAY-002 | Define payroll groups, processing periods, pay components and employee pay structures. | V
+PAY-003 | Maintain effective-dated salary structures, allowances, deductions and salary revision history. | V
+PAY-004 | Import or calculate payable attendance/leave/unpaid days based on HR policies and approved data. | V
+PAY-005 | Configure earnings/deductions for overtime, shift, site, travel and other allowances only if policies require them. | V
+PAY-006 | Process payroll preview, discrepancy checks, maker-checker approval and finalization. | V
+PAY-007 | Calculate gross pay, statutory and other deductions, and net pay with configurable rounding rules. | V
+PAY-008 | Support applicable Indian statutory rules (for example PF, ESIC, professional tax and income-tax withholding) only after applicability and rules are agreed. | D
+PAY-009 | Generate electronic payslips and authorized salary statements. | V
+PAY-010 | Capture employee bank details with controlled access and support bank payment output format where required. | V
+PAY-011 | Process arrears, retroactive adjustments, bonuses, incentives, loans and advances where approved. | V
+PAY-012 | Handle joiners, leavers, final settlement and payroll-period locking under agreed policies. | V
+PAY-013 | Support employee expense/reimbursement payouts either through payroll or payable workflow as customer decides. | D
+PAY-014 | Prepare payroll summary, employer cost allocation by project/department, and reconciliation report. | V
+PAY-015 | Transfer approved payroll journal/summary to external accounting system if applicable and interface is confirmed. | D
+PAY-016 | Prevent unauthorized edits to approved payroll and log reversals/recalculations. | V
+PAY-017 | Provide year-end statements and statutory export outputs subject to legal review and final payroll policy. | D
+PAY-018 | Determine whether payroll for contract workers is processed internally, via vendor invoices or excluded. | D
+
+KEY BUSINESS ENTITIES / RECORDS
+Payroll period, pay group, salary structure, attendance input, variable pay, payroll run, deductions, approval, payslip, settlement, bank payout, ledger export.
+PRINCIPAL MODULE HANDOFFS
+HR master/attendance -> Payroll calculation -> Approvals -> Payslip/bank output -> Accounting interface/reporting.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Payroll country/state applicability; headcount/employee types; employer registrations; pay frequency; tax rules; approvals; existing payroll engine; payroll-to-accounting scope.
+4.5 Human Resource Management
+Support employee lifecycle and deployment of project engineers/technicians across locations, sites and service contracts.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+HR-001 | Manage recruitment requests, openings and candidate/application status. | C
+HR-002 | Support employee onboarding process and required onboarding document checklist. | C
+HR-003 | Maintain employee profile, identity/contact data, reporting line, department, employment type and current assignment. | C
+HR-004 | Maintain effective-dated joining, transfer, role change, separation and employee status history. | V
+HR-005 | Configure leave types, accruals, eligibility, applications, approvals and leave balances. | C
+HR-006 | Manage attendance records, corrections, holidays and attendance approval workflows. | C
+HR-007 | Support employee shift patterns, shift assignments and relevant attendance exceptions. | C
+HR-008 | Record project-site deployment including planned/actual dates, project/contract link, site and reporting manager. | C
+HR-009 | Track engineer/technician availability and allocation conflicts across projects and service engagements. | V
+HR-010 | Support travel requests, authorizations, itineraries and settlement. | C
+HR-011 | Support expense and reimbursement claims, evidence, approvals and payment status. | C
+HR-012 | Manage employee performance review cycles, goals, feedback and review outcome according to policy. | C
+HR-013 | Provide role/skill, certification and training records if required for site compliance and assignment. | V
+HR-014 | Record approved timesheets by project/task/service ticket and pass approved quantities to costing. | V
+HR-015 | Support document expiry reminders for specified certifications, site permits or contractual requirements. | V
+HR-016 | Manage offboarding checklist, asset return and handover through Assets/User Management integrations. | V
+HR-017 | Expose self-service views for profile, leave, attendance, travel and claims subject to access policy. | V
+HR-018 | Provide leave calendar, deployment roster, attendance exception and utilization views. | V
+HR-019 | Maintain confidential HR attachments with access restrictions and retention policies. | V
+HR-020 | Integrate attendance/payable days and approved components with Payroll as defined. | V
+HR-021 | Handle contractor/third-party staff records separately from payroll employees where applicable. | D
+HR-022 | Provide branch/site-specific holiday and attendance policies if operationally required. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Candidate, requisition, employee, department, reporting line, shift, attendance, holiday calendar, leave, site deployment, travel, expense claim, performance review, certification, timesheet.
+PRINCIPAL MODULE HANDOFFS
+Employee onboarding -> account & asset allocation -> shifts/deployment -> attendance/timesheets -> payroll / project costing -> offboarding.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Attendance capture source and devices; leave and shift rules; employee versus contractor data; claims policy; HR confidentiality; approval levels; timesheet costing basis.
+4.6 User Management and Security Administration
+Manage identities, permissions, organizational context, approval authority and security accountability across the ERP.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+USR-001 | Provide user management across all eleven modules. | C
+USR-002 | Maintain user identities, activation/deactivation, status and mapping to employees where appropriate. | V
+USR-003 | Implement role-based access permissions by module, function, transaction action and data scope. | V
+USR-004 | Define organizational scopes for company, branch, department, warehouse, project, site and customer data where required. | V
+USR-005 | Support configurable maker/checker and multi-level approval authority rather than permitting self-approval of sensitive transactions. | V
+USR-006 | Support administrative role assignment and segregation of duties with effective dates. | V
+USR-007 | Provide secure authentication and session controls; choose SSO/identity provider during design. | D
+USR-008 | Support MFA for privileged roles or other approved login journeys. | V
+USR-009 | Provide password/reset/lockout policy if the ERP directly manages credentials. | V
+USR-010 | Log significant create/update/delete/approve/reject/export actions with user, time and before/after context where warranted. | V
+USR-011 | Provide notification inbox and configurable email/SMS channels only after gateway decisions. | V
+USR-012 | Enforce least-privilege access to salary, HR identity, customer pricing and other restricted data. | V
+USR-013 | Support inactive session timeout, account recovery and privileged-account review. | V
+USR-014 | Provide administration of approval hierarchies, escalations and delegations with audit history. | V
+USR-015 | Permit authorized attachment upload/view/download with scanning, limits and data permissions. | V
+USR-016 | Protect report exports and bulk data imports via permission controls and audit logs. | V
+USR-017 | Support branch/site-based users while retaining a single legal-entity data model. | V
+USR-018 | Provide user provisioning/deprovisioning triggered by HR joins, transfers and exits if process agreed. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+User, employee identity map, role, permission, policy, data-scope assignment, approval matrix, delegated authority, session, audit event, notification.
+PRINCIPAL MODULE HANDOFFS
+HR join/exit -> Identity lifecycle; all module events -> approval checks -> audit records and notifications.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+SSO/IdP, MFA scope, role count, row-level restrictions, retention, approval ceilings, document access, external user/customer portal policy.
+4.7 Purchase Management
+Control procurement from purchase request through vendor comparison, purchase order, goods/service acceptance and downstream accounting.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+PUR-001 | Register vendor master, category, contact and compliance/tax identifiers subject to approved data fields. | V
+PUR-002 | Capture purchase requisitions from projects, BOM material shortages, general procurement and maintenance demand. | V
+PUR-003 | Support multi-level purchase approvals based on configured amount, category, project and authority. | C
+PUR-004 | Invite/request supplier quotations and record supplier responses against a common enquiry. | V
+PUR-005 | Generate vendor quotation comparison covering price, lead time, taxes, delivery terms and technical compliance. | C
+PUR-006 | Record vendor selection justification, negotiation and approval history. | V
+PUR-007 | Create purchase orders for materials, equipment, services and subcontracting as applicable. | V
+PUR-008 | Validate PO against approved requisition/budget and applicable authority thresholds. | V
+PUR-009 | Support revision, cancellation, short closure and partial receipt of PO lines with authorized controls. | V
+PUR-010 | Record goods receipt notes and connect GRN to inventory receipt/quality hold. | C
+PUR-011 | Require material inspection/acceptance before saleable/issuable status when configured. | C
+PUR-012 | Handle delivery shortages, excess quantity, damages and supplier replacement or return workflows. | V
+PUR-013 | Maintain ordered, received, rejected, invoiced and outstanding quantities per PO line. | V
+PUR-014 | Track service acceptance or work-completion evidence for service purchase orders. | V
+PUR-015 | Record supplier invoice references and match PO/receipt/acceptance subject to accounting responsibility decision. | D
+PUR-016 | Provide payable handoff to external accounting or separate finance system after interface confirmation. | D
+PUR-017 | Enable project-wise committed procurement costs and pending procurement visibility. | V
+PUR-018 | Support subcontractor material issue/return reconciliation using Inventory links. | C
+PUR-019 | Provide vendor delivery performance, procurement ageing and open PO reports. | V
+PUR-020 | Store procurement documents, terms, inspection certificates and approval logs. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Vendor, purchase requisition, RFQ, vendor quotation, comparative statement, PO, approval, receipt/GRN, QC record, supplier return, invoice reference, vendor performance.
+PRINCIPAL MODULE HANDOFFS
+BOM/project need -> PR -> approvals -> RFQ/comparison -> PO -> GRN/QC -> inventory/services accepted -> accounting handoff.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Procurement thresholds, tax/price precision, PO types, import procurement, service acceptance, invoice matching, e-way bill/e-invoice responsibility, supplier contract terms.
+4.8 Sales Management
+Support quotations, order processing, deliveries and contract/service billing events, with finance/Tax responsibility explicitly bounded.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+SAL-001 | Provide a Sales module supporting engineering, equipment supply, panel assembly and service engagements. | C
+SAL-002 | Prepare customer quotation for material, engineering services, project scope and AMC/O&M services. | V
+SAL-003 | Allow quotation versions/revisions, commercial terms, validity and authorized approval. | V
+SAL-004 | Convert won/approved quotations to customer order or contract with linked CRM opportunity. | V
+SAL-005 | Maintain customer PO/contract references, line items, value, taxes, deliverables, validity and delivery commitments. | V
+SAL-006 | Create project/production demand from customer order for project and panel-delivery business. | V
+SAL-007 | Reserve available finished goods or traded goods for confirmed customer orders. | V
+SAL-008 | Record delivery notes, dispatch details, installation/acceptance status and customer acknowledgement. | V
+SAL-009 | Support partial deliveries, back-orders and customer-approved order amendments. | V
+SAL-010 | Track project milestone billing eligibility against approved milestones/completion certificates. | V
+SAL-011 | Support recurring billing schedules for AMC/O&M contracts and chargeable service events. | C
+SAL-012 | Support advance, milestone, retention or final billing patterns only after contract/payment terms are confirmed. | D
+SAL-013 | Determine whether tax invoice is generated in ERP or in external accounting; avoid duplicate invoice ownership. | D
+SAL-014 | Provide invoice request/billing advice records and references to accounting invoice/payment status when integrated. | V
+SAL-015 | Track credit notes, returns and warranty replacements according to accounting ownership. | D
+SAL-016 | Provide open order book, delivery backlog, unbilled milestones and contract expiry views. | V
+SAL-017 | Capture customer acceptance documents and commercial closure checklists. | V
+SAL-018 | Maintain rate cards and standard price lists where applicable. | V
+SAL-019 | Protect discount/price override authorization and track sales revisions. | V
+SAL-020 | Support customer-level/project-level sales performance and billing pipeline reporting. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Quote, version, customer order, contract, sales line, delivery, billing milestone, recurring billing schedule, invoice advice, credit/return reference, acceptance evidence.
+PRINCIPAL MODULE HANDOFFS
+CRM win -> Quotation/order -> Project/manufacturing/trade delivery -> Milestone/recurring billing -> Accounting settlement.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+ERP invoice vs accounting invoice owner; GST/e-invoice scope; contract/retention/advance patterns; export sales; customer credit controls; rate calculation.
+4.9 Customer Relationship Management (CRM)
+Provide lead-to-opportunity commercial pipeline for engineering, equipment, validation and service business.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+CRM-001 | Provide CRM as a requested core ERP module. | C
+CRM-002 | Create lead accounts and contacts with source, vertical, location and ownership. | V
+CRM-003 | Manage lead qualification and opportunity creation with expected value, stage and probability methodology. | V
+CRM-004 | Capture technical requirements, RFQ documents, enquiry details and expected bid/decision dates. | V
+CRM-005 | Record presales activities, calls, meetings, notes, reminders and next actions. | V
+CRM-006 | Assign opportunity owners, engineering estimator and required commercial participants. | V
+CRM-007 | Link each enquiry to one or more proposals or quotation revisions. | V
+CRM-008 | Support bid/no-bid decisions and pipeline stage approvals where required. | V
+CRM-009 | Track tender opportunities, bid dates, submission tasks and supporting tender documents where needed. | V
+CRM-010 | Track win/loss outcome and reasons, competitor information and lost opportunity history. | V
+CRM-011 | Provide shared customer/contact master linked to Sales, Projects, Assets and Services. | V
+CRM-012 | Prevent duplicate customer/lead records by agreed matching/merge controls. | V
+CRM-013 | Create service/AMC renewal opportunities using contract expiry events. | V
+CRM-014 | Provide contact-level communication history and permissions subject to privacy rules. | V
+CRM-015 | Monitor activity ageing, neglected opportunities and scheduled follow-ups. | V
+CRM-016 | Produce pipeline by vertical, owner, value, stage and forecast close period. | V
+CRM-017 | Limit bulk email campaigns, telephony, marketing automation and external portals to approved integrations, not assumed baseline. | D
+CRM-018 | Support handoff of won opportunities to Sales/Projects without re-entering master information. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Lead, account, customer contact, opportunity, enquiry/RFQ, activity, quotation link, stage, pipeline forecast, renewal lead.
+PRINCIPAL MODULE HANDOFFS
+Lead -> qualification -> opportunity/RFQ -> quote -> win -> Sales order -> Project/Service; contract expiry -> renewal lead.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Pipeline stages; tender capture; field sales mobility; email synchronization; lead source ownership; conversion targets; pricing authority.
+4.10 Role-Based Dashboards
+Provide operational insight across commercial, projects, supply chain, people and service performance, restricted by user role.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+DASH-001 | Provide a Dashboard module across ERP domains. | C
+DASH-002 | Define executive summary tiles by sales pipeline, order book, active projects, procurement and inventory exposure. | V
+DASH-003 | Show projects at risk, overdue milestones, budget exceptions and unbilled work when source data exists. | V
+DASH-004 | Show outstanding PR/PO approvals, delayed GRN and vendor delivery issues. | V
+DASH-005 | Show stock shortages, reserved value, ageing and pending work orders. | V
+DASH-006 | Show panel production WIP, stage-wise bottlenecks, QC rejects and due dispatch. | V
+DASH-007 | Show AMC ticket volumes, open SLA breaches, technician load and preventive service due dates. | V
+DASH-008 | Show upcoming calibration deadlines and warranty/contract expiries. | V
+DASH-009 | Show workforce deployment, leave/attendance exceptions and pending claims approvals. | V
+DASH-010 | Allow drill-through from approved KPI tiles to relevant transaction lists with data access enforcement. | V
+DASH-011 | Support common date, customer, project, vertical, branch and site filters where applicable. | V
+DASH-012 | Display data refresh timestamp and documented KPI definitions; real-time refresh frequency to be decided. | V
+DASH-013 | Enable role-specific layouts and personalization only to the agreed extent. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+KPI definition, dashboard widget, user-dashboard assignment, filter context, cached aggregate/query, drill-through link.
+PRINCIPAL MODULE HANDOFFS
+All transactional domains -> approved aggregated metrics -> role restricted dashboard -> exception drilldown.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+KPI formulas; refresh SLA; access by region/site; target vs actual; drilldowns; BI platform versus native UI.
+4.11 Reports and MIS
+Provide searchable, filterable and auditable operational and management reports with agreed export controls.
+DETAILED FUNCTIONAL REQUIREMENT INVENTORY
+ID | Functional capability and control | Mark
+RPT-001 | Provide Reports as one of the eleven requested modules. | C
+RPT-002 | Define report catalogue with business owner, purpose, source, filters, grouping, column definitions and access scope. | V
+RPT-003 | Deliver project portfolio, milestone ageing, commitment and budget/actual profitability reports. | V
+RPT-004 | Deliver BOM shortage, material allocation, site inventory and assembly work-in-progress reports. | V
+RPT-005 | Deliver stock ledger, valuation, ageing, receipt/issue/transfer and serial traceability reports. | V
+RPT-006 | Deliver procurement PR/PO pending, vendor comparison, PO ageing and GRN inspection reports. | V
+RPT-007 | Deliver customer enquiries, sales pipeline, order book, deliveries and billing schedules. | V
+RPT-008 | Deliver asset register, calibration due/overdue, maintenance, warranty and custody reports. | V
+RPT-009 | Deliver AMC/O&M ticket ageing, SLA attainment/breaches, visits, technician activity and renewal pipeline. | V
+RPT-010 | Deliver HR roster, attendance, leave, site deployment, travel claims and performance tracking summaries. | V
+RPT-011 | Deliver payroll register, reconciliation, payslips and authorized statutory extracts subject to rules approval. | D
+RPT-012 | Deliver audit trail and approval cycle exception reports for authorized users. | V
+RPT-013 | Permit filtering, sorting, pagination and export to approved formats according to data classification. | V
+RPT-014 | Define report period cut-offs, timezone, ownership and data freshness assumptions per report. | V
+RPT-015 | Support scheduled email delivery only where security, recipients and integration gateway are approved. | D
+RPT-016 | Protect personally identifiable and salary-related report content using field-level or report-level permissions. | V
+RPT-017 | Provide exception reports for duplicate records, incomplete master data, unmatched receipts and integration failures. | V
+RPT-018 | Validate at least one accepted sample output/layout per report before FRD sign-off. | V
+
+KEY BUSINESS ENTITIES / RECORDS
+Report catalogue, filter definition, column/KPI spec, access policy, export request, job/schedule, report execution audit.
+PRINCIPAL MODULE HANDOFFS
+Transaction source -> reconciliation -> report view/export -> role-based management action.
+FRD WORKSHOP FOCUS / UNRESOLVED RULES
+Report count; exact layouts; KPI definitions; scheduled exports; MIS period definitions; finance reconciliation; ownership of statutory reports.
+5. Cross-module end-to-end business scenarios
+Scenario flows below define mandatory areas for integration demonstration and UAT coverage, not yet the full workflow specification. Each scenario shall have a swimlane, trigger, inputs, approvals, normal outcome, failure/exception handling and measurable acceptance cases in the FRD.
+ID | Process and controls
+E2E-01 | Process: Tender / enquiry to executionRepresentative chain: Lead / RFQ -> proposal -> customer order -> project -> WBS/BOM/approvals -> delivery and closure.Exception / acceptance emphasis: Ensure customer/quote/order/project identifiers persist and amendments reconcile.
+E2E-02 | Process: Panel assemble-to-deliverRepresentative chain: Approved engineering BOM -> requirements -> PR/RFQ/PO -> GRN/QC -> allocation -> work order -> stage updates -> QC -> finished goods -> dispatch.Exception / acceptance emphasis: Handle revision change, substitutions, rejected material and partial completion.
+E2E-03 | Process: Purchase-to-stock / siteRepresentative chain: Project need -> procurement comparison -> approved PO -> supplier receipt -> inspection -> warehouse -> reservation -> transfer/site acceptance.Exception / acceptance emphasis: Prevent over-receipt or quarantine issue outside approved rules; reconcile quantity and value.
+E2E-04 | Process: Subcontract material accountabilityRepresentative chain: Issue stock to subcontractor -> work acceptance -> consume/return/reconcile -> outstanding balance.Exception / acceptance emphasis: Audit custody and shortages; final liability method unconfirmed.
+E2E-05 | Process: Engineering project to installed baseRepresentative chain: Project delivery -> test/commission sign-off -> installed equipment register -> warranty -> support/AMC link.Exception / acceptance emphasis: Separate customer ownership from company fixed assets.
+E2E-06 | Process: AMC reactive breakdownRepresentative chain: Customer ticket -> contract entitlement & SLA -> technician assignment -> site visit -> spares -> service signoff -> SLA/charge decision.Exception / acceptance emphasis: Handle priority changes, paused SLA, after-hours, revisit and asset replacement.
+E2E-07 | Process: Preventive maintenance / calibrationRepresentative chain: Asset due -> planned visit -> assigned engineer -> work checklist/results -> evidence -> next due -> contract/SLA reporting.Exception / acceptance emphasis: Calibration certificate data depth and approval controls must be established.
+E2E-08 | Process: People deployment to payrollRepresentative chain: Employee -> shift/site assignment -> attendance/leave -> approved payroll input -> run/approval/payslip -> cost/export.Exception / acceptance emphasis: Confirm payroll policy, contractor treatment and external accounting handoff.
+E2E-09 | Process: Timesheet and expenses to project costRepresentative chain: Engineer assignment -> approved timesheet/travel reimbursement -> eligible project cost -> variance dashboard/report.Exception / acceptance emphasis: Confirm rate cards, expense approval and employee confidentiality.
+E2E-10 | Process: Contract billing and finance handoffRepresentative chain: Order/contract -> delivery or service milestone/recurrence -> billing advice/invoice -> external accounting posting/status.Exception / acceptance emphasis: Prevent duplication and define invoice system of record, taxes and payment updates.
+E2E-11 | Process: Inventory correction and full auditRepresentative chain: Count/adjust/reverse -> stock ledger and valuation impact -> project commitment impact -> audit/report.Exception / acceptance emphasis: Establish correction posting, accounting impact and approval evidence.
+E2E-12 | Process: User offboarding and asset recoveryRepresentative chain: Employee exit -> revoke access -> recover assigned tools/IT assets -> settle payroll/claims -> close open approvals.Exception / acceptance emphasis: Ensure continuity through delegated approvals and no orphaned site allocations.
+
+6. Master data and data governance
+Master / dimension | Details / decisions
+Customer, sites and contacts | Business ownership to confirm: Sales / CRM ownerGovernance / linkage requirement: Unique customer identity, contract/site mapping, GST/contact fields where applicable, controlled merge.
+Vendor and commercial terms | Business ownership to confirm: Procurement / FinanceGovernance / linkage requirement: Vendor approval, price/term history, invoice/legal identifiers.
+Item, material, UOM, serial class | Business ownership to confirm: Engineering / StoresGovernance / linkage requirement: Controlled items, standards, units, stockable/non-stockable classification, traceability and substitution.
+BOM, panel design, routing | Business ownership to confirm: Engineering / ManufacturingGovernance / linkage requirement: Revision and effectivity controls; approve-and-freeze rules; released work-order impact.
+Warehouse, bin, project site | Business ownership to confirm: Stores / OperationsGovernance / linkage requirement: Physical/virtual locations, custodian, permitted stock flow, approval and visibility.
+Project, contract, site | Business ownership to confirm: Project / SalesGovernance / linkage requirement: Shared source references, milestone type, budget structure, document classifications.
+Internal / customer asset | Business ownership to confirm: Asset / ServiceGovernance / linkage requirement: Ownership marker, serial/tag, equipment/site, warranty, covered contract and custody.
+Employee / role / shift | Business ownership to confirm: HR / IT securityGovernance / linkage requirement: Confidential employee fields, account mapping, effective-dated assignment and separation.
+Pay components, payroll calendar | Business ownership to confirm: HR / Payroll / FinanceGovernance / linkage requirement: Effective dates, statutory application, deduction rules and payroll lock.
+Approval policy, notification rules | Business ownership to confirm: Operations / Delegated authorityGovernance / linkage requirement: Monetary authority, role, escalation/delegation, immutable approval outcome.
+Accounts, cost categories, tax mappings | Business ownership to confirm: Finance / IntegrationGovernance / linkage requirement: External finance master mapping and error-handling ownership, not assumed embedded GL.
+
+6.1 Data controls required in FRD
+For each master: unique key, data owner, create/edit/approve rights, optional/mandatory fields, lookup catalogs, import template and validation rules.
+For each document: numbering convention, timezone, state transition table, revision history, attachment policy, retention and cancellation/reversal behavior.
+For each monetary/quantity record: currency, precision, units, rate source, taxes/valuation method, event effective date and reconciliation owner.
+Data classification and explicit restrictions for payroll, identity, vendor pricing, customer discounts and regulatory documents.
+Customer data cleansing, mapping and ownership of data quality sign-off before migration.
+7. Role permissions, approvals and governance
+Role names below are examples for access workshops, not customer-confirmed organizational positions. Final access matrix must specify CREATE/VIEW/EDIT/APPROVE/EXPORT/DELETE per object, restricted fields and branch/project/site scope.
+Illustrative user role | Details / decisions
+System administrator | Likely functional privileges (to validate): Configure users, roles, integrations and operational settings.Control emphasis: No default access to salary, commercial approval or self-authorized master changes.
+Sales / presales | Likely functional privileges (to validate): CRM, RFQs, quotations, orders, pipeline.Control emphasis: Discount authority and quote approval separation.
+Project / engineering manager | Likely functional privileges (to validate): Project planning, budget, BOM review, project procurement and resource allocations.Control emphasis: Project data scope and budget gate.
+Production / QC supervisor | Likely functional privileges (to validate): Work order, stage progress, inspections and finished-goods release.Control emphasis: Separation of production and final QC release if required.
+Purchase officer / approver | Likely functional privileges (to validate): PR, RFQ, comparison, PO and vendor records.Control emphasis: Vendor selection, price change, multi-level PO approval.
+Warehouse / site storekeeper | Likely functional privileges (to validate): Receipt, issue, transfer, cycle count and stock enquiries.Control emphasis: Count adjustments and custody reconciliation.
+Service desk / field engineer | Likely functional privileges (to validate): Ticket handling, service visits, asset history and spares.Control emphasis: Contract entitlement, customer confidential documents and technician access.
+HR / payroll operator | Likely functional privileges (to validate): Employee HR, shifts, claims and payroll inputs/runs.Control emphasis: Sensitive HR data and independent payroll approvals.
+Finance / accounts liaison | Likely functional privileges (to validate): Billing advice, financial mapping, reconciliation and cost reports.Control emphasis: External accounting ownership and restricted financial export.
+Leadership / reviewer | Likely functional privileges (to validate): Aggregated dashboards, management reports and approved exception decisions.Control emphasis: Least-privilege, read-only by default.
+
+7.1 Cross-cutting controls
+Audit sensitive business events with user, timestamp, action, old/new values or revision references and device/source where required.
+Multi-level approvals must not be bypassed by direct API or bulk import; delegated approvals require authority period and audit.
+User actions must be validated server-side; UI hiding is not a security mechanism.
+Implement access tests for cross-project, cross-site and salary-related data leakage.
+Exception overrides (negative stock, over-budget PO, QC bypass, payroll rerun, closed-ticket edit) need formal policy decisions and approvals.
+8. Interfaces, external accounting and migration
+8.1 Proposed interface register
+ID | Process and controls
+INT-01 | Interface / direction: ERP <-> External accounting platform (customer, vendor, invoice, credit, PO/GRN summary, cost, payment as needed).Status: DContract / FRD questions: Which vendor? Which entity is source of truth? API/file? Frequency and error recovery?
+INT-02 | Interface / direction: ERP -> Email notification gateway.Status: VContract / FRD questions: SMTP/service provider, templates, logging and domain responsibility.
+INT-03 | Interface / direction: ERP <-> Attendance/biometric device or import.Status: DContract / FRD questions: Existing time system, punch correction and sync mode.
+INT-04 | Interface / direction: ERP -> Employee bank upload / payment file.Status: DContract / FRD questions: Bank layout, maker-checker controls and actual payment authorization.
+INT-05 | Interface / direction: ERP <-> SSO / identity provider.Status: DContract / FRD questions: Microsoft Entra ID/Google/local? MFA and account lifecycle.
+INT-06 | Interface / direction: ERP <-> SMS/WhatsApp/telephony gateway.Status: DContract / FRD questions: Customer consent, provider, paid usage and message policy; not included automatically.
+INT-07 | Interface / direction: ERP <-> Customer legacy data sources.Status: DContract / FRD questions: Existing ERP/Excel/Tally/CSV, data quality, cutover quantity and ownership.
+INT-08 | Interface / direction: ERP <-> BI platform / scheduled report export.Status: DContract / FRD questions: Native reporting only unless external BI explicitly approved.
+INT-09 | Interface / direction: ERP <-> Industrial equipment / PLC / SCADA / MES.Status: DContract / FRD questions: Not presumed in scope; customer runs OT systems, but connection must be separately authorized.
+
+Accounting design rule: To prevent duplicated tax invoices and financial postings, the FRD must name a system of record for customer invoice, supplier invoice, receipts, payments, GL and statutory returns. Until then, ERP billing events and operational costing are scoped conceptually, and full accounting/GL is not a confirmed build item.
+8.2 Integration contract minimum
+Data contract: fields, IDs, transformation/mapping tables, event timing and source of truth.
+Protocol/authentication, encryption, retry/idempotency key, throttling, error queue, observability and transaction reconciliation.
+Non-production test access, sample payloads, exception examples, provider costs and customer-side contact.
+Integration acceptance sample covering success, partial error, duplicate message, rollback/retry and mismatched totals.
+8.3 Migration scope and limitations
+Legacy systems, number of records, quality and history depth were not supplied. Migration is therefore a planned activity with unapproved quantity-based scope, not a promise of complete historical backfill. A discovery inventory shall list each source, extract format, record count, quality, transformation, mapping, owner, validation plan and cutover approach.
+Migration class | Details / decisions
+Core masters | Candidate data: Customer, vendor, item/BOM, employee, asset, location, project/contract.Decision: Likely necessary; depth TBD
+Opening operations | Candidate data: Current inventory/serials, active POs/SOs, open projects, active tickets/AMC, payroll opening balances.Decision: TBD by cutover approach
+History | Candidate data: Past project costs, invoices/payments, time/leave, old calibration certificates, service history.Decision: Not committed; volume and import method TBD
+Documents | Candidate data: Drawings, certificates, contracts, employee records and attachments.Decision: Retention, taxonomy and volume TBD
+
+9. Non-functional and production requirements
+A scale of 200+ users is confirmed. The values in this chapter are not promised SLAs; they are verification categories that require measured targets and acceptance thresholds in the FRD/NFR schedule.
+NFR area | Details / decisions
+Capacity | Proposed requirement to formalize: Support 200+ named users and appropriate peak concurrent sessions, background jobs and reporting.Unconfirmed target / decision: Concurrent users, peak TPS, data volumes, expected growth.
+Performance | Proposed requirement to formalize: Specify measurable response times for list, CRUD, search, dashboards, reports and bulk actions under peak load.Unconfirmed target / decision: P95/P99 thresholds, report size, test datasets.
+Availability & support | Proposed requirement to formalize: Define service hours, maintenance window, alert response and post-launch support SLA.Unconfirmed target / decision: Uptime %, service desk model, support period.
+Resilience | Proposed requirement to formalize: Define backup cadence, test restores, DR architecture, recovery objectives and failover responsibilities.Unconfirmed target / decision: RPO, RTO, backup retention, secondary region/site.
+Security | Proposed requirement to formalize: TLS, encryption at rest where needed, secure secrets, MFA/SSO decision, least privilege, validation, vulnerability management, audit logging.Unconfirmed target / decision: Security standard, VAPT, penetration test remediation threshold.
+Privacy | Proposed requirement to formalize: Protect employee payroll/identity details, customer pricing, vendor terms and documents.Unconfirmed target / decision: Data retention, India/localization, DPA and purge policy.
+Audit / traceability | Proposed requirement to formalize: Approvals, BOM revisions, quantity/valuation adjustments and payroll reruns must be reconstructable.Unconfirmed target / decision: Audit event categories, retention, export/immutability rule.
+User experience | Proposed requirement to formalize: Responsive desktop-first web UI, keyboard navigation, accessible status feedback and multilingual possibilities if requested.Unconfirmed target / decision: Browsers/devices, minimum accessibility standard and languages.
+Observability | Proposed requirement to formalize: Health checks, error logs, operational metrics, security events and integration job monitoring.Unconfirmed target / decision: Monitoring stack, log retention, alert routing.
+Release engineering | Proposed requirement to formalize: Separate dev/test/UAT/prod, CI/CD, configuration management, migration/rollback and secrets process.Unconfirmed target / decision: Hosting provider, IaC, approval model, releases.
+Compliance | Proposed requirement to formalize: Assess applicable Indian payroll, tax and employment requirements, and whether any ERP-owned regulated electronic records require validation.Unconfirmed target / decision: Jurisdiction, payroll applicability, 21 CFR Part 11/GxP applicability; no automatic claim.
+Interoperability | Proposed requirement to formalize: Secure and versioned APIs, data exports and integration audit.Unconfirmed target / decision: External systems, file/API formats, dependency SLAs.
+Data accuracy | Proposed requirement to formalize: Reconcile stock ledgers, valuation, payroll totals, project cost and accounting handoffs.Unconfirmed target / decision: Tolerance, timing, exception handling, closing calendar.
+
+9.1 Validation/compliance boundary
+The customer’s published business information describes regulated-industry validation services, but this fact does not mean the internal ERP automatically needs full GxP or 21 CFR Part 11 validation. A customer-led impact assessment must classify regulated records and decide whether electronic signature, immutable audit trails, validation protocols (URS/FS/IQ/OQ/PQ), controlled retention or compliance evidence are required in this ERP. If confirmed, scope, test effort and acceptance change accordingly.
+10. Reporting and KPI governance
+The Dashboard and Reports modules are confirmed; however, exact report layouts and formulas are subject to business sign-off. The following catalogue indicates workshops and data quality dependencies, not a committed numbered report pack.
+Area | Details / decisions
+Sales & CRM | Candidate report/KPI: Qualified pipeline, win rate, order intake, pending quotes, backlog, renewals.Definition questions: Stage definitions, target periods, forecast probability.
+Project delivery | Candidate report/KPI: On-time milestones, overdue tasks, committed vs actual spend, project gross margin, unbilled delivery.Definition questions: Revenue recognition proxy, labour rates, outsourced costs.
+Panel manufacture | Candidate report/KPI: BOM shortage, planned vs consumed, assembly WIP, first-pass QC, dispatch readiness.Definition questions: Work order status, rework and quality denominators.
+Supply chain | Candidate report/KPI: Lead time, vendor comparison, PO delays, GRN rejects, site stock, age/valuation.Definition questions: Stock costing and transaction closing windows.
+Assets & service | Candidate report/KPI: Calibration due, contract coverage, ticket backlog, SLA attainment, repeat visits, PM compliance.Definition questions: SLA clock, severity and suspension rules.
+Workforce | Candidate report/KPI: Deployment coverage, utilization, timesheet approval, leave/attendance exception, reimbursements.Definition questions: Billable vs non-billable, time rules and privacy.
+Payroll | Candidate report/KPI: Gross/net salary totals, unpaid days, approved adjustments and cost allocation.Definition questions: Applicable deductions, payroll periods and reconciliation.
+Administration | Candidate report/KPI: Pending approvals, workflow ageing, data-quality errors, failed integrations, audit exceptions.Definition questions: Escalation SLAs and severity thresholds.
+
+10.1 Standard specification for every report
+Report ID/name, business owner, audience, purpose, related modules, allowed data access, calculated fields/formulas, filters, date and timezone semantics, row/column definitions, drilldown, sort/group, export type, generation mode, sample output, reconciliation source, refresh frequency and test acceptance data.
+11. Verification, testing and acceptance
+11.1 Required quality activities
+Document requirements traceability from SoW ID to approved FRD ID, story/use case, test case, defect and customer sign-off.
+Review screen/field flows with domain owners, including workflow exceptions, approval limits and data permissions.
+Perform functional, negative, boundary, integration, API, security, accessibility and audit-trail tests for critical functions.
+Execute end-to-end business scenarios E2E-01 to E2E-12 with realistic sample data and user roles.
+Performance/load test against agreed 200+ user deployment profile and measured concurrency/volume thresholds.
+Complete migration trial(s) and opening-balance reconciliation for stock, open orders, active projects/contracts, HR/payroll and external accounting interfaces where applicable.
+Run business UAT, fix blockers, obtain business/process-owner acceptance and controlled production cutover approval.
+11.2 Illustrative acceptance conditions (to convert to measurable FRD tests)
+Area | Observable acceptance evidence
+Material controls | PO->GRN->inspection->stock movement links are navigable; rejected stock cannot enter available stock without approved release rule.
+Panel assembly | Approved BOM revision and production order issue/consumption/stage/QC/FG chain reconciles for partial production and rework.
+Site traceability | Serialized item can be traced from supplier receipt through warehouse/site movement to installed asset or documented return.
+Service lifecycle | A ticket under an AMC contract carries entitlement/SLA, technician service report, spare issue and billing outcome if chargeable.
+Payroll security | Unauthorized users cannot access pay details; payroll approval lock and reversal/audit behavior are demonstrable.
+Finance integration | Replay/duplicate messages do not create duplicated accounting records and mismatches are visible in reconciliation.
+Data segregation | Cross-project/site/branch users see only authorized records according to signed access matrix.
+User experience | Critical workflows complete with expected validation, actionable errors and documented browser/device support.
+Non-functional | Load/backup/restore/security test results meet agreed numeric threshold; performance threshold is not assumed in this version.
+
+11.3 Acceptance gate
+Acceptance shall require signed FRD and NFR baseline, completed scope-to-test traceability, no open critical/blocking defects, approved data migration and reconciliation results, successful integrated UAT across all eleven modules, documented operating procedures and go-live approval. Final defect severity policy, warranty period and acceptance timelines require customer/supplier agreement.
+12. Deliverables, responsibilities and release model
+12.1 Proposed delivery artifacts
+Stage | Details / decisions
+Discovery / design | Deliverables: Process map, workshop minutes, finalized SoW, FRD, module workflows, RACI, master data, integration specs, role matrix, report catalogue, NFR, UI screens/wireframes.Acceptance owner (to confirm): Business sponsor + functional owners
+Architecture | Deliverables: Solution architecture, ERD/logical data model, API contracts, deployment, security model, backup/DR and audit approach.Acceptance owner (to confirm): IT/security and operations lead
+Build | Deliverables: Source code, database schema/migrations, secured APIs, frontend, background workers, configuration and automated tests.Acceptance owner (to confirm): Engineering / technical lead
+Validation | Deliverables: Test strategy, cases, evidence, traceability matrix, defect log, UAT scripts, security/load and migration reconciliation results.Acceptance owner (to confirm): QA lead + customer UAT owners
+Release / transition | Deliverables: Prod deployment, runbook, administrator/user guides, training, backup/restore evidence, release note, cutover and rollback plan.Acceptance owner (to confirm): Operations + customer sponsor
+Hypercare / warranty | Deliverables: Issue management, SLA and defect warranty under separately approved commercial terms.Acceptance owner (to confirm): Contract/service owners
+
+12.2 Responsibility split
+Customer / ABC Limited | Implementation vendor / software team
+Nominate owners and approvers; provide SOPs, approval limits, sample forms, payroll policies, regulatory obligations and reporting samples. | Facilitate discovery, document requirements, propose options and identify functional gaps/changes.
+Provide existing systems, export rights, integrations/API documentation, test environments and data quality ownership. | Design/build ERP, interfaces and validated migration tools for the agreed source systems and volumes.
+Own business decisions, master mapping, statutory sign-off, sample data and UAT test participation. | Perform quality controls, document traceability, test fixes and support UAT/reconciliation.
+Approve hosting, security, access, user volumes, operations SLA and final go-live. | Configure delivery pipeline, monitoring, deployment, runbooks and knowledge transfer as contracted.
+
+12.3 One-release implementation plan (indicative sequencing, not phased go-live)
+Internal workstream | Details / decisions
+Foundation | Typical build dependencies: Masters, user/roles, security, approvals, core data model, system integration framework.Go-live policy: Part of common final release
+Lead-to-contract | Typical build dependencies: CRM, Sales, Projects, customer and contract records.Go-live policy: Part of common final release
+Source-to-assemble | Typical build dependencies: Purchase, Inventory, BOM/MRP, production work orders, assets.Go-live policy: Part of common final release
+Workforce and service | Typical build dependencies: HR, Payroll, deployment, AMC/tickets/calibration and billing links.Go-live policy: Part of common final release
+Insights and hardening | Typical build dependencies: Dashboards/reports, migration, performance/security, end-to-end UAT, cutover.Go-live policy: All modules accepted together
+
+Any go-live pilot or early live use requires a distinct customer approval and change to release criteria; this document records a single combined production launch.
+13. Explicit exclusions, conditional scope and change control
+Area | Details / decisions
+Full finance/general ledger, AP/AR, bank reconciliation, statutory tax filing | Current position: Not named among 11 modules; external accounting presumed but undefined.Treatment: Excluded unless customer explicitly commissions as ERP scope; integration may be required.
+PLC / SCADA / IoT telemetry and MES integration | Current position: The customer delivers industrial systems, but ERP data exchange with OT not requested.Treatment: Separate interface requirement and security assessment.
+Full-featured QMS, LIMS and NABL lab information system | Current position: Inspection and calibration operations confirmed, full specialist compliance system not.Treatment: Calibration data depth and quality document scope subject to FRD.
+Advanced capacity planning / APS and shop-floor machine integration | Current position: BOM/MRP and staged work orders confirmed; plant scheduling engines not specified.Treatment: Do not assume advanced manufacturing software.
+Dedicated native mobile app or full offline-mode | Current position: Field work confirmed, mobile platform not.Treatment: Responsive web proposed; native/offline requires separate approval.
+Customer/vendor web portals, EDI, public APIs, marketing automation | Current position: No instruction to provide these channels.Treatment: Separate change approval and API/provider definitions.
+Historic data backfill of unlimited volume | Current position: Sources and volume absent.Treatment: Limited to approved migration inventory and volume baseline.
+Regulated computerized system validation package | Current position: Applicability of GxP/21 CFR Part 11 to internal ERP not established.Treatment: Add only following risk/impact decision.
+AI forecasting, OCR/invoice automation, RPA, QR/RFID hardware and GPS fleet tracking | Current position: Not in user-confirmed requirements.Treatment: Out of assumed baseline; optional future enhancements.
+Cloud subscription, external SaaS/gateways, statutory consultancy, hardware devices | Current position: Commercial and procurement responsibilities unspecified.Treatment: Third-party costs and responsibilities to be agreed in contract.
+
+13.1 Change management and requirements acceptance
+Any scope addition or material change after sign-off shall record a change request identifier, business justification, affected SoW/FRD requirement IDs, workflows, integration/data changes, impact on cost/schedule/test scope, risk and authorized approval. Proposed V and D items become baseline only by explicit customer agreement and recorded revision.
+14. Open decisions, assumptions and risk register
+14.1 Priority decisions before fixed-price estimation
+ID | Priority | Unresolved question / decision
+OD-01 | P0 | Accounting platform and system-of-record: Q9 “Yes” interpreted as external accounting; confirm vendor, invoice ownership, journal/posting and AR/AP sync.
+OD-02 | P0 | User load: total named users vs concurrent; locations, internet constraints, peak transactions and growth.
+OD-03 | P0 | Payroll policy: employee types, state registrations, PF/ESIC/PT/TDS applicability, allowance/arrears formula and who approves legal correctness.
+OD-04 | P0 | Project lifecycle depth: estimation, engineering docs, budgets, approvals, customer variations, costing and billing milestones.
+OD-05 | P0 | Manufacturing depth: BOM revisions, MRP algorithm, production stages, QC checkpoints, rework, scheduling and finished-goods costing.
+OD-06 | P0 | Inventory valuation and posting basis; stock opening balance/serial history and site store ownership.
+OD-07 | P0 | Scope of customer calibration: attachment vs certificate authoring; labs, uncertainty, reference traceability, regulatory impact.
+OD-08 | P0 | Current application/data sources and volume, migration cutover and existing finance/attendance APIs.
+OD-09 | P0 | Commercial billing: sales tax invoice in ERP vs accounting and treatment of milestones, retention, advances and contracts.
+OD-10 | P0 | Deployment architecture, cloud/on-prem, legal/security policy, DR, uptime, maintenance and support model.
+OD-11 | P1 | Role/approval matrix and purchasing value thresholds; project/site/department data restrictions.
+OD-12 | P1 | Location and operations hierarchy: branches, warehouses, projects, site stores and tax registrations within one entity.
+OD-13 | P1 | AMC contract entitlements, severity/SLA clock, weekend support, spare replacement and billing rules.
+OD-14 | P1 | Field service connectivity: responsive web, offline needs, mobile capture, digital signatures or GPS evidence.
+OD-15 | P1 | Employee attendance input: manual, biometric, import, geo-attendance or existing platform.
+OD-16 | P1 | Internal asset depreciation and accounting: fixed-asset accounting needed or operational custody only?
+OD-17 | P1 | Quotations, pricing, approval stages, tenders and engineering estimation/BOQ patterns.
+OD-18 | P1 | Reporting catalogue, sample formats, KPI formulas, scheduled delivery and access classification.
+OD-19 | P1 | Customer and supplier returns, warranty replacement, subcontractor material accounting.
+OD-20 | P1 | Statutory/regulatory impact assessment for electronic records and need for formal validation documentation.
+OD-21 | P1 | Existing document templates, number series, approvals and retention periods across business lines.
+OD-22 | P1 | People planning: project/site engineers vs third-party contractor management and time-cost calculation.
+OD-23 | P1 | Notification and identity systems: email/SMS/SSO/MFA and vendor subscriptions.
+OD-24 | P1 | System usage languages, browser/device support, accessibility target and operational reporting timezone.
+OD-25 | P1 | Target data volumes for material, serials, projects, work orders, support tickets and historical documents.
+OD-26 | P1 | Acceptance standards: numeric performance/SLA goals, defect severity and load/backup test thresholds.
+OD-27 | P2 | Whether additional portals, analytics platform, native mobile app or OT/ERP integration are future options.
+OD-28 | P2 | Post-live training seats, warranty/support period, vendor ownership of hosted infrastructure and recurring license costs.
+
+14.2 Working assumptions (not customer commitments)
+ABC Limited is one legal company but may have operating offices, warehouses, sites and potentially multiple state-level tax registrations; exact hierarchy requires approval.
+Panel work orders and QC will be represented in the nominated Inventory/Project scope rather than adding a twelfth named Manufacturing module.
+AMC/O&M/ticket work will be represented inside Asset/Project with Sales billing links, rather than a twelfth service module.
+Q9 “Yes” is insufficient to identify finance system or finance scope; design must explicitly document invoice and payment source of truth.
+Web interface is provisionally considered the default presentation layer; native mobile/offline is not confirmed.
+200+ users represents expected user base, but no concurrency/throughput SLA may be inferred.
+All 11 modules will be released to production together, even if engineering is managed through separate iterations.
+India statutory, tax and compliance configurations will be validated by customer subject-matter experts; application team does not assert legal advice.
+14.3 Key implementation risks and mitigations
+Risk | Details / decisions
+Overbroad module labels | Why it matters: Large functionality ambiguity across eleven modules.Mitigation / decision gate: Detailed FRD workshops with priority, workflow sign-off and traceability.
+Accounting ownership | Why it matters: Duplicate or missing invoices/ledger postings.Mitigation / decision gate: Source-of-truth matrix and integration PoC before design freeze.
+Complex multi-site stock | Why it matters: Stock and serialized equipment lose custody trace.Mitigation / decision gate: Pilot physical flows including site stores and subcontractors; reconcile count/value.
+One-release integration risk | Why it matters: A defect in one core module can block overall go-live.Mitigation / decision gate: Early integration environments, interface contract tests and full dress-rehearsal UAT.
+Payroll/statutory correctness | Why it matters: Legal/pay errors and sensitive data exposure.Mitigation / decision gate: Payroll policy approval, parallel pay runs and restricted review.
+Manufacturing scope growth | Why it matters: BOM and routing complexity can shift architecture and effort.Mitigation / decision gate: Validate 2-3 representative panel products and revisions before estimation.
+Undefined data quality | Why it matters: Opening balance and master data errors invalidate outputs.Mitigation / decision gate: Source profiling, ownership, reconciliation and cutover freeze.
+Regulated evidence assumptions | Why it matters: Validation burden may differ substantially.Mitigation / decision gate: Early compliance impact assessment and explicit acceptance plan.
+200+ distributed user performance | Why it matters: Concurrency/site connectivity can degrade experience.Mitigation / decision gate: Define and load-test realistic concurrent workload and field network conditions.
+
+Appendix A. Production FRD requirement specification template
+The following minimum schema applies to each decomposed FRD requirement, regardless of module. Example uses PM-008 and is illustrative, not yet approved.
+FRD field | Expected content / example
+Requirement ID / parent SoW ID | FRD-PM-008.01; SoW parent PM-008.
+Module / process / actor | Project; material demand; project engineer or PM.
+Business objective | Allow a project to request approved BOM materials from Inventory.
+Trigger / preconditions | Approved active project, authorized user, released BOM.
+Main workflow | Select project/BOM -> material demand -> available/shortage summary -> submit for approval -> reserve or create PR.
+Data fields / validation | Item, revision, quantity, UOM, required date, project, warehouse; validation against approved master/revisions.
+Approval / entitlement | Warehouse/project authorization; escalation and delegation as agreed.
+Exception flows | Insufficient stock, cancelled project, changed BOM, rejected PR, stock already reserved.
+System outputs / integrations | Reservation record; shortage PR; project cost commitment; event notification.
+Audit / status / NFR | Demand ID, version, user/time, states; expected response target TBD.
+Acceptance tests | Positive, invalid permissions, partial stock, rejection, BOM revision and concurrency cases.
+Owner / priority / sign-off | Owner and effort assigned in discovery; Approved / Rejected / Deferred status.
+
+Appendix B. Common glossary
+Term | Meaning in this SoW
+BOQ | Bill of Quantities; estimate/commercial line quantities, not necessarily interchangeable with engineering BOM.
+BOM | Bill of Materials; engineering/manufacturing component list with revisions.
+MRP | Material Requirements Planning; shortage/requirement computation based on approved demand and stock.
+GRN | Goods Receipt Note, with receipt and inspection links.
+FG / WIP | Finished Goods / Work in Progress.
+FAT / SAT | Factory Acceptance Test / Site Acceptance Test.
+AMC / O&M | Annual Maintenance Contract / Operations & Maintenance.
+CSV / GxP | Computerized System Validation / Good Practice regulated environments.
+SLA | Service-Level Agreement; rules and business hours must be contract-specific.
+FRD / UAT / RTM | Functional Requirements Document / User Acceptance Testing / Requirements Traceability Matrix.
+SoW / NFR / API | Scope of Work / Non-Functional Requirement / Application Programming Interface.
+System of record | Authoritative application for creating and updating a particular business record.
+
+Appendix C. Discovery sources and anonymization note
+Discovery basis: customer-supplied module screenshot and written clarifications, plus publicly available business descriptions reviewed on 03 November 2026. The source website URL has been intentionally omitted from this client-anonymized version. Public descriptions provide context only and are not confirmed internal operating procedures.
+Customer-provided scope: 11 ERP modules and end-to-end full-product development.
+Customer clarifications: seven operational business verticals, detailed manufacturing, supply-chain, asset/service and HR scope.
+Business-context research: public company materials reviewed before anonymization; identifying addresses withheld.
+Appendix D. Customer sign-off checklist
+Review all requirements marked V and explicitly accept, amend or exclude each in the FRD scope baseline.
+Resolve P0 decisions before architecture freeze or fixed-price schedule commitment.
+Confirm business process owner, sample forms/reports and acceptance evidence for each functional domain.
+Confirm third-party systems, interface access, master ownership and data migration volumes.
+Approve role/authority matrix, payroll/financial responsibilities, security and NFR numeric targets.
+Approve integrated test plan and single-release go-live acceptance criteria.
+Issue a controlled baseline version, signatory matrix and dated approvals.

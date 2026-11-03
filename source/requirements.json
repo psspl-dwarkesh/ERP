@@ -1,0 +1,1097 @@
+[
+  {
+    "id": "PM-001",
+    "requirement": "Register multiple project types, including automation/turnkey engineering, electrical panel, instrumentation, calibration, O&M, AMC and computerized system validation engagements.",
+    "status": "C"
+  },
+  {
+    "id": "PM-002",
+    "requirement": "Create project master with customer, order/contract references, site, owning business unit, planned dates, project manager, status and document links.",
+    "status": "V"
+  },
+  {
+    "id": "PM-003",
+    "requirement": "Capture project scope, deliverables and contractual milestones against approved sales order / work order.",
+    "status": "V"
+  },
+  {
+    "id": "PM-004",
+    "requirement": "Structure phases, work breakdown structure, task dependencies, assigned resources and planned/actual dates.",
+    "status": "V"
+  },
+  {
+    "id": "PM-005",
+    "requirement": "Establish project budget by material, internal labour, subcontracting, travel, equipment and other cost categories.",
+    "status": "V"
+  },
+  {
+    "id": "PM-006",
+    "requirement": "Track planned versus actual work, milestones, deliverables, progress and deviations with status history.",
+    "status": "V"
+  },
+  {
+    "id": "PM-007",
+    "requirement": "Link engineering drawings, technical specifications, document revisions, approvals and transmittals to projects.",
+    "status": "V"
+  },
+  {
+    "id": "PM-008",
+    "requirement": "Associate engineering BOM, project material requirements, stock reservations, purchases and site transfers to each project.",
+    "status": "V"
+  },
+  {
+    "id": "PM-009",
+    "requirement": "Allocate engineers/technicians and record project/site timesheets, utilization, expenses and deployment dates.",
+    "status": "V"
+  },
+  {
+    "id": "PM-010",
+    "requirement": "Track external subcontractors and work packages with progress, material accountability and deliverable status.",
+    "status": "V"
+  },
+  {
+    "id": "PM-011",
+    "requirement": "Record project issues, risks, decisions, change requests and approved scope variations.",
+    "status": "V"
+  },
+  {
+    "id": "PM-012",
+    "requirement": "Provide technical hold points / checklists for inspection, FAT, SAT, installation, loop testing, commissioning and customer acceptance as applicable.",
+    "status": "V"
+  },
+  {
+    "id": "PM-013",
+    "requirement": "Support customer/site-specific quality documentation and validation deliverables by attachment and controlled revision.",
+    "status": "V"
+  },
+  {
+    "id": "PM-014",
+    "requirement": "Record site dispatch, installation progress and completion certificates with linked inventory movements.",
+    "status": "V"
+  },
+  {
+    "id": "PM-015",
+    "requirement": "Associate milestones, delivery evidence and approved variations with billing triggers for Sales.",
+    "status": "V"
+  },
+  {
+    "id": "PM-016",
+    "requirement": "Provide project-wise contract value, committed cost, incurred cost, billed value and estimated margin using agreed financial source data.",
+    "status": "V"
+  },
+  {
+    "id": "PM-017",
+    "requirement": "Support on-hold, cancelled and reopened projects with reason, approvals and audit trail.",
+    "status": "V"
+  },
+  {
+    "id": "PM-018",
+    "requirement": "Manage handover from projects into installed-base asset register, warranty, service and AMC schedules.",
+    "status": "V"
+  },
+  {
+    "id": "PM-019",
+    "requirement": "Manage completion, open punch list, lessons learned, documents archival and authorized project closure.",
+    "status": "V"
+  },
+  {
+    "id": "PM-020",
+    "requirement": "Configure project-specific approval gates and notifications for budget, procurement, variations and closure.",
+    "status": "V"
+  },
+  {
+    "id": "AST-001",
+    "requirement": "Maintain internal company-owned asset register for computers, instruments, calibration equipment, vehicles and tools.",
+    "status": "C"
+  },
+  {
+    "id": "AST-002",
+    "requirement": "Maintain separately identifiable customer-installed equipment and equipment supported under AMC/O&M contracts.",
+    "status": "C"
+  },
+  {
+    "id": "AST-003",
+    "requirement": "Record asset identity, category, serial/tag number, manufacturer, model, ownership, location, custodian and lifecycle state.",
+    "status": "V"
+  },
+  {
+    "id": "AST-004",
+    "requirement": "Maintain purchase/commissioning dates, vendor, warranty coverage, supporting documents and service history.",
+    "status": "C"
+  },
+  {
+    "id": "AST-005",
+    "requirement": "Assign or transfer tools/instruments to employee, warehouse, branch or project site with acknowledgement and accountability.",
+    "status": "V"
+  },
+  {
+    "id": "AST-006",
+    "requirement": "Track preventive maintenance schedules for applicable internal or customer assets.",
+    "status": "C"
+  },
+  {
+    "id": "AST-007",
+    "requirement": "Track calibration due dates and reminders for relevant instruments and calibration masters.",
+    "status": "C"
+  },
+  {
+    "id": "AST-008",
+    "requirement": "Store calibration reference, equipment, work performed, result, certificate attachment and next-due date.",
+    "status": "V"
+  },
+  {
+    "id": "AST-009",
+    "requirement": "Register service contracts and relate the covered installed assets, sites, customer and contract validity.",
+    "status": "C"
+  },
+  {
+    "id": "AST-010",
+    "requirement": "Record service contract entitlements, coverage windows, response commitments, exclusions and included visits.",
+    "status": "V"
+  },
+  {
+    "id": "AST-011",
+    "requirement": "Create support tickets by customer, asset/site, problem category, priority and channel.",
+    "status": "C"
+  },
+  {
+    "id": "AST-012",
+    "requirement": "Monitor service-level targets and escalation stages using contract-specific SLA configuration.",
+    "status": "C"
+  },
+  {
+    "id": "AST-013",
+    "requirement": "Schedule preventive maintenance visits and corrective/breakdown interventions.",
+    "status": "C"
+  },
+  {
+    "id": "AST-014",
+    "requirement": "Assign technician/engineer to tickets and service visits and capture allocation, status and visit outcomes.",
+    "status": "C"
+  },
+  {
+    "id": "AST-015",
+    "requirement": "Generate service visit records with checklists, observation, materials/spares consumed and customer acknowledgement.",
+    "status": "C"
+  },
+  {
+    "id": "AST-016",
+    "requirement": "Link spares consumption, site issues and returns to inventory and the relevant service job.",
+    "status": "V"
+  },
+  {
+    "id": "AST-017",
+    "requirement": "Track claimable or chargeable service work and support recurring billing events routed to Sales/Accounting.",
+    "status": "C"
+  },
+  {
+    "id": "AST-018",
+    "requirement": "Maintain warranty periods, warranty claims/service status and expiration reminders.",
+    "status": "C"
+  },
+  {
+    "id": "AST-019",
+    "requirement": "Handle retirement, disposal, lost/damaged assets, customer asset replacement and equipment swap histories.",
+    "status": "V"
+  },
+  {
+    "id": "AST-020",
+    "requirement": "Track maintenance cost and service activity history by equipment, installed base, contract and customer site.",
+    "status": "V"
+  },
+  {
+    "id": "AST-021",
+    "requirement": "Allow separation of internal fixed-asset treatment from customer-owned asset records and service inventory.",
+    "status": "V"
+  },
+  {
+    "id": "AST-022",
+    "requirement": "Provide service backlog, overdue calibration, approaching warranty expiry and SLA breach monitoring.",
+    "status": "V"
+  },
+  {
+    "id": "INV-001",
+    "requirement": "Maintain item master by material class, technical description/specification, UOM, storage parameters and applicable tax classification.",
+    "status": "V"
+  },
+  {
+    "id": "INV-002",
+    "requirement": "Support multiple warehouses, bins or project-site stores and separate stock ownership / availability states.",
+    "status": "C"
+  },
+  {
+    "id": "INV-003",
+    "requirement": "Record inventory opening balances and approved receipts/issues/transfers with full document traceability.",
+    "status": "V"
+  },
+  {
+    "id": "INV-004",
+    "requirement": "Record GRN-driven stock receipt with purchase-order reference and inspection status.",
+    "status": "C"
+  },
+  {
+    "id": "INV-005",
+    "requirement": "Apply material inspection results and release/reject/quarantine stock according to agreed QC gates.",
+    "status": "C"
+  },
+  {
+    "id": "INV-006",
+    "requirement": "Support item-level stock reservation for approved projects, jobs and panel assembly requirements.",
+    "status": "C"
+  },
+  {
+    "id": "INV-007",
+    "requirement": "Support approved warehouse-to-warehouse and warehouse-to-project-site transfers, dispatch and site acknowledgement.",
+    "status": "C"
+  },
+  {
+    "id": "INV-008",
+    "requirement": "Track serial numbers for selected items and equipment across receipt, movement, installation and return.",
+    "status": "C"
+  },
+  {
+    "id": "INV-009",
+    "requirement": "Support supplier returns and customer/site-to-store returns with reason, condition and disposition.",
+    "status": "C"
+  },
+  {
+    "id": "INV-010",
+    "requirement": "Track project/site-issued stock and balance quantities by responsible site/person or subcontractor.",
+    "status": "C"
+  },
+  {
+    "id": "INV-011",
+    "requirement": "Issue materials to subcontractors and reconcile consumed, returned, damaged and outstanding quantities.",
+    "status": "C"
+  },
+  {
+    "id": "INV-012",
+    "requirement": "Provide stock valuation and value movement history; costing method and financial posting rules to be approved.",
+    "status": "C"
+  },
+  {
+    "id": "INV-013",
+    "requirement": "Define and maintain multi-level engineering BOMs for electrical panel and relevant manufactured assemblies.",
+    "status": "C"
+  },
+  {
+    "id": "INV-014",
+    "requirement": "Support controlled BOM versions / revisions with approvals and effective dates.",
+    "status": "V"
+  },
+  {
+    "id": "INV-015",
+    "requirement": "Calculate material requirements from released BOM and assembly work orders against available/reserved/on-order stock.",
+    "status": "C"
+  },
+  {
+    "id": "INV-016",
+    "requirement": "Generate planned procurement/requisition suggestions or shortage lists from material requirements.",
+    "status": "V"
+  },
+  {
+    "id": "INV-017",
+    "requirement": "Create assembly/production work orders linked to customer order, project, panel design and approved BOM.",
+    "status": "C"
+  },
+  {
+    "id": "INV-018",
+    "requirement": "Track configurable production stages such as kitting, fabrication, wiring, assembly, testing, packing and dispatch as validated.",
+    "status": "C"
+  },
+  {
+    "id": "INV-019",
+    "requirement": "Issue BOM components against work orders and record planned vs actual consumption, substitution and wastage.",
+    "status": "V"
+  },
+  {
+    "id": "INV-020",
+    "requirement": "Record production quality inspection/test checkpoints, defects and rework dispositions.",
+    "status": "C"
+  },
+  {
+    "id": "INV-021",
+    "requirement": "Receive completed panel/assembly as finished goods with serial/tag reference and tested status.",
+    "status": "C"
+  },
+  {
+    "id": "INV-022",
+    "requirement": "Support partial completions, hold, rework and work-order cancellation with inventory reconciliation.",
+    "status": "V"
+  },
+  {
+    "id": "INV-023",
+    "requirement": "Link finished-goods allocation, delivery and installation back to project/sales documents.",
+    "status": "V"
+  },
+  {
+    "id": "INV-024",
+    "requirement": "Run stock counts and adjustments using authorized variance approval and adjustment reason.",
+    "status": "V"
+  },
+  {
+    "id": "INV-025",
+    "requirement": "Provide stock ageing, slow/non-moving stock and min/reorder-level alerts as configurable options.",
+    "status": "V"
+  },
+  {
+    "id": "INV-026",
+    "requirement": "Prevent negative available stock or unapproved use of quarantined material unless an authorized exception rule is defined.",
+    "status": "V"
+  },
+  {
+    "id": "INV-027",
+    "requirement": "Support unit conversion, batch/lot numbers and manufacturer part alternatives only for item classes that require them.",
+    "status": "V"
+  },
+  {
+    "id": "INV-028",
+    "requirement": "Maintain value, quantity and audit traceability for stock transferred between internal stores and project sites.",
+    "status": "V"
+  },
+  {
+    "id": "INV-029",
+    "requirement": "Handle rejected/returned finished goods, replacements and rework work orders.",
+    "status": "V"
+  },
+  {
+    "id": "INV-030",
+    "requirement": "Record production completion and QC evidence prior to finished-goods dispatch or commercial acceptance.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-001",
+    "requirement": "Provide a Payroll module as one of the requested eleven ERP modules.",
+    "status": "C"
+  },
+  {
+    "id": "PAY-002",
+    "requirement": "Define payroll groups, processing periods, pay components and employee pay structures.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-003",
+    "requirement": "Maintain effective-dated salary structures, allowances, deductions and salary revision history.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-004",
+    "requirement": "Import or calculate payable attendance/leave/unpaid days based on HR policies and approved data.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-005",
+    "requirement": "Configure earnings/deductions for overtime, shift, site, travel and other allowances only if policies require them.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-006",
+    "requirement": "Process payroll preview, discrepancy checks, maker-checker approval and finalization.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-007",
+    "requirement": "Calculate gross pay, statutory and other deductions, and net pay with configurable rounding rules.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-008",
+    "requirement": "Support applicable Indian statutory rules (for example PF, ESIC, professional tax and income-tax withholding) only after applicability and rules are agreed.",
+    "status": "D"
+  },
+  {
+    "id": "PAY-009",
+    "requirement": "Generate electronic payslips and authorized salary statements.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-010",
+    "requirement": "Capture employee bank details with controlled access and support bank payment output format where required.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-011",
+    "requirement": "Process arrears, retroactive adjustments, bonuses, incentives, loans and advances where approved.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-012",
+    "requirement": "Handle joiners, leavers, final settlement and payroll-period locking under agreed policies.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-013",
+    "requirement": "Support employee expense/reimbursement payouts either through payroll or payable workflow as customer decides.",
+    "status": "D"
+  },
+  {
+    "id": "PAY-014",
+    "requirement": "Prepare payroll summary, employer cost allocation by project/department, and reconciliation report.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-015",
+    "requirement": "Transfer approved payroll journal/summary to external accounting system if applicable and interface is confirmed.",
+    "status": "D"
+  },
+  {
+    "id": "PAY-016",
+    "requirement": "Prevent unauthorized edits to approved payroll and log reversals/recalculations.",
+    "status": "V"
+  },
+  {
+    "id": "PAY-017",
+    "requirement": "Provide year-end statements and statutory export outputs subject to legal review and final payroll policy.",
+    "status": "D"
+  },
+  {
+    "id": "PAY-018",
+    "requirement": "Determine whether payroll for contract workers is processed internally, via vendor invoices or excluded.",
+    "status": "D"
+  },
+  {
+    "id": "HR-001",
+    "requirement": "Manage recruitment requests, openings and candidate/application status.",
+    "status": "C"
+  },
+  {
+    "id": "HR-002",
+    "requirement": "Support employee onboarding process and required onboarding document checklist.",
+    "status": "C"
+  },
+  {
+    "id": "HR-003",
+    "requirement": "Maintain employee profile, identity/contact data, reporting line, department, employment type and current assignment.",
+    "status": "C"
+  },
+  {
+    "id": "HR-004",
+    "requirement": "Maintain effective-dated joining, transfer, role change, separation and employee status history.",
+    "status": "V"
+  },
+  {
+    "id": "HR-005",
+    "requirement": "Configure leave types, accruals, eligibility, applications, approvals and leave balances.",
+    "status": "C"
+  },
+  {
+    "id": "HR-006",
+    "requirement": "Manage attendance records, corrections, holidays and attendance approval workflows.",
+    "status": "C"
+  },
+  {
+    "id": "HR-007",
+    "requirement": "Support employee shift patterns, shift assignments and relevant attendance exceptions.",
+    "status": "C"
+  },
+  {
+    "id": "HR-008",
+    "requirement": "Record project-site deployment including planned/actual dates, project/contract link, site and reporting manager.",
+    "status": "C"
+  },
+  {
+    "id": "HR-009",
+    "requirement": "Track engineer/technician availability and allocation conflicts across projects and service engagements.",
+    "status": "V"
+  },
+  {
+    "id": "HR-010",
+    "requirement": "Support travel requests, authorizations, itineraries and settlement.",
+    "status": "C"
+  },
+  {
+    "id": "HR-011",
+    "requirement": "Support expense and reimbursement claims, evidence, approvals and payment status.",
+    "status": "C"
+  },
+  {
+    "id": "HR-012",
+    "requirement": "Manage employee performance review cycles, goals, feedback and review outcome according to policy.",
+    "status": "C"
+  },
+  {
+    "id": "HR-013",
+    "requirement": "Provide role/skill, certification and training records if required for site compliance and assignment.",
+    "status": "V"
+  },
+  {
+    "id": "HR-014",
+    "requirement": "Record approved timesheets by project/task/service ticket and pass approved quantities to costing.",
+    "status": "V"
+  },
+  {
+    "id": "HR-015",
+    "requirement": "Support document expiry reminders for specified certifications, site permits or contractual requirements.",
+    "status": "V"
+  },
+  {
+    "id": "HR-016",
+    "requirement": "Manage offboarding checklist, asset return and handover through Assets/User Management integrations.",
+    "status": "V"
+  },
+  {
+    "id": "HR-017",
+    "requirement": "Expose self-service views for profile, leave, attendance, travel and claims subject to access policy.",
+    "status": "V"
+  },
+  {
+    "id": "HR-018",
+    "requirement": "Provide leave calendar, deployment roster, attendance exception and utilization views.",
+    "status": "V"
+  },
+  {
+    "id": "HR-019",
+    "requirement": "Maintain confidential HR attachments with access restrictions and retention policies.",
+    "status": "V"
+  },
+  {
+    "id": "HR-020",
+    "requirement": "Integrate attendance/payable days and approved components with Payroll as defined.",
+    "status": "V"
+  },
+  {
+    "id": "HR-021",
+    "requirement": "Handle contractor/third-party staff records separately from payroll employees where applicable.",
+    "status": "D"
+  },
+  {
+    "id": "HR-022",
+    "requirement": "Provide branch/site-specific holiday and attendance policies if operationally required.",
+    "status": "V"
+  },
+  {
+    "id": "USR-001",
+    "requirement": "Provide user management across all eleven modules.",
+    "status": "C"
+  },
+  {
+    "id": "USR-002",
+    "requirement": "Maintain user identities, activation/deactivation, status and mapping to employees where appropriate.",
+    "status": "V"
+  },
+  {
+    "id": "USR-003",
+    "requirement": "Implement role-based access permissions by module, function, transaction action and data scope.",
+    "status": "V"
+  },
+  {
+    "id": "USR-004",
+    "requirement": "Define organizational scopes for company, branch, department, warehouse, project, site and customer data where required.",
+    "status": "V"
+  },
+  {
+    "id": "USR-005",
+    "requirement": "Support configurable maker/checker and multi-level approval authority rather than permitting self-approval of sensitive transactions.",
+    "status": "V"
+  },
+  {
+    "id": "USR-006",
+    "requirement": "Support administrative role assignment and segregation of duties with effective dates.",
+    "status": "V"
+  },
+  {
+    "id": "USR-007",
+    "requirement": "Provide secure authentication and session controls; choose SSO/identity provider during design.",
+    "status": "D"
+  },
+  {
+    "id": "USR-008",
+    "requirement": "Support MFA for privileged roles or other approved login journeys.",
+    "status": "V"
+  },
+  {
+    "id": "USR-009",
+    "requirement": "Provide password/reset/lockout policy if the ERP directly manages credentials.",
+    "status": "V"
+  },
+  {
+    "id": "USR-010",
+    "requirement": "Log significant create/update/delete/approve/reject/export actions with user, time and before/after context where warranted.",
+    "status": "V"
+  },
+  {
+    "id": "USR-011",
+    "requirement": "Provide notification inbox and configurable email/SMS channels only after gateway decisions.",
+    "status": "V"
+  },
+  {
+    "id": "USR-012",
+    "requirement": "Enforce least-privilege access to salary, HR identity, customer pricing and other restricted data.",
+    "status": "V"
+  },
+  {
+    "id": "USR-013",
+    "requirement": "Support inactive session timeout, account recovery and privileged-account review.",
+    "status": "V"
+  },
+  {
+    "id": "USR-014",
+    "requirement": "Provide administration of approval hierarchies, escalations and delegations with audit history.",
+    "status": "V"
+  },
+  {
+    "id": "USR-015",
+    "requirement": "Permit authorized attachment upload/view/download with scanning, limits and data permissions.",
+    "status": "V"
+  },
+  {
+    "id": "USR-016",
+    "requirement": "Protect report exports and bulk data imports via permission controls and audit logs.",
+    "status": "V"
+  },
+  {
+    "id": "USR-017",
+    "requirement": "Support branch/site-based users while retaining a single legal-entity data model.",
+    "status": "V"
+  },
+  {
+    "id": "USR-018",
+    "requirement": "Provide user provisioning/deprovisioning triggered by HR joins, transfers and exits if process agreed.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-001",
+    "requirement": "Register vendor master, category, contact and compliance/tax identifiers subject to approved data fields.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-002",
+    "requirement": "Capture purchase requisitions from projects, BOM material shortages, general procurement and maintenance demand.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-003",
+    "requirement": "Support multi-level purchase approvals based on configured amount, category, project and authority.",
+    "status": "C"
+  },
+  {
+    "id": "PUR-004",
+    "requirement": "Invite/request supplier quotations and record supplier responses against a common enquiry.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-005",
+    "requirement": "Generate vendor quotation comparison covering price, lead time, taxes, delivery terms and technical compliance.",
+    "status": "C"
+  },
+  {
+    "id": "PUR-006",
+    "requirement": "Record vendor selection justification, negotiation and approval history.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-007",
+    "requirement": "Create purchase orders for materials, equipment, services and subcontracting as applicable.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-008",
+    "requirement": "Validate PO against approved requisition/budget and applicable authority thresholds.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-009",
+    "requirement": "Support revision, cancellation, short closure and partial receipt of PO lines with authorized controls.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-010",
+    "requirement": "Record goods receipt notes and connect GRN to inventory receipt/quality hold.",
+    "status": "C"
+  },
+  {
+    "id": "PUR-011",
+    "requirement": "Require material inspection/acceptance before saleable/issuable status when configured.",
+    "status": "C"
+  },
+  {
+    "id": "PUR-012",
+    "requirement": "Handle delivery shortages, excess quantity, damages and supplier replacement or return workflows.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-013",
+    "requirement": "Maintain ordered, received, rejected, invoiced and outstanding quantities per PO line.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-014",
+    "requirement": "Track service acceptance or work-completion evidence for service purchase orders.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-015",
+    "requirement": "Record supplier invoice references and match PO/receipt/acceptance subject to accounting responsibility decision.",
+    "status": "D"
+  },
+  {
+    "id": "PUR-016",
+    "requirement": "Provide payable handoff to external accounting or separate finance system after interface confirmation.",
+    "status": "D"
+  },
+  {
+    "id": "PUR-017",
+    "requirement": "Enable project-wise committed procurement costs and pending procurement visibility.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-018",
+    "requirement": "Support subcontractor material issue/return reconciliation using Inventory links.",
+    "status": "C"
+  },
+  {
+    "id": "PUR-019",
+    "requirement": "Provide vendor delivery performance, procurement ageing and open PO reports.",
+    "status": "V"
+  },
+  {
+    "id": "PUR-020",
+    "requirement": "Store procurement documents, terms, inspection certificates and approval logs.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-001",
+    "requirement": "Provide a Sales module supporting engineering, equipment supply, panel assembly and service engagements.",
+    "status": "C"
+  },
+  {
+    "id": "SAL-002",
+    "requirement": "Prepare customer quotation for material, engineering services, project scope and AMC/O&M services.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-003",
+    "requirement": "Allow quotation versions/revisions, commercial terms, validity and authorized approval.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-004",
+    "requirement": "Convert won/approved quotations to customer order or contract with linked CRM opportunity.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-005",
+    "requirement": "Maintain customer PO/contract references, line items, value, taxes, deliverables, validity and delivery commitments.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-006",
+    "requirement": "Create project/production demand from customer order for project and panel-delivery business.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-007",
+    "requirement": "Reserve available finished goods or traded goods for confirmed customer orders.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-008",
+    "requirement": "Record delivery notes, dispatch details, installation/acceptance status and customer acknowledgement.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-009",
+    "requirement": "Support partial deliveries, back-orders and customer-approved order amendments.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-010",
+    "requirement": "Track project milestone billing eligibility against approved milestones/completion certificates.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-011",
+    "requirement": "Support recurring billing schedules for AMC/O&M contracts and chargeable service events.",
+    "status": "C"
+  },
+  {
+    "id": "SAL-012",
+    "requirement": "Support advance, milestone, retention or final billing patterns only after contract/payment terms are confirmed.",
+    "status": "D"
+  },
+  {
+    "id": "SAL-013",
+    "requirement": "Determine whether tax invoice is generated in ERP or in external accounting; avoid duplicate invoice ownership.",
+    "status": "D"
+  },
+  {
+    "id": "SAL-014",
+    "requirement": "Provide invoice request/billing advice records and references to accounting invoice/payment status when integrated.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-015",
+    "requirement": "Track credit notes, returns and warranty replacements according to accounting ownership.",
+    "status": "D"
+  },
+  {
+    "id": "SAL-016",
+    "requirement": "Provide open order book, delivery backlog, unbilled milestones and contract expiry views.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-017",
+    "requirement": "Capture customer acceptance documents and commercial closure checklists.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-018",
+    "requirement": "Maintain rate cards and standard price lists where applicable.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-019",
+    "requirement": "Protect discount/price override authorization and track sales revisions.",
+    "status": "V"
+  },
+  {
+    "id": "SAL-020",
+    "requirement": "Support customer-level/project-level sales performance and billing pipeline reporting.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-001",
+    "requirement": "Provide CRM as a requested core ERP module.",
+    "status": "C"
+  },
+  {
+    "id": "CRM-002",
+    "requirement": "Create lead accounts and contacts with source, vertical, location and ownership.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-003",
+    "requirement": "Manage lead qualification and opportunity creation with expected value, stage and probability methodology.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-004",
+    "requirement": "Capture technical requirements, RFQ documents, enquiry details and expected bid/decision dates.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-005",
+    "requirement": "Record presales activities, calls, meetings, notes, reminders and next actions.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-006",
+    "requirement": "Assign opportunity owners, engineering estimator and required commercial participants.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-007",
+    "requirement": "Link each enquiry to one or more proposals or quotation revisions.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-008",
+    "requirement": "Support bid/no-bid decisions and pipeline stage approvals where required.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-009",
+    "requirement": "Track tender opportunities, bid dates, submission tasks and supporting tender documents where needed.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-010",
+    "requirement": "Track win/loss outcome and reasons, competitor information and lost opportunity history.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-011",
+    "requirement": "Provide shared customer/contact master linked to Sales, Projects, Assets and Services.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-012",
+    "requirement": "Prevent duplicate customer/lead records by agreed matching/merge controls.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-013",
+    "requirement": "Create service/AMC renewal opportunities using contract expiry events.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-014",
+    "requirement": "Provide contact-level communication history and permissions subject to privacy rules.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-015",
+    "requirement": "Monitor activity ageing, neglected opportunities and scheduled follow-ups.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-016",
+    "requirement": "Produce pipeline by vertical, owner, value, stage and forecast close period.",
+    "status": "V"
+  },
+  {
+    "id": "CRM-017",
+    "requirement": "Limit bulk email campaigns, telephony, marketing automation and external portals to approved integrations, not assumed baseline.",
+    "status": "D"
+  },
+  {
+    "id": "CRM-018",
+    "requirement": "Support handoff of won opportunities to Sales/Projects without re-entering master information.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-001",
+    "requirement": "Provide a Dashboard module across ERP domains.",
+    "status": "C"
+  },
+  {
+    "id": "DASH-002",
+    "requirement": "Define executive summary tiles by sales pipeline, order book, active projects, procurement and inventory exposure.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-003",
+    "requirement": "Show projects at risk, overdue milestones, budget exceptions and unbilled work when source data exists.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-004",
+    "requirement": "Show outstanding PR/PO approvals, delayed GRN and vendor delivery issues.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-005",
+    "requirement": "Show stock shortages, reserved value, ageing and pending work orders.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-006",
+    "requirement": "Show panel production WIP, stage-wise bottlenecks, QC rejects and due dispatch.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-007",
+    "requirement": "Show AMC ticket volumes, open SLA breaches, technician load and preventive service due dates.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-008",
+    "requirement": "Show upcoming calibration deadlines and warranty/contract expiries.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-009",
+    "requirement": "Show workforce deployment, leave/attendance exceptions and pending claims approvals.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-010",
+    "requirement": "Allow drill-through from approved KPI tiles to relevant transaction lists with data access enforcement.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-011",
+    "requirement": "Support common date, customer, project, vertical, branch and site filters where applicable.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-012",
+    "requirement": "Display data refresh timestamp and documented KPI definitions; real-time refresh frequency to be decided.",
+    "status": "V"
+  },
+  {
+    "id": "DASH-013",
+    "requirement": "Enable role-specific layouts and personalization only to the agreed extent.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-001",
+    "requirement": "Provide Reports as one of the eleven requested modules.",
+    "status": "C"
+  },
+  {
+    "id": "RPT-002",
+    "requirement": "Define report catalogue with business owner, purpose, source, filters, grouping, column definitions and access scope.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-003",
+    "requirement": "Deliver project portfolio, milestone ageing, commitment and budget/actual profitability reports.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-004",
+    "requirement": "Deliver BOM shortage, material allocation, site inventory and assembly work-in-progress reports.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-005",
+    "requirement": "Deliver stock ledger, valuation, ageing, receipt/issue/transfer and serial traceability reports.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-006",
+    "requirement": "Deliver procurement PR/PO pending, vendor comparison, PO ageing and GRN inspection reports.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-007",
+    "requirement": "Deliver customer enquiries, sales pipeline, order book, deliveries and billing schedules.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-008",
+    "requirement": "Deliver asset register, calibration due/overdue, maintenance, warranty and custody reports.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-009",
+    "requirement": "Deliver AMC/O&M ticket ageing, SLA attainment/breaches, visits, technician activity and renewal pipeline.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-010",
+    "requirement": "Deliver HR roster, attendance, leave, site deployment, travel claims and performance tracking summaries.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-011",
+    "requirement": "Deliver payroll register, reconciliation, payslips and authorized statutory extracts subject to rules approval.",
+    "status": "D"
+  },
+  {
+    "id": "RPT-012",
+    "requirement": "Deliver audit trail and approval cycle exception reports for authorized users.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-013",
+    "requirement": "Permit filtering, sorting, pagination and export to approved formats according to data classification.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-014",
+    "requirement": "Define report period cut-offs, timezone, ownership and data freshness assumptions per report.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-015",
+    "requirement": "Support scheduled email delivery only where security, recipients and integration gateway are approved.",
+    "status": "D"
+  },
+  {
+    "id": "RPT-016",
+    "requirement": "Protect personally identifiable and salary-related report content using field-level or report-level permissions.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-017",
+    "requirement": "Provide exception reports for duplicate records, incomplete master data, unmatched receipts and integration failures.",
+    "status": "V"
+  },
+  {
+    "id": "RPT-018",
+    "requirement": "Validate at least one accepted sample output/layout per report before FRD sign-off.",
+    "status": "V"
+  }
+]
