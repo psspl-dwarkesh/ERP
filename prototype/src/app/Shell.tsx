@@ -23,6 +23,7 @@ import { ago } from "../api/format";
 import { useQuery } from "../api/hooks";
 import type { ModuleKey } from "../api/types";
 import { Avatar, Button, Dialog, IconButton, Kbd, Menu, Popover, Status, cx, useToast } from "../ds/components";
+import { describe, onRemoteChange, useLiveUpdates, useOnline } from "../api/live";
 import { Logo, TENANT } from "./brand";
 import { DemoGuide } from "./DemoGuide";
 import { MODULES, moduleDef } from "./modules";
@@ -35,6 +36,16 @@ export function Shell() {
   const def = moduleDef(route.module);
   const Page = def.page;
   const user = useSession().user;
+  const toast = useToast();
+  useLiveUpdates(user?.id ?? null);
+  // Someone else changed shared data: screens already refetched; say who, quietly.
+  useEffect(
+    () =>
+      onRemoteChange((c) =>
+        toast({ title: `${c.actor} ${describe(c.command)}`, body: "Your screen is up to date.", tone: "info" }),
+      ),
+    [toast],
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -90,6 +101,7 @@ function PageLoading() {
 }
 
 function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }) {
+  const online = useOnline();
   const user = useSession().user;
   const { data: approvals } = useQuery(api.approvals);
   const { data: tickets } = useQuery(api.tickets);
@@ -148,8 +160,8 @@ function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }
       </nav>
       <div className="sidebar-foot">
         <div className="sidebar-note">
-          <span className="sidebar-note-dot" aria-hidden />
-          Demo data · changes stay in this browser
+          <span className={cx("sidebar-note-dot", API_MODE === "remote" && "is-live")} aria-hidden />
+          {API_MODE === "remote" ? `${Math.max(online, 1)} ${Math.max(online, 1) === 1 ? "person" : "people"} online · shared workspace` : "Demo data · changes stay in this browser"}
         </div>
       </div>
     </div>

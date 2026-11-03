@@ -13,6 +13,7 @@ import type { Command } from "./commands/registry";
 import { AppError, can, requireLevel, type Actor } from "./core";
 import type { Database } from "./db/client";
 import { env } from "./env";
+import { broadcast, liveCount, registerLive } from "./live";
 import { read } from "./read";
 
 declare module "fastify" {
@@ -112,7 +113,9 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   });
 
   /* ================================================================ routes */
-  app.get("/api/health", async () => ({ ok: true, businessDate: env.businessDate, engine: env.databaseUrl ? "postgresql" : "pglite" }));
+  app.get("/api/health", async () => ({ ok: true, businessDate: env.businessDate, engine: env.databaseUrl ? "postgresql" : "pglite", online: liveCount() }));
+
+  registerLive(app, actorOf);
 
   const setSession = (reply: FastifyReply, token: string, expires: string) =>
     reply.setCookie(SESSION_COOKIE, token, { path: "/", httpOnly: true, sameSite: "lax", secure: env.cookieSecure, expires: new Date(expires) });
@@ -160,6 +163,8 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
     requireLevel(actor, cmd.module, cmd.level);
     const input = cmd.input.parse(req.body ?? {});
     const result = (await db.transaction((tx) => cmd.run({ tx, actor }, input))) as { blocked?: string } | null;
+    // Committed: tell every other open session (that may see this module) to refresh.
+    broadcast({ command: cmd.name, module: cmd.module, actor: actor.name, actorId: actor.userId, at: new Date().toISOString() });
     // A command may commit real progress and still report a stop (e.g. a stage done, the next blocked).
     if (result && typeof result === "object" && "blocked" in result && typeof result.blocked === "string") return { data: null, blocked: result.blocked };
     return { data: result };
