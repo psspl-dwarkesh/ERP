@@ -44,11 +44,9 @@ import {
   ShieldCheck,
   ShoppingCart,
   SlidersHorizontal,
-  Sparkles,
   Target,
   TrendingUp,
   TriangleAlert,
-  Truck,
   Users,
   Wallet,
   Wrench,
@@ -58,7 +56,6 @@ import {
 import {
   assets,
   approvals,
-  chartData,
   opportunities,
   people,
   projects,
@@ -351,41 +348,6 @@ function App() {
         badge={(status) => <Badge status={status} />}
         notify={notify}
       />
-    );
-  }
-  function stats(
-    items: {
-      label: string;
-      value: string;
-      note: string;
-      icon: LucideIcon;
-      to?: Route;
-    }[],
-  ) {
-    return (
-      <div className="stats-grid">
-        {items.map((s, i) => (
-          <button
-            key={s.label}
-            className="stat-card"
-            onClick={() => (s.to ? go(s.to) : notify(s.note))}
-          >
-            <span className="stat-top">
-              {s.label}
-              <s.icon size={17} />
-            </span>
-            <span className="stat-value">
-              {s.value}
-              <ArrowUpRight size={18} />
-            </span>
-            <span className="stat-note">
-              <span className={i === 1 ? "neutral-text" : "positive"}>
-                {s.note}
-              </span>
-            </span>
-          </button>
-        ))}
-      </div>
     );
   }
   function dashboard() {

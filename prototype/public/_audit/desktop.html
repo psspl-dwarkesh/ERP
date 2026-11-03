@@ -114,11 +114,35 @@
           }
         }
         const heading = doc.querySelector("h1")?.textContent.trim().slice(0, 60) ?? "(none)";
-        // Geometry rule: chrome is square. Legend and status dots are <i>
-        // marks and chart points are SVG, so those circles are allowed.
+        // Style-deletion guard: every class the DOM actually renders should still
+        // have a rule somewhere in the bundle. Library-owned namespaces are
+        // excluded because they are styled inline or by the chart runtime.
+        const LIBRARY = /^(recharts|radix|cmdk|ProseMirror|toast|rc_)/;
+        const declared = new Set();
+        const collectRules = (list) => {
+          for (const rule of list) {
+            if (rule.selectorText) {
+              for (const t of rule.selectorText.match(/\.[A-Za-z_][\w-]*/g) || []) declared.add(t.slice(1));
+            }
+            if (rule.cssRules) collectRules(rule.cssRules);
+          }
+        };
+        for (const sheet of doc.styleSheets) {
+          try { collectRules(sheet.cssRules); } catch (error) { /* cross-origin sheet */ }
+        }
+        const used = new Set();
+        for (const el of doc.querySelectorAll("body *")) for (const c of el.classList) used.add(c);
+        const unstyled = [...used].filter((c) => !LIBRARY.test(c) && !declared.has(c));
+        // Geometry rule: chrome is square. Circles are allowed only as data marks,
+        // identified by size (a tiny dot) rather than by the tag they sit on.
         const rounded = [];
         for (const el of doc.querySelectorAll("body *")) {
-          if (el.tagName === "I" || el.tagName === "SVG" || el.tagName === "CIRCLE") continue;
+          const box = el.getBoundingClientRect();
+          // A 5–8px round mark is a legend or status dot: it carries data, and the
+          // identity allows circles only there. Anything bigger is chrome and must
+          // be square, regardless of the tag it happens to sit on.
+          const dataMark = box.width <= 8 && box.height <= 8;
+          if (dataMark || el.tagName === "I" || el.tagName === "SVG" || el.tagName === "CIRCLE") continue;
           const cs = win.getComputedStyle(el);
           const r = parseFloat(cs.borderTopLeftRadius) || 0;
           if (r > 0) rounded.push({ c: (el.className || el.tagName).toString().slice(0, 30), r: cs.borderTopLeftRadius });
@@ -136,6 +160,8 @@
           blueSample: blue.slice(0, 3),
           roundedChrome: rounded.length,
           roundedSample: rounded.slice(0, 4),
+          unstyledCount: unstyled.length,
+          unstyledSample: unstyled.slice(0, 12),
           eyebrowCount: doc.querySelectorAll(".eyebrow").length,
           barlow: doc.fonts.check('600 120px "Barlow Condensed"'),
           heading,

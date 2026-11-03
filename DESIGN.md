@@ -84,7 +84,7 @@ Use surface contrast and 1px rules for hierarchy. Most primary surfaces are flat
 
 ## Shapes
 
-Major surfaces, buttons and navigation use square geometry. The skewed three-bar brand mark is the recurring expressive shape. Circles belong to data marks and legend dots only, never to interface chrome: a person's initials, a handoff marker and a demo indicator are squares, because a round avatar is the most interchangeable shape a product can borrow. Rounded badges and chart marks may remain where they convey state or data.
+Major surfaces, buttons and navigation use square geometry. The skewed three-bar brand mark is the recurring expressive shape. Circles belong to data marks and legend dots only, never to interface chrome: a person's initials, a handoff marker and a demo indicator are squares, because a round avatar is the most interchangeable shape a product can borrow. The operational test is size rather than markup: a mark no wider than 8 px in both dimensions is data and may stay round, anything larger is chrome and is square. Because a class selector outranks an element selector, an override list that squares `span` does not square a `span` with its own class, so new controls need the class-qualified rule.
 
 ## Motion
 

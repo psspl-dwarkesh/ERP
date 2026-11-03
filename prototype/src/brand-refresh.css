@@ -73,20 +73,18 @@ body { background: #e6ece6; }
 .product-page-title p, .welcome-row p, .record-hero p { color: #526258; font-size: 12px; }
 .page-context { color: #526258; font: 11px "IBM Plex Mono", monospace; }
 .context-square { border-color: #c7c8be; border-radius: 0; background: #e9e5d9; color: #526258; }
-.eyebrow, .section-label { color: #526258; letter-spacing: .07em; }
+.eyebrow { color: #526258; letter-spacing: .07em; }
 .button { border-color: #c9c8bd; border-radius: 0; background: #f9f6ee; color: #24352c; box-shadow: none; }
 .button:hover { background: #eee8db; border-color: #a6aa9b; }
 .button.primary { background: #f07946; border-color: #c9542b; color: #172320; box-shadow: none; font-weight: 600; }
 .button.primary:hover { background: #f59165; }
 .button:focus-visible, .icon-button:focus-visible, .nav-item:focus-visible { outline-color: #f07946; }
-.card, .product-grid, .metrics-strip, .delivery-panel, .review-panel, .approval-worklist, .activity-feed { border-color: #d8d7cc; border-radius: 0; background: #fffdf7; }
-.metrics-strip { background: #fffdf7; }
-.metrics-strip > button { border-right-color: #d8d7cc; }
-.metrics-strip > button:hover { background: #e6ece6; }
-.metrics-strip > button > span, .metrics-strip strong, .metrics-strip small { color: #22352b; }
-.metrics-strip strong { font: 600 36px/1 "Barlow Condensed", sans-serif; letter-spacing: 0; }
-.metrics-strip small.warning { color: #a64223; }
-.metrics-strip small.warning > span { background: #c9542b; }
+.card,
+.product-grid,
+.delivery-panel,
+.review-panel,
+.approval-worklist,
+.activity-feed { border-color: #d8d7cc; border-radius: 0; background: #fffdf7; }
 .dispatch-board {
   display: grid;
   grid-template-columns: minmax(235px, .68fr) minmax(0, 1.32fr);
@@ -122,7 +120,6 @@ body { background: #e6ece6; }
 .product-tabs [data-state="active"] { color: #172320; border-color: #c9542b; }
 .snapshot-line, .snapshot-divider { color: #59695e; }
 .demo-indicator { background: #f07946; }
-.operational-alert { border-color: #d8d7cc; }
 .table-toolbar, .grid-viewbar { background: #fffdf7; border-color: #d8d7cc; }
 .table-search { border-color: #d0d0c5; border-radius: 0; background: #fffdf7; color: #526258; }
 .table-search input, .table-search input::placeholder { color: #526258; }
@@ -149,10 +146,14 @@ tbody > tr[data-selected="true"] td { background: #f8e5d6; }
 .project-metrics strong, .project-metrics small { color: #2c4134; }
 .delivery-panel h2, .review-panel h2, .flow-ledger h2, .padded h2, .padded h3 { color: #172320; }
 .review-rows strong, .delivery-project-row > div > strong, .flow-records strong { color: #243b2e; }
-.review-rows small, .delivery-project-row small, .flow-stage, .flow-state, .flow-ledger .section-label { color: #526258; }
+.review-rows small,
+.delivery-project-row small,
+.flow-stage,
+.flow-state { color: #526258; }
 .commitments-panel { background: #172320; border-color: #172320; border-radius: 0; }
 .commitments-panel h2 { color: #fff8ea; font: 600 31px/1 "Barlow Condensed", sans-serif; text-transform: uppercase; }
-.commitments-panel .section-label, .commitment-time, .commitments-panel small { color: #becbbd; }
+.commitment-time,
+.commitments-panel small { color: #becbbd; }
 .commitment-time > strong { color: #f07946; }
 .commitments-panel > button > span:nth-child(2) > strong { color: #fff8ea; }
 .commitments-panel > button { border-top-color: #516357; }
@@ -171,7 +172,6 @@ tbody > tr[data-selected="true"] td { background: #f8e5d6; }
 .app-shell .profile-button small,
 .app-shell .avatar,
 .app-shell .eyebrow,
-.app-shell .section-label,
 .app-shell .page-context,
 .app-shell .demo-pill,
 .app-shell .scope-row span,
@@ -208,7 +208,6 @@ tbody > tr[data-selected="true"] td { background: #f8e5d6; }
 .app-shell .grid-record .record-code { font-size: 12px; }
 .app-shell .help-card p { font-size: 12px; }
 .app-shell .review-rows strong, .app-shell .flow-records strong { font-size: 13px; }
-.app-shell .flow-ledger .section-label, .app-shell .commitments-panel .section-label { font-size: 11px; }
 .app-shell .commitments-panel > button > span:nth-child(2) > strong { font-size: 12px; }
 .app-shell .commitment-time > strong { font-size: 15px; }
 .app-shell .delivery-value > span { font-size: 12px; }
@@ -218,7 +217,6 @@ tbody > tr[data-selected="true"] td { background: #f8e5d6; }
 .app-shell small,
 .app-shell .nav-group,
 .app-shell .eyebrow,
-.app-shell .section-label,
 .app-shell .snapshot-line,
 .app-shell .dispatch-lead > span,
 .app-shell .dispatch-list small,
@@ -388,7 +386,8 @@ td, .app-shell .grid-col-value, .app-shell .grid-col-date, .app-shell .grid-reco
 .pipeline-column, .pipeline-card, .assembly-grid, .assembly-stage > span,
 .three-cards > div, .feature-banner, .feature-icon, .attention-bar, .report-icon,
 .stage-line, .record-trail span, .column-heading span, .command-footer kbd,
-.global-search kbd, kbd, .grid-progress, .mini-progress, .delivery-progress b {
+.global-search kbd, kbd, .grid-progress, .mini-progress, .delivery-progress b,
+.checked-box, .unchecked-box {
   border-radius: 0;
 }
 
@@ -397,3 +396,9 @@ td, .app-shell .grid-col-value, .app-shell .grid-col-date, .app-shell .grid-reco
 small, span,
 .nav-item small, .review-panel h2 > span, .record-trail span, .column-heading span,
 .delivery-progress > i, .mini-progress i, .stock-metric > i { border-radius: 0; }
+
+/* Checklist marks are the last surface still carrying the first concept's
+   cool interface white. Checked reads as a filled paper token, unchecked as
+   the empty record sheet, so the state is visible without any blue tint. */
+.checked-box { background: #f2ecdd; border-color: #cdc7b6; color: #c9542b; }
+.unchecked-box { background: #fffdf7; border-color: #c9c9bd; }

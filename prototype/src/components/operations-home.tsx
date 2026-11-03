@@ -12,7 +12,6 @@ import {
   ArrowDownToLine,
   ArrowRight,
   ArrowUpRight,
-  Boxes,
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
@@ -22,7 +21,6 @@ import {
   Factory,
   GitBranch,
   ShoppingCart,
-  TriangleAlert,
   Wrench,
 } from "lucide-react";
 import { approvals, chartData, projects, type RecordRow } from "../data";
