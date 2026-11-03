@@ -126,6 +126,8 @@ Every list specifies title, search, filters, sort, result count, pagination, exp
 
 ## Twelve end-to-end design journeys
 
+One line each is an inventory, not a workflow. [E2E_JOURNEYS.md](E2E_JOURNEYS.md) expands every row below into ordered steps against the screen families in this plan, with the record chain, the decision gate, the invariant that must hold on every screen, the exception states the layout has to carry, and what the prototype can demonstrate today.
+
 | Source scenario | Clickable journey and acceptance checkpoint |
 | --- | --- |
 | E2E-01 | CRM enquiry → quote → order → project/WBS → delivery → closure; preserve customer/quote/order/project IDs and amendment history |

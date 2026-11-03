@@ -4,9 +4,9 @@ Use Figma Make for a functional visual prototype. If the deliverable must be edi
 
 ## Attachments and order
 
-Create a new Make file and attach the original DOCX, `PROJECT_BRIEF.md`, `SCREEN_AND_WORKFLOW_PLAN.md`, `REQUIREMENT_COVERAGE.md`, and `ENTRY_DESIGN_BRIEF.md`. Figma's current [attachment guide](https://help.figma.com/hc/en-us/articles/31304529835671-Attach-files-to-a-prompt-in-the-Figma-agent-and-Figma-Make) lists DOCX and Markdown support. If DOCX parsing fails, attach `source/scope-extracted.txt`; it preserves the source text but not formatting. Use synthetic content only in the prototype.
+Create a new Make file and attach the original DOCX, `PROJECT_BRIEF.md`, `SCREEN_AND_WORKFLOW_PLAN.md`, `REQUIREMENT_COVERAGE.md`, `ENTRY_DESIGN_BRIEF.md`, and `E2E_JOURNEYS.md`. Figma's current [attachment guide](https://help.figma.com/hc/en-us/articles/31304529835671-Attach-files-to-a-prompt-in-the-Figma-agent-and-Figma-Make) lists DOCX and Markdown support. If DOCX parsing fails, attach `source/scope-extracted.txt`; it preserves the source text but not formatting. Use synthetic content only in the prototype.
 
-For an independent comparison, do not attach our screenshot on the first pass. Both designs should use the same brief, representative records and tasks. If you want Figma to refine our direction, attach the screenshot and say “Use this for visual direction; preserve the attached scope.” Keep long-lived tokens, module boundaries and source-status rules in Make's persistent project guidelines when available.
+For an independent comparison, do not attach our screenshot on the first pass. Both designs should use the same brief, representative records and tasks. If you want Figma to refine our direction, attach the screenshot and say “Use this for visual direction; preserve the attached scope.” Keep long-lived tokens, module boundaries and source-status rules in Make's persistent project guidelines when available. `E2E_JOURNEYS.md` is what makes "connected workflow" checkable: each journey names the record chain, the gate, the invariant and the exception states. When a Build prompt finishes a module, paste that module's journey block into the follow-up message and ask Make to prove the chain in the running prototype, because a screen set without a thread is the failure mode this package is designed to catch.
 
 Start with Prompt 0 in Plan mode if available, then run the Build prompts in order. If Plan mode is unavailable, prepend “Give a short design plan before generating the first screen; use the attached assumptions and continue without routine questions” to Prompt 1. Current [Plan mode guidance](https://help.figma.com/hc/en-us/articles/40830441709719-Use-plan-mode-in-Figma-Make) describes plan review followed by Build. Do not send all prompts at once.
 
@@ -33,7 +33,7 @@ Return: concise screen/route map, component system, visual tokens, twelve end-to
 Mode: Build
 
 ```text
-Create the first high-fidelity, interactive design for ABC Limited's engineering ERP: the shared application shell, an expressive portal entry page, and a polished Operations overview dashboard. Use the four attached files as context. Build these three surfaces completely before expanding other modules.
+Create the first high-fidelity, interactive design for ABC Limited's engineering ERP: the shared application shell, an expressive portal entry page, and a polished Operations overview dashboard. Use the attached scope, brief, screen plan, coverage register, entry brief and journey designs as context. Build these three surfaces completely before expanding other modules.
 
 Context: This is a single-company internal operations portal for automation projects, electrical panel assembly, instrumentation supply, calibration, AMC, O&M and CSV/manufacturing IT. It is a design prototype with synthetic data, not a production ERP or public customer portal.
 
@@ -157,7 +157,7 @@ Each report has definition/owner/source, period and timezone, filters/grouping, 
 Mode: Build
 
 ```text
-Finish the approved design without expanding scope. Audit all 219 source module requirement IDs, their C/V/D status, SYS utilities, twelve E2E scenarios and all screen families in the attached plan. Return a coverage table with Designed, Partly designed, Not designed or Decision required and the exact screen reference. A menu label or generic table does not count as a designed workflow. Fill design gaps while preserving approved layouts and behavior.
+Finish the approved design without expanding scope. Audit all 219 source module requirement IDs, their C/V/D status, SYS utilities, the twelve E2E journeys in E2E_JOURNEYS.md step by step, and all screen families in the attached plan. Return a coverage table with Designed, Partly designed, Not designed or Decision required and the exact screen reference. A menu label or generic table does not count as a designed workflow. Fill design gaps while preserving approved layouts and behavior.
 
 Check 1440px and 1280px desktop, 768px tablet and 390px mobile. Resolve clipping, accidental body overflow, inaccessible controls, status color dependence, tiny text and motion without reduced-motion support. Verify each active CTA, cross-record link, rejection, error and empty state. Keep synthetic data labels and conditional policy/integration states honest.
 

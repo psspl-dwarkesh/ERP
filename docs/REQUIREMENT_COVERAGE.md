@@ -234,8 +234,8 @@ Every row remains Pending FRD validation or Decision required for production. Th
 | --- | --- |
 | Business context and seven verticals | PROJECT_BRIEF; entry-page selector and shared records; actual operating rules need process-owner validation |
 | Full frontend/backend/database/API responsibility | PROJECT_BRIEF static-vs-production and stack; SCREEN_AND_WORKFLOW_PLAN logical model; production not built |
-| Canonical linkages and shared controls | Navigation/shared behavior; SYS families; twelve E2E journey mappings |
-| E2E-01 through E2E-12 | All twelve named journeys mapped in SCREEN_AND_WORKFLOW_PLAN; full UAT still required |
+| Canonical linkages and shared controls | Navigation/shared behavior; SYS families; twelve E2E journeys mapped in SCREEN_AND_WORKFLOW_PLAN and written step by step in E2E_JOURNEYS |
+| E2E-01 through E2E-12 | E2E_JOURNEYS.md carries all twelve as ordered steps with record chain, gate, invariant and exception states. The prototype demonstrates one end to end (E2E-06 service response), eight partially, and three not at all (E2E-04 subcontract reconciliation, E2E-11 count and correction, E2E-12 exit). Design coverage is not UAT coverage: acceptance criteria still come from the client |
 | Master governance and migration | SYS-05, logical model and source section 8; source inventory, volumes and reconciliation scope undecided |
 | Role/approvals/audit | USR-UI-01/02/03 and SYS-02/04; signed action/data/field matrix and direct API deny tests required |
 | INT-01 through INT-09 | SYS-06 and original interface register; accounting, attendance, bank, SSO, gateways, legacy, BI and OT remain conditional; no live connections |

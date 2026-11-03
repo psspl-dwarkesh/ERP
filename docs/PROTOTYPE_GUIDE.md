@@ -57,7 +57,7 @@ The sample upgrade project references an existing installed asset at the custome
 
 ## Comparison with Figma
 
-Use the same source, proposed assumptions, sample project and five tasks. The full planning scope remains all 11 modules, 219 module entries, 12 E2E scenarios, shared platform controls and the original unresolved decisions. A representative prototype should be compared for visual and interaction direction; it must not be scored as full requirement implementation.
+Use the same source, proposed assumptions, sample project and five tasks. The full planning scope remains all 11 modules, 219 module entries, 12 E2E scenarios ([written step by step with a coverage table for what this prototype proves](E2E_JOURNEYS.md)), shared platform controls and the original unresolved decisions. A representative prototype should be compared for visual and interaction direction; it must not be scored as full requirement implementation.
 
 Score each design 1–5 for visual identity, information hierarchy, operational clarity, connected navigation, component consistency, mobile use, accessibility and implementation simplicity. Weight operational clarity and connected navigation twice. Keep selected component choices and a single token system when combining results.
 
