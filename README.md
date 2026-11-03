@@ -8,7 +8,7 @@ The supplied file is a **draft discovery SoW**, not a signed FRD. Its 11 modules
 
 ## Local visual prototype
 
-Open a PowerShell terminal in `F:\dwarkesh\erp\prototype` and run:
+Open a PowerShell terminal in `F:\dwarkesh\erp\ERP\prototype` and run:
 
 ```powershell
 npm.cmd install

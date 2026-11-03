@@ -10,7 +10,7 @@ Implemented libraries: React, TypeScript and Vite; Radix Dialog, Dropdown Menu a
 
 ## Open and run
 
-From `F:\dwarkesh\erp\prototype`:
+From `F:\dwarkesh\erp\ERP\prototype`:
 
 ```powershell
 npm.cmd install

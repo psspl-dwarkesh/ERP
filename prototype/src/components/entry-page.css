@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&display=swap");
-
 .entry-page {
   --entry-ink: #172320;
   --entry-paper: #e6ece6;
@@ -72,24 +70,21 @@
   overflow: hidden;
 }
 .entry-cover::before {
+  /* Drafting registration mark: the crossing hairline used on a drawing sheet. */
   content: "";
-  width: 190px;
-  height: 190px;
+  width: 34px;
+  height: 34px;
   position: absolute;
-  right: 7%; top: 120px;
-  border: 1px solid rgba(244,240,231,.10);
-  border-radius: 50%;
+  right: clamp(20px, 3.4vw, 54px);
+  top: 96px;
+  background:
+    linear-gradient(#f5f0e3, #f5f0e3) center / 1px 100% no-repeat,
+    linear-gradient(#f07946, #f07946) center / 100% 1px no-repeat;
+  opacity: .46;
   pointer-events: none;
 }
 .entry-cover::after {
-  content: "";
-  width: 82px;
-  height: 82px;
-  position: absolute;
-  right: calc(7% + 54px); top: 174px;
-  border: 1px solid rgba(244,240,231,.10);
-  border-radius: 50%;
-  pointer-events: none;
+  content: none;
 }
 .entry-cover-meta, .entry-cover-foot {
   min-height: 41px;
@@ -102,7 +97,6 @@
   letter-spacing: .08em;
   color: #c8c9bd;
 }
-.entry-cover-meta span:nth-child(2) { margin-right: auto; margin-left: 11%; }
 .entry-statement {
   min-height: 360px;
   padding: 46px 0 50px;
@@ -123,6 +117,20 @@
 }
 .entry-statement h1 span:last-child { color: var(--entry-copper); }
 .entry-summary { padding-bottom: 4px; }
+/* Stage scale: the drawing-sheet device that carries the route position.
+   Geometry only, and it moves with the selected handoff. */
+.entry-plate { display: grid; gap: 9px; margin: 0 0 24px; }
+.entry-plate-svg { display: block; width: 100%; max-width: 220px; height: auto; overflow: visible; }
+.entry-plate .plate-rule { stroke: rgba(245, 240, 227, .3); stroke-width: 1; }
+.entry-plate .plate-tick { stroke: rgba(245, 240, 227, .48); stroke-width: 1.4; }
+.entry-plate .plate-tick.is-active { stroke: var(--entry-copper); stroke-width: 2.2; }
+.entry-plate .plate-runner { fill: var(--entry-copper); }
+.entry-plate-readout {
+  font: 500 11px/1 "IBM Plex Mono", monospace;
+  letter-spacing: .08em;
+  color: #cbcbbd;
+  text-transform: uppercase;
+}
 .entry-summary p {
   max-width: 350px;
   color: #d9dacf;
@@ -149,7 +157,7 @@
 .entry-route { border-top: 1px solid var(--entry-rule); }
 .entry-route-head {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 15px;
   min-height: 45px;
@@ -232,6 +240,7 @@
   .entry-statement { grid-template-columns: 1fr; min-height: auto; gap: 36px; }
   .entry-statement h1 { font-size: clamp(70px, 13vw, 116px); }
   .entry-summary { display:flex; align-items:end; gap: 28px; }
+  .entry-plate { flex: 0 0 132px; margin-bottom: 3px; }
   .entry-summary p { margin-bottom:0; }
   .entry-route-track strong { font-size: 24px; }
   .entry-proof-list button { grid-template-columns: 125px 1fr 19px; }
@@ -241,13 +250,12 @@
 @media (max-width: 650px) {
   .entry-header { min-height: 64px; padding-left: 18px; }
   .entry-logo strong { font-size: 22px; }
-  .entry-logo small { font-size: 10px; }
+  .entry-logo small { font-size: 11px; }
   .entry-logo-mark { width: 33px; height: 33px; }
   .entry-header nav a { display:none; }
   .entry-header nav .entry-nav-action { min-height:64px; padding-inline: 14px; font-size: 11px; gap: 5px; }
   .entry-cover { padding-inline: 20px; }
-  .entry-cover-meta { font-size: 10px; }
-  .entry-cover-meta span:nth-child(2), .entry-cover-meta span:last-child { display:none; }
+  .entry-cover-meta { font-size: 11px; letter-spacing: .04em; gap: 12px; }
   .entry-cover::before,.entry-cover::after { display:none; }
   .entry-statement { padding: 47px 0 37px; gap: 30px; }
   .entry-statement h1 { font-size: clamp(67px, 16vw, 100px); }
@@ -268,7 +276,7 @@
   .entry-current-copy strong { font-size:14px; }
   .entry-current-copy p { font-size:11px; }
   .entry-current button { width: auto; align-self:start; white-space:nowrap; font-size:11px; }
-  .entry-cover-foot { font-size:10px; }
+  .entry-cover-foot { font-size:11px; }
   .entry-cover-foot span:nth-child(2) { display:none; }
   .entry-proof { grid-template-columns: 1fr; gap: 24px; padding: 57px 20px; }
   .entry-proof-lead h2 { font-size:60px; }
@@ -279,12 +287,20 @@
   .entry-proof-list button small { grid-column:1; font-size:11px; }
   .entry-proof-list button svg { grid-column:2; grid-row:1 / span 3; }
   .entry-footer { flex-wrap:wrap; padding: 22px 20px; }
-  .entry-footer > span { order: 3; width:100%; font-size:10px; }
+  .entry-footer > span { order: 3; width:100%; font-size:11px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   @keyframes entry-draw { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+  @keyframes record-settle { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
+  @keyframes record-stamp { from { letter-spacing:.16em; opacity:.35; } to { letter-spacing:0; opacity:1; } }
   .entry-route-track { position:relative; }
   .entry-route-track::before { content:""; height:1px; position:absolute; top:22px; left:15px; right:15px; background: var(--entry-copper); transform-origin:left; animation: entry-draw .85s cubic-bezier(.16,1,.3,1) both; pointer-events:none; opacity:.75; }
   .entry-route-track button { z-index:1; }
   .entry-route-track button.active .entry-route-index i { transition: transform .3s cubic-bezier(.16,1,.3,1); transform:scale(1.3); }
+  /* The active record is the one place the cover responds to a choice, so it
+     earns the movement: the panel settles and the identifier stamps in. */
+  .entry-current { animation: record-settle .34s cubic-bezier(.16,1,.3,1) both; }
+  .entry-current-id strong { animation: record-stamp .42s cubic-bezier(.16,1,.3,1) both; }
+  .entry-plate .plate-runner { transition: cx .34s cubic-bezier(.16,1,.3,1); }
+  .entry-plate .plate-tick { transition: y1 .3s cubic-bezier(.16,1,.3,1), y2 .3s cubic-bezier(.16,1,.3,1), stroke .3s ease; }
 }

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="ABC Limited monogram">
+  <rect width="32" height="32" fill="#172320"/>
+  <g transform="skewX(-7)" fill="#F07946">
+    <rect x="6.5" y="11" width="3.5" height="11"/>
+    <rect x="12.5" y="7" width="3.5" height="15"/>
+    <rect x="18.5" y="14" width="3.5" height="8"/>
+  </g>
+</svg>

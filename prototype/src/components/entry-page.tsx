@@ -86,12 +86,37 @@ export function EntryPage({ enter }: Props) {
         <section className="entry-cover" aria-labelledby="entry-title">
           <div className="entry-cover-meta" aria-hidden="true">
             <span>ABC LIMITED / ERP CONCEPT</span>
-            <span>ENGINEERING · PROJECTS · SERVICE</span>
             <span>03.11.26 / REV 01</span>
           </div>
           <div className="entry-statement">
             <h1 id="entry-title"><span>One job.</span><br /><span>Every handoff.</span></h1>
             <div className="entry-summary">
+              <div className="entry-plate" aria-hidden="true">
+                <svg className="entry-plate-svg" viewBox="0 0 220 26" focusable="false" role="presentation">
+                  <line className="plate-rule" x1="0" y1="13" x2="220" y2="13" />
+                  {stages.map((item, index) => {
+                    const x = 8 + index * (204 / (stages.length - 1));
+                    const isActive = index === active;
+                    return (
+                      <line
+                        key={item.record}
+                        className={isActive ? "plate-tick is-active" : "plate-tick"}
+                        x1={x}
+                        y1={isActive ? 2 : 9}
+                        x2={x}
+                        y2={isActive ? 24 : 17}
+                      />
+                    );
+                  })}
+                  <circle
+                    className="plate-runner"
+                    cx={8 + active * (204 / (stages.length - 1))}
+                    cy="13"
+                    r="3.2"
+                  />
+                </svg>
+                <span className="entry-plate-readout">{stage.record} / {stage.label}</span>
+              </div>
               <p>Follow a customer order through engineering, materials, assembly and field service. Every decision and commitment has a place in the same operating record.</p>
               <button className="entry-enter" onClick={() => enter("Dashboard")}>Open the working demo <ArrowRight size={21} /></button>
             </div>
@@ -99,7 +124,6 @@ export function EntryPage({ enter }: Props) {
 
           <div id="job-route" className="entry-route" aria-label="Example engineering job route">
             <div className="entry-route-head">
-              <span>FOLLOW ONE JOB</span>
               <span>EXAMPLE / PRJ-0264</span>
               <span>SELECT A HANDOFF TO INSPECT ITS RECORD</span>
             </div>
@@ -119,7 +143,7 @@ export function EntryPage({ enter }: Props) {
                 </button>
               ))}
             </div>
-            <div className="entry-current" aria-live="polite">
+            <div className="entry-current" key={stage.record} aria-live="polite">
               <div className="entry-current-id"><span>ACTIVE RECORD</span><strong>{stage.record}</strong></div>
               <div className="entry-current-copy"><strong>{stage.detail}</strong><p>{stage.note}</p></div>
               <button onClick={() => enter(stage.route, stage.sub)} aria-label={`Open ${stage.label} in the demo workspace`}>
@@ -133,9 +157,9 @@ export function EntryPage({ enter }: Props) {
         <section className="entry-proof" aria-label="What the workspace connects">
           <div className="entry-proof-lead"><h2>Work leaves a trace.</h2><p>For a project team, the useful question is what must happen next and which record proves it happened. The demo makes those handoffs inspectable.</p></div>
           <div className="entry-proof-list">
-            <button onClick={() => enter("Inventory", "Requirements")}><span>01 / MATERIAL DEMAND</span><strong>BOM-042 → PR-0084</strong><small>Released items, shortage and purchase request</small><ArrowUpRight size={18}/></button>
-            <button onClick={() => enter("Inventory", "Panel assembly")}><span>02 / BUILD CONTROL</span><strong>WO-0187 → QC hold</strong><small>Panel stages and the dispatch gate</small><ArrowUpRight size={18}/></button>
-            <button onClick={() => enter("Assets", "Service desk")}><span>03 / INSTALLED BASE</span><strong>AST-0042 → SR-0148</strong><small>Customer equipment and service action</small><ArrowUpRight size={18}/></button>
+            <button onClick={() => enter("Inventory", "Requirements")}><span>MATERIAL DEMAND</span><strong>BOM-042 → PR-0084</strong><small>Released items, shortage and purchase request</small><ArrowUpRight size={18}/></button>
+            <button onClick={() => enter("Inventory", "Panel assembly")}><span>BUILD CONTROL</span><strong>WO-0187 → QC hold</strong><small>Panel stages and the dispatch gate</small><ArrowUpRight size={18}/></button>
+            <button onClick={() => enter("Assets", "Service desk")}><span>INSTALLED BASE</span><strong>AST-0042 → SR-0148</strong><small>Customer equipment and service action</small><ArrowUpRight size={18}/></button>
           </div>
         </section>
       </main>

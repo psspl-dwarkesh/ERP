@@ -113,7 +113,6 @@ export function OperationsHome({
         <>
           <section className="dispatch-board" aria-label="Immediate operating decisions">
             <div className="dispatch-lead">
-              <span>03 NOV / OPERATIONS DESK</span>
               <h2>Three handoffs need attention.</h2>
               <p>PRJ-0264 is waiting on material and procurement. An installed asset has a service response due today.</p>
               <button onClick={() => onProject(projects[0])}>Inspect the linked project <ArrowUpRight size={15} /></button>
@@ -297,10 +296,7 @@ export function OperationsHome({
           </div>
           <section className="flow-ledger">
             <header>
-              <div>
-                <span className="section-label">CONNECTED WORK</span>
-                <h2>One project. A complete record.</h2>
-              </div>
+              <h2>One project. A complete record.</h2>
               <button onClick={() => onProject(projects[0])}>
                 PRJ-0264
                 <ArrowUpRight size={14} />
@@ -408,7 +404,6 @@ export function OperationsHome({
             </section>
             <section className="commitments-panel">
               <header>
-                <span className="section-label">SERVICE COMMITMENTS</span>
                 <Wrench size={16} />
               </header>
               <h2>Due next</h2>
