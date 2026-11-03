@@ -1003,7 +1003,8 @@ small {
   font-size: 11px;
   color: #5d6c64;
 }
-.delivery-panel > footer button {
+.delivery-panel > footer button,
+.review-panel > footer button {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1012,6 +1013,7 @@ small {
   color: #5d6c64;
   font-size: 11px;
   padding: 0;
+  white-space: nowrap;
 }
 .review-panel {
   display: flex;
@@ -1127,6 +1129,11 @@ small {
   background: #fbfcff;
   font-size: 11px;
   color: #5d6c64;
+}
+/* The panel shows the three newest requests, so the footer carries the rest of
+   the queue rather than leaving the count badge hanging without a destination. */
+.review-panel > footer span {
+  flex: 1;
 }
 .flow-ledger {
   margin-top: 26px;
@@ -2304,9 +2311,16 @@ tbody > tr[data-selected="true"] {
   align-items: center;
   justify-content: space-between;
   gap: 15px;
+  flex-wrap: wrap;
   border-top: 1px solid #f1efe9;
   padding-top: 19px;
   margin-top: 24px;
+}
+/* The variance gates carry a blocked action beside the real one, so the pair
+   wraps instead of pushing the footnote off the narrow side of the grid. */
+.form-footer .header-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 .form-footer .muted {
   font-size: 11px;

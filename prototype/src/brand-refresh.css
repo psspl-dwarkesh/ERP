@@ -132,6 +132,8 @@ td small, .grid-record > .record-code, .grid-col-value, .grid-col-date { color: 
 tbody > tr:hover td { background: #f6efe2; }
 tbody > tr[data-selected="true"] td { background: #f8e5d6; }
 .record-name:hover { color: #a64223; }
+.review-panel > footer button:hover,
+.delivery-panel > footer button:hover { color: #a64223; }
 .grid-col-select input { accent-color: #c9542b; }
 .badge { border-radius: 0; }
 .badge.green { background: #e6efe7; border-color: #c5ddc9; color: #285c3a; }

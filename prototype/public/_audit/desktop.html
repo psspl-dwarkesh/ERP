@@ -117,7 +117,7 @@
         // Style-deletion guard: every class the DOM actually renders should still
         // have a rule somewhere in the bundle. Library-owned namespaces are
         // excluded because they are styled inline or by the chart runtime.
-        const LIBRARY = /^(recharts|radix|cmdk|ProseMirror|toast|rc_)/;
+        const LIBRARY = /^(recharts|radix|cmdk|ProseMirror|toast|rc_|lucide)/;
         const declared = new Set();
         const collectRules = (list) => {
           for (const rule of list) {
@@ -165,10 +165,16 @@
           eyebrowCount: doc.querySelectorAll(".eyebrow").length,
           barlow: doc.fonts.check('600 120px "Barlow Condensed"'),
           heading,
+          // Guards the tab hand-off: a silent failure would audit the first tab
+          // and still report a clean sheet.
+          activeTab:
+            doc.querySelector('.inner-tabs button[data-state="active"]')
+              ?.textContent.trim() || null,
+          banner: doc.querySelector(".feature-banner h2")?.textContent || null,
         };
       }
 
-      window.audit = (route, w, h) => new Promise((resolve) => {
+      window.audit = (route, w, h, tab) => new Promise((resolve) => {
         const frame = document.createElement("iframe");
         frame.style.width = `${w}px`;
         frame.style.height = `${h}px`;
@@ -176,18 +182,34 @@
         document.getElementById("stage").appendChild(frame);
         frame.addEventListener("load", () => {
           const win = frame.contentWindow;
-          const done = () => setTimeout(() => {
+          // Sub-tabs are session state, so the audit reaches them the same way a
+          // visitor does: open the module, then click the tab.
+          const openTab = () => new Promise((next) => {
+            if (!tab) return next();
+            const hit = [...win.document.querySelectorAll(".inner-tabs button")]
+              .find((b) => b.textContent.trim().startsWith(tab));
+            if (!hit) return next();
+            // Radix selects on mouse down in automatic mode, so a bare
+            // .click() would leave the iframe on the first tab and quietly
+            // audit the wrong screen.
+            ["mousedown", "mouseup", "click"].forEach((type) =>
+              hit.dispatchEvent(new win.MouseEvent(type, { bubbles: true, cancelable: true, view: win }))
+            );
+            hit.focus();
+            setTimeout(next, 600);
+          });
+          const measure = () => setTimeout(() => {
             let out;
+            const label = tab ? `${route}/${tab}` : route;
             try {
-              out = inspect(win, route);
+              out = inspect(win, label);
             } catch (error) {
-              out = { label: route, error: String(error) };
+              out = { label, error: String(error) };
             }
             frame.remove();
             resolve(out);
           }, 1300);
-          if (win.document.fonts?.ready) win.document.fonts.ready.then(done, done);
-          else done();
+          Promise.resolve(win.document.fonts?.ready).then(openTab).then(measure);
         }, { once: true });
       });
       window.ROUTES = ROUTES;

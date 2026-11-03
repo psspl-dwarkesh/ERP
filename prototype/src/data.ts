@@ -291,7 +291,17 @@ export const opportunities: RecordRow[] = [
     date: "15 Nov 2026",
   },
 ];
-export const approvals = [
+export type Approval = {
+  id: string;
+  title: string;
+  type: string;
+  ref: string;
+  maker: string;
+  value: string;
+  age: string;
+  evidence?: string;
+};
+export const approvals: Approval[] = [
   {
     id: "APR-0132",
     title: "PLC & I/O modules",
@@ -300,6 +310,16 @@ export const approvals = [
     maker: "Ananya Rao",
     value: "₹2.84 L",
     age: "2 hours ago",
+  },
+  {
+    id: "APR-0127",
+    title: "Stock count variance · ITM-0042",
+    type: "Count variance",
+    ref: "CNT-0031",
+    maker: "Ravi Kulkarni",
+    value: "₹85,000",
+    age: "3 hours ago",
+    evidence: "Count sheet · two counters · reason recorded at the shelf",
   },
   {
     id: "APR-0129",
@@ -319,6 +339,18 @@ export const approvals = [
     value: "₹8,450",
     age: "Yesterday",
   },
+  {
+    // The queue viewer is Arjun Mehta throughout the prototype, so this request
+    // is deliberately his own: it is where the maker-checker rule bites.
+    id: "APR-0121",
+    title: "Subcontract material write-off",
+    type: "Subcontract variance",
+    ref: "SI-0044",
+    maker: "Arjun Mehta",
+    value: "₹3,200",
+    age: "2 days ago",
+    evidence: "Partner damage report · bench-test log · awaiting custodian sign-off",
+  },
 ];
 export const chartData = [
   { month: "Jun", planned: 12, delivered: 9 },
@@ -336,4 +368,137 @@ export const verticals = [
   "AMC",
   "O&M",
   "CSV / Manufacturing IT",
+];
+/* Counts and subcontract issues are the two journeys the prototype could not
+   yet walk, so these fixtures exist to make E2E-04 and E2E-11 clickable. Item
+   codes, names, locations and reservations are inherited from the stock
+   fixtures above; counted quantities, partner consumption and the people at the
+   bench are invented. Unit values are round placeholders chosen to make a
+   variance legible as money, not a valuation policy — that decision stays open. */
+export type CountLine = {
+  item: string;
+  material: string;
+  position: string;
+  expected: number;
+  counted: number;
+  unitValue: number;
+  reason: string;
+  route: "adjustment" | "transfer";
+};
+export const countLines: CountLine[] = [
+  {
+    item: "ITM-0042",
+    material: "PLC CPU · S7-1200 series",
+    position: "Central warehouse · Rack A-04 · serialized",
+    expected: 4,
+    counted: 2,
+    unitValue: 42500,
+    reason:
+      "Two serialized CPUs went out on the PRJ-0264 site van with no transfer posting.",
+    route: "adjustment",
+  },
+  {
+    item: "ITM-0089",
+    material: "24V DC power supply",
+    position: "Central warehouse · Rack B-12",
+    expected: 38,
+    counted: 38,
+    unitValue: 3200,
+    reason: "No difference. Reserved block counted separately from free stock.",
+    route: "adjustment",
+  },
+  {
+    item: "ITM-0137",
+    material: "Pressure transmitter · 0–10 bar",
+    position: "QC bay · GRN-0073 · customer-owned",
+    expected: 6,
+    counted: 6,
+    unitValue: 8900,
+    reason:
+      "Held stock counted at the QC bay. Position recorded, availability deliberately unchanged.",
+    route: "transfer",
+  },
+  {
+    item: "ITM-0214",
+    material: "Panel enclosure · IP65",
+    position: "Assembly store · Rack C-02",
+    expected: 16,
+    counted: 15,
+    unitValue: 6400,
+    reason:
+      "One enclosure is at Vector Controls under SI-0044 and was counted at both positions.",
+    route: "transfer",
+  },
+];
+export type SubcontractLine = {
+  issue: string;
+  partner: string;
+  package: string;
+  custodian: string;
+  material: string;
+  issued: number;
+  consumed: number;
+  returned: number;
+  damaged: number;
+  unitValue: number;
+  note: string;
+  review: "Open" | "Overdue";
+};
+export const subcontractLines: SubcontractLine[] = [
+  {
+    issue: "SI-0044",
+    partner: "Vector Controls",
+    package: "MCC enclosure fabrication · PO-0118 line 2",
+    custodian: "Nashik shop · Salim Khot (custody changed 04 Nov)",
+    material: "ITM-0214 · Panel enclosure · IP65",
+    issued: 2,
+    consumed: 1,
+    returned: 0,
+    damaged: 0,
+    unitValue: 6400,
+    note: "Cut and formed; held for the bending fixture.",
+    review: "Open",
+  },
+  {
+    issue: "SI-0044",
+    partner: "Vector Controls",
+    package: "MCC enclosure fabrication · PO-0118 line 2",
+    custodian: "Nashik shop · Salim Khot (custody changed 04 Nov)",
+    material: "ITM-0089 · 24V DC power supply",
+    issued: 10,
+    consumed: 6,
+    returned: 2,
+    damaged: 1,
+    unitValue: 3200,
+    note: "One unit burnt on the bench test. Partner report not yet recorded.",
+    review: "Open",
+  },
+  {
+    issue: "SI-0044",
+    partner: "Vector Controls",
+    package: "Controller commissioning · WO-0187 dependency",
+    custodian: "Nashik test bench · Salim Khot",
+    material: "ITM-0042 · PLC CPU · S7-1200 series",
+    issued: 4,
+    consumed: 2,
+    returned: 1,
+    damaged: 0,
+    unitValue: 42500,
+    note: "Serialized units remain company stock until work acceptance.",
+    review: "Open",
+  },
+  {
+    issue: "SI-0039",
+    partner: "Axis Industrial",
+    package: "Wiring harness sub-assembly · PO-0118 line 1",
+    custodian: "Axis stores · no named custodian since 28 Oct",
+    material: "ITM-0214 · Panel enclosure · IP65",
+    issued: 4,
+    consumed: 4,
+    returned: 0,
+    damaged: 0,
+    unitValue: 6400,
+    note: "Fully consumed. Reconciliation was due 28 Oct and is still open.",
+    review: "Overdue",
+  },
 ];

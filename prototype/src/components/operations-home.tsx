@@ -12,6 +12,7 @@ import {
   ArrowDownToLine,
   ArrowRight,
   ArrowUpRight,
+  Boxes,
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
@@ -252,13 +253,17 @@ export function OperationsHome({
                 <ClipboardCheck size={16} />
               </header>
               <div className="review-rows">
-                {approvals.map((a) => (
+                {approvals.slice(0, 3).map((a) => (
                   <button key={a.id} onClick={() => onApproval(a)}>
                     <span className="review-symbol">
                       {a.type === "BOM release" ? (
                         <GitBranch size={17} />
                       ) : a.type === "Employee claim" ? (
                         <Clock3 size={17} />
+                      ) : a.type === "Count variance" ? (
+                        <ClipboardCheck size={17} />
+                      ) : a.type === "Subcontract variance" ? (
+                        <Boxes size={17} />
                       ) : (
                         <ShoppingCart size={17} />
                       )}
@@ -289,6 +294,10 @@ export function OperationsHome({
               <footer>
                 <ShieldCheckIcon />
                 <span>Review authority and evidence before approval.</span>
+                <button onClick={() => setView("approvals")}>
+                  All {approvals.length} in queue
+                  <ArrowUpRight size={13} />
+                </button>
               </footer>
             </section>
           </div>

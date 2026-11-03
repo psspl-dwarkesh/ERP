@@ -87,7 +87,7 @@ Business question: when material leaves for a partner's shop, who answers for wh
 
 Cast: purchase, subcontract custodian, stores, approving manager.
 
-Chain: PO-0118 (subcontract line) → SI-0044 → work acceptance → variance approval. *(SI-0044 is illustrative; the prototype has no subcontract fixture, which is the gap this journey exists to expose.)*
+Chain: PO-0118 (subcontract line) → SI-0044 → work acceptance → variance approval. *(SI-0044 and the second package SI-0039 are illustrative issues; their material lines, quantities and unit values are built on the real stock fixtures ITM-0042, ITM-0089 and ITM-0214 and on the real PO-0118 supplier relationship with Vector Controls.)*
 
 1. PUR-UI-03 · The subcontract line is distinct from goods and services lines, because it issues company material and receives labour.
 2. INV-UI-05 · Issue to the custodian records what left, against which work package, and who holds it.
@@ -99,7 +99,7 @@ Invariants: nothing reduces outstanding without a movement; material at a subcon
 
 States: part-consumed with material held over; damaged; lost; custodian changed mid-package; rejected variance; overdue reconciliation.
 
-Prototype coverage: not designed. This journey is the strongest candidate for the next design step, because the register, the custody transfer and the reconciliation table do not exist yet.
+Prototype coverage: partial. Inventory → Subcontract holds the register, the custody line and the reconciliation table (issued 20 = consumed 13 + returned 3 + damaged 1 + outstanding 3), and the gate refuses to zero an outstanding figure, to raise a damage variance without the partner report, and to let the maker approve his own APR-0121. What stays drawn: work acceptance tying a returned assembly to an accepted quantity, the PO-line link inside Purchase, and every actual movement posting.
 
 ---
 
@@ -243,7 +243,7 @@ Business question: when the shelf and the system disagree, what happens to the t
 
 Cast: stores, count team, reviewer, controller.
 
-Chain: CNT-0031 → variance → approval → ADJ-0018 → reversal → reconciliation. *(Count IDs are illustrative; the stock fixtures are real.)*
+Chain: CNT-0031 → variance → approval → ADJ-0018 → reversal → reconciliation. *(CNT-0031, Ravi Kulkarni and the unit values are illustrative; every counted line is a real stock fixture, including the QC-held transmitters in the QC bay.)*
 
 1. INV-UI-10 · A count session records expected against counted per item, with the reason captured while the count is fresh, not reconstructed later.
 2. SYS-02 · Variance approval shows the value at stake, the count team and the maker. A large variance against ITM-0042 (4 available, low stock) is visible as a value, not a quantity difference.
@@ -255,7 +255,7 @@ Invariants: no deletion of posted movements; a count cannot approve its own vari
 
 States: count in progress; variance rejected; recount; negative result under an undecided policy; correction of an approved adjustment; period closed.
 
-Prototype coverage: not designed. Stock, movements and the QC-block simulation exist; counting, variance approval and correction do not. Second priority after E2E-04 for the next design pass.
+Prototype coverage: partial. Inventory → Counts walks the count sheet with reasons captured per line, prices the ITM-0042 shortfall as ₹85,000 rather than as two units, holds the variance for an approver outside the count team, posts ADJ-0018, shows the on-hand/reserved/available consequence and then corrects it through ADJ-0019 while ADJ-0018 stays untouched. The enclosure line is deliberately routed to a transfer against SI-0044 instead of an adjustment. What stays drawn: the reconciliation report tie-out, recount, rejected variance and period-close states.
 
 ---
 
@@ -289,16 +289,16 @@ Prototype coverage: not designed. HR's lifecycle fixtures are shallow here, and 
 | E2E-01 | CRM, Sales, Projects, Dashboard | Partial: record chain visible, conversion drawn | Quote revision comparison and the acceptance-to-project handoff as a flow |
 | E2E-02 | Projects, Purchase, Inventory, Assembly | Partial: shortage, comparison, stages, QC block interactive | Receipt reconciliation against a PO line, revision-difference view |
 | E2E-03 | Projects, Inventory | Partial: stock states and blocked issue interactive | Transfer acknowledgement, in-transit state, ledger detail |
-| E2E-04 | Purchase, Inventory | Not designed | Subcontract issue, custody, consumption and variance reconciliation screens |
+| E2E-04 | Purchase, Inventory | Partial: register, custody, evidence-first damage and the self-approval block interactive | Work acceptance against accepted quantity, the subcontract line inside Purchase, real movement postings |
 | E2E-05 | Projects, Assets, Service | Partial: ownership stated, existing-asset relationship proven | Commissioning holds, handover action, contract creation |
 | E2E-06 | Assets, Service, Inventory | Demonstrated end to end in the prototype | Nothing for design; entitlement resolution depth is the open question |
 | E2E-07 | Assets, Quality, Dashboard | Partial: due list and asset record | Worksheet with tolerance logic, review and next-due update |
 | E2E-08 | HR, Payroll, Approvals | Partial by intent: restriction and prechecks only | Review/lock/reversal flow with restricted-field denial states |
 | E2E-09 | HR, Projects | Partial: deployment and one claim | Timesheet approval and project cost roll-up without person-level pay |
 | E2E-10 | Projects, Sales, Integrations | Partial: BA-0063 advice | Delivery-state, retry, mismatch and unbilled reconciliation screens |
-| E2E-11 | Inventory, Approvals, Reports | Not designed | Count session, variance approval, compensating correction |
+| E2E-11 | Inventory, Approvals, Reports | Partial: count sheet, priced variance, ADJ-0018 and the compensating ADJ-0019 interactive | Report tie-out, recount, rejected variance and period-close states |
 | E2E-12 | HR, Users, Assets, Payroll | Not designed | Checklist-driven exit with recovery, delegation and open-item report |
 
-Four journeys (E2E-04, E2E-11, E2E-12 and the reconciliation half of E2E-10) are the ones a reviewer should look at hardest, because they are where a generic ERP design quietly fails: custody, variance, access and matching are the places the source scope explicitly refuses to let the software guess at.
+Four journeys are the ones a reviewer should look at hardest, because they are where a generic ERP design quietly fails: custody, variance, access and matching are the places the source scope explicitly refuses to let the software guess at. E2E-04 and E2E-11 now have their screens, so what is left there is depth rather than absence: a movement that only claims to post, and an acceptance step that ties nothing yet. E2E-12 remains the one journey with no screen at all, and the reconciliation half of E2E-10 is still a description; those two are the next design step.
 
 Open-decision topics that these journeys touch and that design does not resolve: invoice and accounting ownership plus the external provider, movement concurrency, payroll statutory policy, how deep project and assembly control go, stock valuation method, calibration certificate authoring, billing rules for advances/retention/tax/credit, migration volume and deployment model. Each is carried as a labeled assumption in the step where it first bites.

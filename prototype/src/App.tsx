@@ -14,6 +14,7 @@ import {
   ArrowRight,
   ArrowDownToLine,
   ArrowLeft,
+  ArrowLeftRight,
   Bell,
   Boxes,
   BriefcaseBusiness,
@@ -49,6 +50,7 @@ import {
   TriangleAlert,
   Users,
   Wallet,
+  Warehouse,
   Wrench,
   X,
   type LucideIcon,
@@ -56,14 +58,18 @@ import {
 import {
   assets,
   approvals,
+  countLines,
   opportunities,
   people,
   projects,
   purchases,
   sales,
   stock,
+  subcontractLines,
   tickets,
+  type CountLine,
   type RecordRow,
+  type SubcontractLine,
 } from "./data";
 import "./product.css";
 import "./brand-refresh.css";
@@ -102,7 +108,8 @@ const nav: { name: Route; icon: LucideIcon; group?: string }[] = [
 const descriptions: Record<Route, string> = {
   Dashboard: "Company operations",
   Projects: "Plan milestones, coordinate resources and follow delivery.",
-  Inventory: "Stock, reservations, serial traceability and panel assembly.",
+  Inventory:
+    "Stock, reservations, cycle counts, subcontract material and panel assembly.",
   Assets: "Equipment, service contracts and maintenance obligations.",
   Purchase: "Requisitions, supplier selection, orders and receipts.",
   Sales: "Quotations, orders, fulfilment and billing advice.",
@@ -119,10 +126,18 @@ const routeFromHash = () =>
   )?.name || "Dashboard";
 const isEntryHash = () =>
   window.location.hash === "" || window.location.hash === "#welcome";
+/* Warning words read amber, settled states read green, and anything still in
+   motion reads the neutral teal. A shortage joined the amber group with the
+   count and subcontract screens: a warning badge and a review badge are not the
+   same thing. */
 function Badge({ status }: { status: string }) {
-  const tone = /risk|Urgent|hold|Low|Overdue|Denied|Rejected/i.test(status)
+  const tone = /risk|Urgent|hold|Low|Overdue|Denied|Rejected|Variance|short|Damag|Loss/i.test(
+    status,
+  )
     ? "amber"
-    : /track|Available|Approved|service|Completed|Active|Deployed/i.test(status)
+    : /track|Available|Approved|service|Completed|Active|Deployed|Matched|Reconciled/i.test(
+        status,
+      )
       ? "green"
       : /Draft|Planning|locked/i.test(status)
         ? "gray"
@@ -134,6 +149,19 @@ function Badge({ status }: { status: string }) {
     </span>
   );
 }
+/* Variance has to read as money, not as a quantity difference, so the count and
+   subcontract screens price their lines through one rupee formatter. Indian
+   digit grouping is the local convention for this audience. */
+const inr = (value: number) => `₹${value.toLocaleString("en-IN")}`;
+/* One dialog serves every request type, so the review context has to come from
+   the record rather than a hard-coded project line. */
+const approvalContext: Record<string, string> = {
+  "Purchase requisition": "Raised from BOM-042 revision C on PRJ-0264.",
+  "BOM release": "Proposed revision D against the released revision C.",
+  "Employee claim": "Site travel recorded against SR-0148 attendance.",
+  "Count variance": "Cycle count CNT-0031 · serialized stock in Rack A-04.",
+  "Subcontract variance": "SI-0044 at Vector Controls · PRJ-0258 work package.",
+};
 function Avatar({ name, small = false }: { name: string; small?: boolean }) {
   return (
     <span className={`avatar ${small ? "small" : ""}`}>
@@ -211,6 +239,8 @@ function App() {
   const [selected, setSelected] = useState<RecordRow | null>(null);
   const [assemblyStep, setAssemblyStep] = useState(3);
   const [issueDone, setIssueDone] = useState(false);
+  const [countStage, setCountStage] = useState(0);
+  const [subStage, setSubStage] = useState(0);
   const [ticketStatus, setTicketStatus] = useState("Assigned");
 
   const notify = (message: string) => {
@@ -829,6 +859,607 @@ function App() {
       </>
     );
   }
+  const countVariance = (line: CountLine) => line.counted - line.expected;
+  function countsView() {
+    const cpu = countLines.find((l) => l.item === "ITM-0042")!;
+    const cpuGap = Math.abs(countVariance(cpu));
+    const adjustmentValue = countLines
+      .filter((l) => l.route === "adjustment")
+      .reduce((sum, l) => sum + Math.abs(countVariance(l)) * l.unitValue, 0);
+    const transferValue = countLines
+      .filter((l) => l.route === "transfer")
+      .reduce((sum, l) => sum + Math.abs(countVariance(l)) * l.unitValue, 0);
+    const posted = countStage >= 2;
+    const bannerStatus = [
+      "Variance open",
+      "Variance in review",
+      "Adjustment posted",
+      "Reversal posted",
+    ][countStage];
+    const trail = [
+      { what: "CNT-0031 count sheet recorded", state: "Recorded", done: true },
+      {
+        what: "APR-0127 variance approved outside the count team",
+        state: countStage >= 2 ? "Approved" : countStage === 1 ? "In review" : "Pending",
+        done: countStage >= 2,
+      },
+      {
+        what: "ADJ-0018 adjustment movement posted",
+        state: posted ? "Posted" : "Pending",
+        done: posted,
+      },
+      {
+        what: "ADJ-0019 compensating entry",
+        state: countStage >= 3 ? "Posted" : "Not required",
+        done: countStage >= 3,
+      },
+    ];
+    return (
+      <>
+        <div className="feature-banner">
+          <span className="feature-icon">
+            <ClipboardCheck size={28} />
+          </span>
+          <div>
+            <span className="eyebrow">CNT-0031 · CYCLE COUNT</span>
+            <h2>Count, variance and correction</h2>
+            <p>
+              Central warehouse · 03 Nov 2026 · four lines counted against the
+              book balance
+            </p>
+          </div>
+          <Badge status={bannerStatus} />
+        </div>
+        <section className="card">
+          <div className="card-heading">
+            <div>
+              <h2>Count sheet</h2>
+              <p className="muted">
+                Expected is the book balance when the count opened. The reason
+                belongs to the count and is written while the shelf is still
+                open, not reconstructed afterwards.
+              </p>
+            </div>
+            <span className="subtle-tag">2 of 4 lines differ</span>
+          </div>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  {[
+                    "Item / position",
+                    "Expected",
+                    "Counted",
+                    "Result",
+                    "Value at stake",
+                    "Reason and correction route",
+                  ].map((t) => (
+                    <th key={t}>{t}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {countLines.map((l) => {
+                  const gap = countVariance(l);
+                  return (
+                    <tr key={l.item}>
+                      <td>
+                        <strong>{l.material}</strong>
+                        <small>{l.item}</small>
+                      </td>
+                      <td>{l.expected}</td>
+                      <td>{l.counted}</td>
+                      <td>
+                        <Badge
+                          status={gap === 0 ? "Matched" : `${Math.abs(gap)} short`}
+                        />
+                      </td>
+                      <td>
+                        {gap === 0
+                          ? "—"
+                          : inr(Math.abs(gap) * l.unitValue)}
+                      </td>
+                      <td>
+                        {l.reason}
+                        <small>
+                          {gap === 0
+                            ? l.route === "transfer"
+                              ? "Position recorded only. No value movement."
+                              : "No movement. The line closes without approval."
+                            : l.route === "transfer"
+                              ? "Corrected by a custody transfer against SI-0044, not by a count adjustment."
+                              : `Adjustment ADJ-0018 after variance approval · ${inr(l.unitValue)} per unit`}
+                        </small>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <div className="inventory-summary">
+          <div>
+            <h2>What the correction does to ITM-0042</h2>
+            <p>
+              Available is on hand minus reserved. The count corrects on hand, so
+              the whole difference lands on availability.
+            </p>
+          </div>
+          <div className="stock-metric">
+            <strong>
+              {posted ? 16 - cpuGap : 16}
+              <span>units</span>
+            </strong>
+            <small>On hand</small>
+            <i />
+          </div>
+          <div className="stock-metric">
+            <strong>
+              12<span>units</span>
+            </strong>
+            <small>Reserved</small>
+            <i />
+          </div>
+          <div className="stock-metric warning">
+            <strong>
+              {posted ? 4 - cpuGap : 4}
+              <span>units</span>
+            </strong>
+            <small>Available</small>
+            <i />
+          </div>
+        </div>
+        <div className="detail-grid">
+          <section className="card padded">
+            <div className="card-heading">
+              <div>
+                <h2>Variance gate</h2>
+                <p className="muted">
+                  The approver sees money, not a quantity difference, and cannot
+                  be one of the counters.
+                </p>
+              </div>
+              <span className="subtle-tag">Maker-checker</span>
+            </div>
+            <div className="three-cards">
+              <div>
+                <small>Value at stake</small>
+                <h3>{inr(adjustmentValue)}</h3>
+                <p>
+                  {cpuGap} serialized CPUs at {inr(cpu.unitValue)}. Unit values
+                  are illustrative; valuation policy is an open decision.
+                </p>
+              </div>
+              <div>
+                <small>Raised by</small>
+                <h3>Ravi Kulkarni · stores</h3>
+                <p>
+                  Waiting in the approvals desk as APR-0127 with the count sheet
+                  attached as evidence.
+                </p>
+              </div>
+              <div>
+                <small>Corrected by transfer</small>
+                <h3>{inr(transferValue)}</h3>
+                <p>
+                  One enclosure counted twice. Custody moves it, a count does not
+                  write it off.
+                </p>
+              </div>
+            </div>
+            <div className="form-footer">
+              <p className="muted">
+                {countStage >= 2
+                  ? "Posted movements stay as they are. Session state only."
+                  : "No ledger is written. The sequence is the design."}
+              </p>
+              <div className="header-actions">
+                {countStage >= 1 && (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        "Self-approval refused: Ravi Kulkarni counted this line, so the count team cannot approve its own variance.",
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Try approving as the counter
+                  </button>
+                )}
+                {countStage === 0 && (
+                  <button
+                    className="button primary"
+                    onClick={() => {
+                      setCountStage(1);
+                      notify(
+                        `APR-0127 raised: ${inr(adjustmentValue)} at stake, evidence is the count sheet, approver is outside the count team.`,
+                      );
+                    }}
+                  >
+                    <ArrowUpRight size={15} />
+                    Request variance approval
+                  </button>
+                )}
+                {countStage === 1 && (
+                  <button
+                    className="button primary"
+                    onClick={() => {
+                      setCountStage(2);
+                      notify(
+                        `ADJ-0018 posted: on hand 16 → ${16 - cpuGap}, available 4 → ${4 - cpuGap}, value −${inr(adjustmentValue)}.`,
+                      );
+                    }}
+                  >
+                    <CheckCheck size={16} />
+                    Approve as store manager
+                  </button>
+                )}
+                {countStage === 2 && (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        "A posted movement cannot be edited or deleted. Correcting an adjustment means posting an opposite event.",
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Edit ADJ-0018
+                  </button>
+                )}
+                {countStage === 2 && (
+                  <button
+                    className="button primary"
+                    onClick={() => {
+                      setCountStage(3);
+                      notify(
+                        "ADJ-0019 posted as a compensating movement. ADJ-0018 stays on the ledger exactly as approved.",
+                      );
+                    }}
+                  >
+                    <ArrowLeftRight size={15} />
+                    ADJ-0018 was wrong · reverse it
+                  </button>
+                )}
+                {countStage >= 3 && (
+                  <button className="button primary" disabled>
+                    <CheckCircle2 size={16} />
+                    Reversed by ADJ-0019
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+          <section className="card padded">
+            <h2>Movement trail</h2>
+            {trail.map((t) => (
+              <div className="checklist-line" key={t.what}>
+                <span className={t.done ? "checked-box" : "unchecked-box"}>
+                  {t.done && <Check size={14} />}
+                </span>
+                <span>{t.what}</span>
+                <small>{t.state}</small>
+              </div>
+            ))}
+            <div className="note-box">
+              <TriangleAlert size={16} />
+              A counted quantity below zero stays blocked while the
+              negative-stock policy is undecided.
+            </div>
+            <div className="detail-side">
+              {detailLink(
+                "Inventory",
+                "See the enclosure that caused the variance",
+                "Subcontract",
+              )}
+              {detailLink("Inventory", "Review the posted issue", "Movements")}
+              {detailLink("Dashboard", "Open APR-0127 in the approvals desk")}
+            </div>
+          </section>
+        </div>
+      </>
+    );
+  }
+  const outstandingAt = (line: SubcontractLine) =>
+    line.issued - line.consumed - line.returned - line.damaged;
+  function subcontractView() {
+    const writtenOff = subStage >= 3;
+    const totals = subcontractLines.reduce(
+      (t, l) => ({
+        issued: t.issued + l.issued,
+        consumed: t.consumed + l.consumed,
+        returned: t.returned + l.returned,
+        damaged: t.damaged + l.damaged,
+        outstanding: t.outstanding + outstandingAt(l),
+      }),
+      { issued: 0, consumed: 0, returned: 0, damaged: 0, outstanding: 0 },
+    );
+    const partnerValue = subcontractLines.reduce(
+      (sum, l) => sum + outstandingAt(l) * l.unitValue,
+      0,
+    );
+    const damageValue = subcontractLines.reduce(
+      (sum, l) => sum + l.damaged * l.unitValue,
+      0,
+    );
+    const bannerStatus = [
+      "Evidence pending",
+      "Variance open",
+      "Variance in review",
+      "Write-off posted",
+    ][subStage];
+    const issues = [...new Set(subcontractLines.map((l) => l.issue))];
+    return (
+      <>
+        <div className="feature-banner">
+          <span className="feature-icon">
+            <Warehouse size={28} />
+          </span>
+          <div>
+            <span className="eyebrow">SI-0044 · SI-0039 · PARTNER BENCHES</span>
+            <h2>Subcontract issue and reconciliation</h2>
+            <p>
+              Vector Controls and Axis Industrial · company material issued
+              against PO-0118 work packages
+            </p>
+          </div>
+          <Badge status={bannerStatus} />
+        </div>
+        <div className="inventory-summary">
+          <div>
+            <h2>Still company stock</h2>
+            <p>
+              Issued {totals.issued} = consumed {totals.consumed} + returned{" "}
+              {totals.returned} + damaged {totals.damaged} + outstanding{" "}
+              {totals.outstanding}. If the four buckets do not add up to issued,
+              the package cannot close.
+            </p>
+          </div>
+          <div className="stock-metric">
+            <strong>
+              {totals.outstanding}
+              <span>units</span>
+            </strong>
+            <small>Outstanding</small>
+            <i />
+          </div>
+          <div className="stock-metric">
+            <strong>{inr(partnerValue)}</strong>
+            <small>Value at partners</small>
+            <i />
+          </div>
+          <div className="stock-metric warning">
+            <strong>
+              1<span>package</span>
+            </strong>
+            <small>Reconciliation overdue</small>
+            <i />
+          </div>
+        </div>
+        <section className="card">
+          <div className="card-heading">
+            <div>
+              <h2>Reconciliation by work package</h2>
+              <p className="muted">
+                Every bucket is a posted movement. Damage and loss are decisions
+                with evidence, not rounding.
+              </p>
+            </div>
+            <span className="subtle-tag">{issues.length} issues · 4 lines</span>
+          </div>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  {[
+                    "Material",
+                    "Issue · work package · custodian",
+                    "Issued",
+                    "Consumed",
+                    "Returned",
+                    "Damaged",
+                    "Outstanding",
+                  ].map((t) => (
+                    <th key={t}>{t}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {subcontractLines.map((l) => {
+                  const open = outstandingAt(l);
+                  const damagedLine = l.damaged > 0;
+                  return (
+                    <tr key={`${l.issue}-${l.material}`}>
+                      <td>
+                        <strong>{l.material}</strong>
+                        <small>{l.note}</small>
+                      </td>
+                      <td>
+                        <strong>{l.issue}</strong>
+                        <small>{l.package}</small>
+                        <small>{l.custodian}</small>
+                        <small>
+                          <Badge status={l.review} />
+                        </small>
+                      </td>
+                      <td>{l.issued}</td>
+                      <td>{l.consumed}</td>
+                      <td>{l.returned}</td>
+                      <td>
+                        {l.damaged}
+                        {damagedLine && (
+                          <small>
+                            {writtenOff
+                              ? "OW-0007 write-off posted"
+                              : "Report not recorded yet"}
+                          </small>
+                        )}
+                      </td>
+                      <td>
+                        {open > 0 ? (
+                          <>
+                            <strong>{open}</strong>
+                            <small>{inr(open * l.unitValue)}</small>
+                          </>
+                        ) : (
+                          <Badge status="Reconciled" />
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <div className="detail-grid">
+          <section className="card padded">
+            <div className="card-heading">
+              <div>
+                <h2>Damage decision gate</h2>
+                <p className="muted">
+                  One 24V supply burnt on the partner's bench. It stays company
+                  property until an approved write-off moves it.
+                </p>
+              </div>
+              <span className="subtle-tag">Evidence first</span>
+            </div>
+            <div className="three-cards">
+              <div>
+                <small>Value pending decision</small>
+                <h3>{inr(damageValue)}</h3>
+                <p>Charged to PRJ-0258 once the write-off is approved.</p>
+              </div>
+              <div>
+                <small>Custody</small>
+                <h3>Salim Khot</h3>
+                <p>
+                  Changed hands on 04 Nov. The package keeps both custodians in
+                  the trail.
+                </p>
+              </div>
+              <div>
+                <small>Acceptance</small>
+                <h3>Not yet tied</h3>
+                <p>
+                  Returned assemblies link to accepted quantity before
+                  consumption posts.
+                </p>
+              </div>
+            </div>
+            <div className="form-footer">
+              <p className="muted">
+                Session state only · no issue, receipt or valuation is posted.
+              </p>
+              <div className="header-actions">
+                {subStage >= 1 && (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        "Outstanding cannot be edited. Nothing reduces it except a posted movement against SI-0044.",
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Zero the outstanding figure
+                  </button>
+                )}
+                {subStage === 0 && (
+                  <button
+                    className="button primary"
+                    onClick={() => {
+                      setSubStage(1);
+                      notify(
+                        "Partner damage report and bench-test log recorded against SI-0044. A variance can now be raised.",
+                      );
+                    }}
+                  >
+                    <FileText size={15} />
+                    Record the partner report
+                  </button>
+                )}
+                {subStage === 1 && (
+                  <button
+                    className="button primary"
+                    onClick={() => {
+                      setSubStage(2);
+                      notify(
+                        `APR-0121 raised: ${inr(damageValue)} at stake, maker Arjun Mehta, evidence attached. It waits in the approvals desk.`,
+                      );
+                    }}
+                  >
+                    <ArrowUpRight size={15} />
+                    Raise variance for approval
+                  </button>
+                )}
+                {subStage === 2 && (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        "Self-approval refused: Arjun Mehta raised APR-0121, so he cannot approve it. Hand it to an approver outside the maker's line.",
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Approve as the maker
+                  </button>
+                )}
+                {subStage === 2 && (
+                  <button
+                    className="button primary"
+                    onClick={() => {
+                      setSubStage(3);
+                      notify(
+                        `OW-0007 posted: 1 unit scrapped, ${inr(damageValue)} charged. Outstanding stays at ${totals.outstanding} because the write-off moved the damaged unit, not the missing ones.`,
+                      );
+                    }}
+                  >
+                    <CheckCheck size={16} />
+                    Approve as operations head
+                  </button>
+                )}
+                {writtenOff && (
+                  <button className="button primary" disabled>
+                    <CheckCircle2 size={16} />
+                    OW-0007 posted
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+          <section className="card padded">
+            <h2>Custody and ownership</h2>
+            <p className="muted">
+              Material at a partner is reported inside the company balance until
+              work acceptance. Only the address changes.
+            </p>
+            <div className="note-box">
+              <TriangleAlert size={16} />
+              SI-0039 is fully consumed but its reconciliation was due 28 Oct.
+              Overdue, not closed.
+            </div>
+            <div className="detail-side">
+              {detailLink(
+                "Purchase",
+                "Review the PO-0118 subcontract line",
+                "Overview",
+              )}
+              {detailLink("Projects", "PRJ-0258 · MCC panel installation")}
+              {detailLink(
+                "Inventory",
+                "The count that found the missing enclosure",
+                "Counts",
+              )}
+            </div>
+          </section>
+        </div>
+      </>
+    );
+  }
   function supplierComparison() {
     return (
       <>
@@ -1278,7 +1909,14 @@ function App() {
   function standardPage() {
     let tabs =
       route === "Inventory"
-        ? ["Stock", "Requirements", "Panel assembly", "Movements"]
+        ? [
+            "Stock",
+            "Requirements",
+            "Panel assembly",
+            "Movements",
+            "Counts",
+            "Subcontract",
+          ]
         : route === "Assets"
           ? ["Register", "Service desk", "Calibration", "Contracts"]
           : route === "Purchase"
@@ -1371,6 +2009,10 @@ function App() {
           assembly()
         ) : route === "Inventory" && tab === "Requirements" ? (
           requirementView()
+        ) : route === "Inventory" && tab === "Counts" ? (
+          countsView()
+        ) : route === "Inventory" && tab === "Subcontract" ? (
+          subcontractView()
         ) : route === "Purchase" && tab === "Supplier comparison" ? (
           supplierComparison()
         ) : route === "Assets" && tab === "Service desk" ? (
@@ -2043,17 +2685,23 @@ function App() {
                   </div>
                   <div className="note-box">
                     <ShieldCheck size={17} />
-                    Proposed maker-checker review. You are viewing a synthetic
-                    approval as Arjun Mehta.
+                    {modal.approval.maker === "Arjun Mehta"
+                      ? "Maker-checker block: you raised this request as Arjun Mehta, so the decision is not yours to take. It stays open until an approver outside the maker's line picks it up."
+                      : "Proposed maker-checker review. You are viewing a synthetic approval as Arjun Mehta."}
                   </div>
                   <h3>Review context</h3>
                   <p className="muted">
-                    Linked to PRJ-0264. Check the supporting record, the
-                    approved scope and your authority before a real decision.
+                    {approvalContext[modal.approval.type] || "Synthetic request."}{" "}
+                    Check the supporting record, the approved scope and your
+                    authority before a real decision.
                   </p>
                   <div className="document-line">
                     <FileText size={19} />
-                    <span>Supporting evidence reference · no actual file</span>
+                    <span>
+                      {modal.approval.evidence
+                        ? `Evidence · ${modal.approval.evidence} · the file itself is not attached in a prototype`
+                        : "Supporting evidence reference · no actual file"}
+                    </span>
                   </div>
                   <label className="form-field">
                     Decision reason
@@ -2078,6 +2726,27 @@ function App() {
                       <CheckCircle2 size={17} />
                       Demo outcome: {decisions[modal.approval.id]}. Actor Arjun
                       Mehta · 03 Nov 2026. No backend audit was written.
+                    </div>
+                  ) : modal.approval.maker === "Arjun Mehta" ? (
+                    <div className="form-footer">
+                      <p className="muted">
+                        The request stays open. This prototype has no second
+                        approver to sign as, so it demonstrates the block rather
+                        than the decision.
+                      </p>
+                      <div className="header-actions">
+                        <button
+                          className="button primary"
+                          onClick={() =>
+                            notify(
+                              "Demo reassignment raised to the operations head. No decision is recorded against APR-0121.",
+                            )
+                          }
+                        >
+                          <ArrowUpRight size={15} />
+                          Hand to another approver
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="form-footer">
