@@ -37,6 +37,7 @@ The front end and server share one set of record types (`prototype/src/api/types
 
 ## Documents
 
+- [Architecture](docs/ARCHITECTURE.md): run modes, command flow, security model, data model
 - [Client demo script](docs/CLIENT_DEMO_SCRIPT.md): a 20-minute walkthrough, role switching and the two-user live demo
 - [Deployment](docs/DEPLOYMENT.md): Vercel demo, Render + PostgreSQL full stack, environment variables
 - [Open questions](docs/OPEN_QUESTIONS.md): what needs the owner
