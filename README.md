@@ -37,7 +37,9 @@ The front end and server share one set of record types (`prototype/src/api/types
 
 ## Documents
 
+- [Client demo script](docs/CLIENT_DEMO_SCRIPT.md): a 20-minute walkthrough, role switching and the two-user live demo
 - [Deployment](docs/DEPLOYMENT.md): Vercel demo, Render + PostgreSQL full stack, environment variables
+- [Open questions](docs/OPEN_QUESTIONS.md): what needs the owner
 - [Design system](DESIGN.md): colour, type, motion, the no-browser-defaults rule
 - [Project brief](docs/PROJECT_BRIEF.md) and [screen & workflow plan](docs/SCREEN_AND_WORKFLOW_PLAN.md)
 - [Requirement coverage](docs/REQUIREMENT_COVERAGE.md): all 219 scope requirement IDs with their C/V/D status

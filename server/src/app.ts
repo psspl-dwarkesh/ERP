@@ -3,6 +3,7 @@ import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { sql } from "drizzle-orm";
 import { ZodError } from "zod";
 import type { ModuleKey } from "../../prototype/src/api/types";
 import { demoAccounts, login, logout, profile, resolveSession, SESSION_COOKIE } from "./auth";
@@ -113,7 +114,16 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   });
 
   /* ================================================================ routes */
-  app.get("/api/health", async () => ({ ok: true, businessDate: env.businessDate, engine: env.databaseUrl ? "postgresql" : "pglite", online: liveCount() }));
+  // Health = the database answers. Hosts restart the service when this fails.
+  app.get("/api/health", async (_req, reply) => {
+    const started = Date.now();
+    try {
+      await db.execute(sql`select 1`);
+    } catch {
+      return reply.status(503).send({ ok: false, error: { code: "DB_UNAVAILABLE", message: "Database unreachable" } });
+    }
+    return { ok: true, businessDate: env.businessDate, engine: env.databaseUrl ? "postgresql" : "pglite", dbMs: Date.now() - started, online: liveCount() };
+  });
 
   registerLive(app, actorOf);
 
@@ -123,6 +133,7 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   app.post<{ Body: { email?: string; password?: string } }>("/api/auth/login", async (req, reply) => {
     const { email = "", password = "" } = req.body ?? {};
     if (!email || !password) throw new AppError("VALIDATION", "Enter your email and password.");
+    limitSignIns(req.ip);
     const s = await login(db, email, password, { ip: req.ip, userAgent: req.headers["user-agent"] });
     setSession(reply, s.token, s.expiresAt);
     const actor = (await resolveSession(db, s.token))!;
@@ -213,4 +224,23 @@ async function searchRecords(db: Database, actor: Actor, q: string) {
   }
   if (ok("hr")) (await read.people(db)).forEach((p) => add("hr", p.id, p.name, `${p.role} · ${p.location}`));
   return hits;
+}
+
+/* ---------------------------------------------------------------- sign-in throttle */
+// Per-IP ceiling on sign-in attempts, on top of the per-account lockout in auth.ts,
+// so one address can't spray passwords across many accounts. In-memory: one process.
+const SIGNIN_WINDOW_MS = 10 * 60_000;
+const SIGNIN_MAX = Number(process.env.SIGNIN_MAX_PER_IP ?? 30);
+const signIns = new Map<string, number[]>();
+
+function limitSignIns(ip: string) {
+  const now = Date.now();
+  const recent = (signIns.get(ip) ?? []).filter((t) => now - t < SIGNIN_WINDOW_MS);
+  if (recent.length >= SIGNIN_MAX) {
+    const wait = Math.ceil((SIGNIN_WINDOW_MS - (now - recent[0])) / 60_000);
+    throw new AppError("FORBIDDEN", `Too many sign-in attempts from this network. Try again in ${wait} minute${wait === 1 ? "" : "s"}.`);
+  }
+  recent.push(now);
+  signIns.set(ip, recent);
+  if (signIns.size > 10_000) signIns.clear(); // bound memory under abuse
 }
