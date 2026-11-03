@@ -12,6 +12,6 @@ Mode: Persuade. Audience: ABC Limited stakeholders and staff reviewing the ERP c
 
 **FIRST VIEWPORT:** A large typographic declaration dominates the left and upper field. The lower and right field is a live, connected job route with an active record and next action. One high-contrast Enter workspace action stays visible in the top right and again beside the active record. No floating cards, soft abstract gradients or promotional chart preview.
 
-**FORM:** Engineering job traveller / route sheet, grounded candidate four. Seed reference `seed:06e654a30d8bb5d9`. Signature interaction: selecting a handoff changes the highlighted route, its record evidence and the module entry action.
+**FORM:** Engineering job traveller / route sheet, grounded candidate four. Seed reference `seed:06e654a30d8bb5d9`. Signature interaction: selecting a handoff changes the highlighted route, its record evidence and the module entry action, and the change is legible as a record being restated: the active ID re-stamps its letter-spacing while a ruled scale plate in the summary column tracks the same stop. Decoration is drafting vocabulary only: a registration cross, rules and the route line.
 
 **FINISH:** unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
