@@ -53,6 +53,10 @@ Other options: [Neon](https://neon.tech) or Render Postgres, with their connecti
 | `BUSINESS_DATE` | `2026-11-03` | "Today" for business rules. The demo data is written for this date |
 | `DEMO_ACCOUNTS` | enabled | `false` hides the demo account list on the sign-in page |
 | `AUTO_SEED` | enabled | `false` stops the server seeding an empty database |
+| `DEMO_RESET` | enabled (while demo accounts are on) | `false` removes the IT administrator's "Reset demo data" action |
+| `SIGNIN_MAX_PER_IP` | `30` | Sign-in attempts allowed per IP address in 10 minutes |
+| `ANTHROPIC_API_KEY` | unset | Lets Insights answer questions with Claude; without it, answers are computed locally from the records |
+| `ASSIST_MODEL` | see `server/src/assist/` | Claude model for Insights answers |
 | `CORS_ORIGIN` | unset | Only needed if the front end is served from a different origin than the API |
 
 ### Before real users
