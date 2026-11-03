@@ -16,6 +16,7 @@ import type { Database } from "./db/client";
 import { env } from "./env";
 import { demoResetEnabled, resetDemoData } from "./demo-reset";
 import { broadcast, liveCount, registerLive } from "./live";
+import { registerAssist } from "./assist/route";
 import { read } from "./read";
 
 declare module "fastify" {
@@ -127,6 +128,8 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   });
 
   registerLive(app, actorOf);
+
+  registerAssist(app, db, actorOf); // POST /api/assist — Claude answers when ANTHROPIC_API_KEY is set
 
   const setSession = (reply: FastifyReply, token: string, expires: string) =>
     reply.setCookie(SESSION_COOKIE, token, { path: "/", httpOnly: true, sameSite: "lax", secure: env.cookieSecure, expires: new Date(expires) });
