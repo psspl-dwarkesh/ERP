@@ -5,6 +5,7 @@
  */
 import { useSyncExternalStore } from "react";
 import { http, whenSignedOut } from "./http";
+import * as fx from "./fixtures";
 import { API_MODE } from "./store";
 import type { ModuleKey } from "./types";
 
@@ -29,7 +30,7 @@ export interface DemoAccount {
   roleId: string;
 }
 
-const ALL: ModuleKey[] = ["dashboard", "projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll", "users", "reports"];
+const ALL: ModuleKey[] = ["dashboard", "insights", "projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll", "users", "reports"];
 
 const MOCK_USER: SessionUser = {
   id: "USR-0001",
@@ -43,8 +44,71 @@ const MOCK_USER: SessionUser = {
   permissions: Object.fromEntries(ALL.map((m) => [m, "admin"])) as Record<ModuleKey, Level>,
 };
 
+/**
+ * Demo people for "View as" in the browser demo — the same accounts the API seeds,
+ * so a role looks identical in both modes.
+ */
+export const DEMO_PEOPLE: { id: string; name: string; email: string; roleId: string; personId: string | null }[] = [
+  { id: "USR-0001", name: "Arjun Mehta", email: "arjun.mehta@abc.example", roleId: "ROLE-01", personId: "EMP-0012" },
+  { id: "USR-0002", name: "Ananya Rao", email: "ananya.rao@abc.example", roleId: "ROLE-02", personId: "EMP-0034" },
+  { id: "USR-0003", name: "Imran Sheikh", email: "imran.sheikh@abc.example", roleId: "ROLE-03", personId: "EMP-0104" },
+  { id: "USR-0004", name: "Karan Patel", email: "karan.patel@abc.example", roleId: "ROLE-04", personId: "EMP-0072" },
+  { id: "USR-0005", name: "Sana Kapoor", email: "sana.kapoor@abc.example", roleId: "ROLE-05", personId: "EMP-0081" },
+  { id: "USR-0006", name: "Kavya Iyer", email: "kavya.iyer@abc.example", roleId: "ROLE-06", personId: "EMP-0135" },
+  { id: "USR-0007", name: "Ritu Agarwal", email: "ritu.agarwal@abc.example", roleId: "ROLE-07", personId: null },
+  { id: "USR-0008", name: "IT Administrator", email: "it.admin@abc.example", roleId: "ROLE-08", personId: null },
+];
+
+const VIEW_AS_KEY = "threadline-view-as";
+
+function mockUserFor(id: string | null): SessionUser {
+  const p = DEMO_PEOPLE.find((x) => x.id === id);
+  const role = p && fx.roles.find((r) => r.id === p.roleId);
+  if (!p || !role) return MOCK_USER;
+  const person = p.personId ? fx.people.find((x) => x.id === p.personId) : undefined;
+  return {
+    id: p.id,
+    name: p.name,
+    email: p.email,
+    role: role.name,
+    roleId: role.id,
+    title: person?.role ?? role.name,
+    initials: person?.initials ?? p.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join(""),
+    personId: p.personId,
+    permissions: Object.fromEntries(ALL.map((m) => [m, (role.permissions[m] ?? "none") as Level])) as Record<ModuleKey, Level>,
+  };
+}
+
+function initialMockUser() {
+  try {
+    return mockUserFor(localStorage.getItem(VIEW_AS_KEY));
+  } catch {
+    return MOCK_USER;
+  }
+}
+
 type State = { status: "loading" | "signed-in" | "signed-out"; user: SessionUser | null };
-let state: State = API_MODE === "remote" ? { status: "loading", user: null } : { status: "signed-in", user: MOCK_USER };
+let state: State = API_MODE === "remote" ? { status: "loading", user: null } : { status: "signed-in", user: initialMockUser() };
+
+/** Browser demo: see the workspace exactly as another role does. `null` = full demo access. */
+export function viewAs(userId: string | null) {
+  try {
+    if (userId) localStorage.setItem(VIEW_AS_KEY, userId);
+    else localStorage.removeItem(VIEW_AS_KEY);
+  } catch {
+    /* storage blocked: the switch still applies for this tab */
+  }
+  set({ status: "signed-in", user: mockUserFor(userId) });
+}
+
+/** The full-access demo user ("Demo · all modules") is the mock default. */
+export const isFullDemoUser = (u: SessionUser | null) => !!u && u.id === MOCK_USER.id && u.role === MOCK_USER.role && Object.values(u.permissions).every((l) => l === "admin");
+
+/** API mode: jump straight into another demo account (signs out, then in). */
+export async function switchAccount(email: string, password: string) {
+  await http.post("/auth/logout", {}).catch(() => undefined);
+  return signIn(email, password);
+}
 const subs = new Set<() => void>();
 const set = (s: State) => {
   state = s;

@@ -32,7 +32,7 @@ const APPROVER_ROLE: Record<string, string> = {
   "APR-0121": "ROLE-07", // billing advice → finance owner
 };
 
-const MODULES = ["dashboard", "projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll", "users", "reports"] as const;
+const MODULES = ["dashboard", "insights", "projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll", "users", "reports"] as const;
 
 export async function seed(db: Database) {
   const hash = await bcrypt.hash(DEMO_PASSWORD, 10);

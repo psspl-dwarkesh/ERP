@@ -5,6 +5,7 @@ import {
   FileSpreadsheet,
   Handshake,
   LayoutDashboard,
+  Sparkles,
   ReceiptIndianRupee,
   ShieldCheck,
   ShoppingCart,
@@ -27,6 +28,7 @@ export interface ModuleDef {
 /* Each module is its own chunk, so the showcase never loads ERP screens it doesn't show. */
 export const MODULES: ModuleDef[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, group: "Workspace", description: "What needs you today across every module.", page: lazy(() => import("../modules/dashboard/DashboardPage")) },
+  { key: "insights", label: "Insights", icon: Sparkles, group: "Workspace", description: "Analysis across every module: risks, anomalies and answers to questions.", page: lazy(() => import("../modules/insights/InsightsPage")) },
   { key: "projects", label: "Projects", icon: BriefcaseBusiness, group: "Operations", description: "Plan milestones, coordinate resources and follow delivery.", page: lazy(() => import("../modules/projects/ProjectsPage")) },
   { key: "inventory", label: "Inventory & Assembly", icon: Boxes, group: "Operations", description: "Stock, reservations, BOMs, MRP and panel work orders.", page: lazy(() => import("../modules/inventory/InventoryPage")) },
   { key: "assets", label: "Assets & Service", icon: Wrench, group: "Operations", description: "Installed base, AMC/O&M contracts, tickets and calibration.", page: lazy(() => import("../modules/assets/AssetsPage")) },

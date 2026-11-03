@@ -18,7 +18,7 @@ export type Route = {
   tab?: string;
 };
 
-const MODULES: ModuleKey[] = ["dashboard", "projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll", "users", "reports"];
+const MODULES: ModuleKey[] = ["dashboard", "insights", "projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll", "users", "reports"];
 
 function parse(hash: string): Route {
   const raw = hash.replace(/^#\/?/, "");

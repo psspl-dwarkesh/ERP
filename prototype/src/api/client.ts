@@ -7,7 +7,7 @@
  */
 import * as fx from "./fixtures";
 import { http } from "./http";
-import { getSessionUser } from "./session";
+import { canAccess, getSessionUser, isFullDemoUser } from "./session";
 import { API_MODE, ApiError, invalidate } from "./store";
 import type {
   Approval,
@@ -137,6 +137,9 @@ function log(actor: string, action: string, reference: string, module: ModuleKey
 
 const CURRENT_USER = "Arjun Mehta";
 
+/** Who may decide each seeded approval — mirrors server/src/db/seed.ts. */
+const APPROVER_ROLE: Record<string, string> = { "APR-0132": "ROLE-01", "APR-0129": "ROLE-01", "APR-0125": "ROLE-01", "APR-0121": "ROLE-07" };
+
 /* ---------------- Queries ---------------- */
 async function list<K extends keyof Db>(key: K): Promise<Db[K]> {
   await latency();
@@ -194,6 +197,16 @@ const mockApi = {
     const a = find(db.approvals, id, "Approval");
     if (a.status !== "Pending") throw new ApiError(`${a.reference} was already ${a.status.toLowerCase()}.`, "BLOCKED");
     if (a.maker === (getSessionUser()?.name ?? CURRENT_USER)) throw new ApiError("You raised this request, so someone else has to decide it (maker ≠ checker).", "FORBIDDEN");
+    // Same authority rules as the API: a designated approver role, else "approve" on the module.
+    const viewer = getSessionUser();
+    if (viewer && !isFullDemoUser(viewer)) {
+      const approver = APPROVER_ROLE[a.id] ?? (/Operations head|Commercial head/.test(a.level) ? "ROLE-01" : /Finance owner/.test(a.level) ? "ROLE-07" : undefined);
+      if (approver && viewer.roleId !== approver) {
+        const name = fx.roles.find((r) => r.id === approver)?.name ?? "designated";
+        throw new ApiError(`This approval waits on the ${name} role. Your role (${viewer.role}) can view it but not decide it.`, "FORBIDDEN");
+      }
+      if (!approver && !canAccess(viewer, a.module, "approve")) throw new ApiError(`Your role (${viewer.role}) can't approve ${a.module} requests.`, "FORBIDDEN");
+    }
     if (decision === "Rejected" && reason.trim().length < 8) {
       throw new ApiError("Give a reason of at least 8 characters so the maker can act on it.", "VALIDATION");
     }

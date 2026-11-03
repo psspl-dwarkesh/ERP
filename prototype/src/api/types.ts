@@ -20,7 +20,8 @@ export type ModuleKey =
   | "hr"
   | "payroll"
   | "users"
-  | "reports";
+  | "reports"
+  | "insights";
 
 export type Vertical =
   | "Turnkey automation"

@@ -11,16 +11,18 @@ import {
   Menu as MenuIcon,
   RotateCcw,
   Search,
+  UsersRound,
   Settings,
   X,
 } from "lucide-react";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { API_MODE, api, resetDemo } from "../api/client";
-import { canAccess, signOut, useSession } from "../api/session";
+import { DEMO_PEOPLE, canAccess, isFullDemoUser, signOut, switchAccount, useSession, viewAs } from "../api/session";
+import * as fx from "../api/fixtures";
 import { ago } from "../api/format";
 import { useQuery } from "../api/hooks";
 import type { ModuleKey } from "../api/types";
-import { Avatar, Button, IconButton, Kbd, Menu, Popover, cx, useToast } from "../ds/components";
+import { Avatar, Button, Dialog, IconButton, Kbd, Menu, Popover, Status, cx, useToast } from "../ds/components";
 import { Logo, TENANT } from "./brand";
 import { MODULES, moduleDef } from "./modules";
 import { href, navigate, useRoute } from "./router";
@@ -156,6 +158,7 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
   const toast = useToast();
   const me = api.currentUser();
   const session = useSession().user;
+  const [switching, setSwitching] = useState(false);
   return (
     <header className="topbar">
       <button className="icon-btn icon-btn-ghost topbar-menu" aria-label="Open menu" onClick={onMenu}>
@@ -202,7 +205,8 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
           }
           items={[
             { heading: `${me.email} · ${session?.role ?? me.role}` },
-            { label: "Preferences", icon: Settings, onSelect: () => toast({ title: "Preferences", body: "Personal settings are not part of this release.", tone: "info" }) },
+            { label: API_MODE === "mock" ? "View as another role…" : "Switch demo account…", icon: UsersRound, detail: "See the workspace as another person sees it", onSelect: () => setSwitching(true) },
+            { label: "Preferences", icon: Settings, detail: "Coming soon", disabled: true, onSelect: () => {} },
             ...(API_MODE === "mock"
               ? [
                   {
@@ -231,6 +235,7 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
           ]}
         />
       </div>
+      <SwitchUserDialog open={switching} onOpenChange={setSwitching} />
     </header>
   );
 }
@@ -373,5 +378,74 @@ function AccessDenied({ module, role }: { module: string; role: string }) {
       </p>
       <Button onClick={() => navigate("/app/dashboard")}>Back to your dashboard</Button>
     </div>
+  );
+}
+
+const DEMO_PASSWORD = "Threadline@2026";
+
+/** Client demos: show the same workspace through another role's eyes in one click. */
+function SwitchUserDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  const toast = useToast();
+  const me = useSession().user;
+  const [busy, setBusy] = useState<string | null>(null);
+  const roleOf = (id: string) => fx.roles.find((r) => r.id === id);
+  const reach = (roleId: string) => Object.values(roleOf(roleId)?.permissions ?? {}).filter((l) => l && l !== "none").length;
+
+  const pick = async (p: (typeof DEMO_PEOPLE)[number] | null) => {
+    setBusy(p?.id ?? "full");
+    try {
+      if (API_MODE === "mock") viewAs(p?.id ?? null);
+      else if (p) await switchAccount(p.email, DEMO_PASSWORD);
+      onOpenChange(false);
+      navigate("/app/dashboard");
+      toast({ title: p ? `Now viewing as ${p.name}` : "Full demo access", body: p ? `${roleOf(p.roleId)?.name} · only what this role may see and do.` : "Every module, every action." });
+    } catch (e) {
+      toast({ title: "Couldn't switch", body: e instanceof Error ? e.message : String(e), tone: "risk" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="md"
+      icon={UsersRound}
+      title={API_MODE === "mock" ? "View the workspace as…" : "Switch demo account"}
+      description={API_MODE === "mock" ? "Permissions, navigation and approvals follow the role you pick. Data stays the same." : "Signs you in as that demo account. Each role sees only what it is allowed to."}
+    >
+      <ul className="switch-list">
+        {API_MODE === "mock" && (
+          <li>
+            <button className={cx("switch-item", isFullDemoUser(me) && "is-on")} onClick={() => pick(null)} disabled={!!busy}>
+              <Avatar name="Demo Access" size="sm" />
+              <span className="switch-text">
+                <b>Full demo access</b>
+                <small>Every module · for walkthroughs</small>
+              </span>
+              {isFullDemoUser(me) && <Status tone="accent">Current</Status>}
+            </button>
+          </li>
+        )}
+        {DEMO_PEOPLE.map((p) => {
+          const current = me?.id === p.id && !isFullDemoUser(me);
+          return (
+            <li key={p.id}>
+              <button className={cx("switch-item", current && "is-on")} onClick={() => pick(p)} disabled={!!busy || current}>
+                <Avatar name={p.name} size="sm" />
+                <span className="switch-text">
+                  <b>{p.name}</b>
+                  <small>
+                    {roleOf(p.roleId)?.name} · {reach(p.roleId)} modules
+                  </small>
+                </span>
+                {current ? <Status tone="accent">Current</Status> : busy === p.id ? <Status tone="info">Switching…</Status> : null}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </Dialog>
   );
 }
