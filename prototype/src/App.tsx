@@ -18,6 +18,7 @@ import {
   Bell,
   Boxes,
   BriefcaseBusiness,
+  CalendarClock,
   CalendarDays,
   Check,
   CheckCheck,
@@ -36,18 +37,21 @@ import {
   LifeBuoy,
   ListFilter,
   LockKeyhole,
+  LogIn,
   Menu,
   MoreHorizontal,
   PackageCheck,
   Plus,
   Search,
   Settings2,
+  Share2,
   ShieldCheck,
   ShoppingCart,
   SlidersHorizontal,
   Target,
   TrendingUp,
   TriangleAlert,
+  UserMinus,
   Users,
   Wallet,
   Warehouse,
@@ -59,6 +63,7 @@ import {
   assets,
   approvals,
   countLines,
+  exitLines,
   opportunities,
   people,
   projects,
@@ -68,6 +73,7 @@ import {
   subcontractLines,
   tickets,
   type CountLine,
+  type ExitLine,
   type RecordRow,
   type SubcontractLine,
 } from "./data";
@@ -114,7 +120,7 @@ const descriptions: Record<Route, string> = {
   Purchase: "Requisitions, supplier selection, orders and receipts.",
   Sales: "Quotations, orders, fulfilment and billing advice.",
   CRM: "Enquiries, opportunity stages and commercial handoffs.",
-  HR: "People, deployment, attendance and employee requests.",
+  HR: "People, deployment, attendance, employee requests and exit handover.",
   Payroll: "Review approved inputs, pay periods and run controls.",
   "User Management": "Users, permissions, approval authority and audit.",
   Reports: "Operational reports, definitions and export controls.",
@@ -129,13 +135,15 @@ const isEntryHash = () =>
 /* Warning words read amber, settled states read green, and anything still in
    motion reads the neutral teal. A shortage joined the amber group with the
    count and subcontract screens: a warning badge and a review badge are not the
-   same thing. */
+   same thing. The exit screen added the settled tier's other half — returned,
+   settled, delegated, checked — because a handover item that has ended has to
+   look different from one someone merely promised to do. */
 function Badge({ status }: { status: string }) {
   const tone = /risk|Urgent|hold|Low|Overdue|Denied|Rejected|Variance|short|Damag|Loss/i.test(
     status,
   )
     ? "amber"
-    : /track|Available|Approved|service|Completed|Active|Deployed|Matched|Reconciled/i.test(
+    : /track|Available|Approved|service|Completed|Active|Deployed|Matched|Reconciled|Closed|Settled|Returned|Re-owned|Delegated|Checked/i.test(
         status,
       )
       ? "green"
@@ -241,6 +249,9 @@ function App() {
   const [issueDone, setIssueDone] = useState(false);
   const [countStage, setCountStage] = useState(0);
   const [subStage, setSubStage] = useState(0);
+  const [exitDone, setExitDone] = useState<string[]>([]);
+  const [exitClosed, setExitClosed] = useState(false);
+  const [exitDate, setExitDate] = useState("14 Nov 2026");
   const [ticketStatus, setTicketStatus] = useState("Assigned");
 
   const notify = (message: string) => {
@@ -1460,6 +1471,458 @@ function App() {
       </>
     );
   }
+  /* The exit is designed around the records that outlive the person: the
+     company-held instrument she custodies, the approved order she owns whose
+     delivery falls after her last day, and the review authority that would
+     otherwise keep routing to a mailbox nobody opens. */
+  function exitView() {
+    const done = (key: string) => exitDone.includes(key);
+    const close = (key: string, message: string) => {
+      setExitDone([...exitDone, key]);
+      notify(message);
+    };
+    const openItems = exitLines.filter(
+      (l) => l.key !== "allocation" && !done(l.key),
+    );
+    const instrumentOut = done("custody") ? 0 : 1;
+    const unsignedPaths = done("delegation") ? 0 : 1;
+    const plural = (value: number, word: string) =>
+      value === 1 ? word : `${word}s`;
+    const short: Record<string, string> = {
+      identity: "USR-0091 identity",
+      custody: "AST-0086 instrument",
+      commitment: "PO-0112 order",
+      claim: "CLM-0071 claim",
+      delegation: "DLG-0007 delegation",
+    };
+    const settledWord: Record<string, string> = {
+      identity: "Deactivated",
+      custody: "Returned",
+      commitment: "Re-owned",
+      claim: "Settled",
+      delegation: "Delegated",
+    };
+    const closingEvent: Record<string, string> = {
+      identity: `Deactivated ${exitDate} · 18:30, at the exit date and not after`,
+      custody:
+        "Received at the central lab store · bench-checked · condition serviceable",
+      commitment:
+        "Nikhil Joshi owns the delivery now; Priya Menon stays on the approval history as maker",
+      claim:
+        "Referenced to the full-and-final line. The figure itself is a payroll reference, not a number this screen computes",
+      delegation:
+        "Effective 15 Nov and expiring when the post is refilled, rather than continuing by default",
+      allocation: "Checked against the project, site and asset registers",
+    };
+    const statusFor = (line: ExitLine) =>
+      line.key === "allocation"
+        ? "Checked empty"
+        : done(line.key)
+          ? settledWord[line.key]
+          : "Awaiting owner action";
+    const bannerStatus = exitClosed
+      ? "Exit closed"
+      : openItems.length === 0
+        ? "Ready to close"
+        : "Exit held";
+    const rowAction = (line: ExitLine) => {
+      if (line.key === "allocation" || done(line.key)) {
+        return <small>{closingEvent[line.key]}</small>;
+      }
+      switch (line.key) {
+        case "identity":
+          return (
+            <button
+              className="button"
+              onClick={() =>
+                close(
+                  "identity",
+                  `USR-0091 deactivated at ${exitDate} 18:30. Her own login cannot file the instrument return: the store posts the custody event.`,
+                )
+              }
+            >
+              <UserMinus size={15} />
+              Deactivate at exit
+            </button>
+          );
+        case "custody":
+          return (
+            <button
+              className="button"
+              onClick={() =>
+                close(
+                  "custody",
+                  "Custody event posted: AST-0086 received at the central lab store, bench-checked, condition serviceable. CAL-0096 stays due and stays on the calibration schedule.",
+                )
+              }
+            >
+              <PackageCheck size={15} />
+              Post custody event
+            </button>
+          );
+        case "commitment":
+          return (
+            <button
+              className="button"
+              onClick={() =>
+                close(
+                  "commitment",
+                  "PO-0112 re-owned to Nikhil Joshi with the 09 Nov delivery date intact. Priya Menon remains the maker on the approval history.",
+                )
+              }
+            >
+              <ArrowLeftRight size={15} />
+              Re-own the order
+            </button>
+          );
+        case "claim":
+          return (
+            <button
+              className="button"
+              onClick={() =>
+                close(
+                  "claim",
+                  "CLM-0071 accepted and referenced to the full-and-final line. Statutory components are an open decision, so no settlement figure is produced here.",
+                )
+              }
+            >
+              <Wallet size={15} />
+              Settle the claim
+            </button>
+          );
+        case "delegation":
+          return (
+            <button
+              className="button"
+              onClick={() =>
+                close(
+                  "delegation",
+                  "DLG-0007 routes the calibration review queue to the reporting manager from 15 Nov, with an end condition.",
+                )
+              }
+            >
+              <Share2 size={15} />
+              Delegate from 15 Nov
+            </button>
+          );
+        default:
+          return <small>{closingEvent[line.key]}</small>;
+      }
+    };
+    const trail = [
+      {
+        what: "Resignation accepted · exit effective",
+        state: exitDate,
+        done: true,
+      },
+      {
+        what: "USR-0091 deactivated at the exit timestamp",
+        state: done("identity") ? "Deactivated" : "Pending",
+        done: done("identity"),
+      },
+      {
+        what: "AST-0086 custody event at the central lab store",
+        state: done("custody") ? "Returned" : "Outstanding",
+        done: done("custody"),
+      },
+      {
+        what: "PO-0112 ownership moved before the delivery date",
+        state: done("commitment") ? "Re-owned" : "Open",
+        done: done("commitment"),
+      },
+      {
+        what: "CLM-0071 referenced to full-and-final",
+        state: done("claim") ? "Settled" : "Unsettled",
+        done: done("claim"),
+      },
+      {
+        what: "DLG-0007 approval delegation effective",
+        state: done("delegation") ? "Delegated" : "Not delegated",
+        done: done("delegation"),
+      },
+      {
+        what: "Exit closed against an empty exception report",
+        state: exitClosed ? "Closed" : "Held",
+        done: exitClosed,
+      },
+    ];
+    return (
+      <>
+        <div className="feature-banner">
+          <span className="feature-icon">
+            <BriefcaseBusiness size={28} />
+          </span>
+          <div>
+            <span className="eyebrow">
+              EMP-0091 · EXIT {exitDate.toUpperCase()}
+            </span>
+            <h2>Exit and handover</h2>
+            <p>
+              Priya Menon · Calibration Engineer · Quality · resignation
+              accepted, last working day {exitDate}
+            </p>
+          </div>
+          <Badge status={bannerStatus} />
+        </div>
+        <section className="card">
+          <div className="card-heading">
+            <div>
+              <h2>Handover checklist</h2>
+              <p className="muted">
+                The checklist is the record. Each line names an owner, a date
+                and the event that closes it, and no line closes by being
+                ticked.
+              </p>
+            </div>
+            <span className="subtle-tag">
+              {openItems.length} of 5 action lines open
+            </span>
+          </div>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  {[
+                    "Handover item",
+                    "Owner and date",
+                    "What has to be true",
+                    "State and closing event",
+                  ].map((t) => (
+                    <th key={t}>{t}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {exitLines.map((line) => (
+                  <tr key={line.key}>
+                    <td>
+                      <strong>{line.item}</strong>
+                      <small>{line.reference}</small>
+                    </td>
+                    <td>
+                      {line.owner}
+                      <small>{line.due}</small>
+                    </td>
+                    <td>{line.closes}</td>
+                    <td>
+                      <div className="detail-side">
+                        <Badge status={statusFor(line)} />
+                        {rowAction(line)}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <div className="inventory-summary">
+          <div>
+            <h2>What has to be empty before she goes</h2>
+            <p>
+              The exception report is the deliverable. Three counters, and none
+              of them clears by editing the number.
+            </p>
+          </div>
+          <div className={`stock-metric${openItems.length ? " warning" : ""}`}>
+            <strong>
+              {openItems.length}
+              <span>{plural(openItems.length, "item")}</span>
+            </strong>
+            <small>Still open</small>
+            <i />
+          </div>
+          <div
+            className={`stock-metric${instrumentOut ? " warning" : ""}`}
+          >
+            <strong>
+              {instrumentOut}
+              <span>{plural(instrumentOut, "unit")}</span>
+            </strong>
+            <small>Company property out</small>
+            <i />
+          </div>
+          <div
+            className={`stock-metric${unsignedPaths ? " warning" : ""}`}
+          >
+            <strong>
+              {unsignedPaths}
+              <span>{plural(unsignedPaths, "path")}</span>
+            </strong>
+            <small>Approvals without an approver</small>
+            <i />
+          </div>
+        </div>
+        <div className="detail-grid">
+          <section className="card padded">
+            <div className="card-heading">
+              <div>
+                <h2>Exit gate</h2>
+                <p className="muted">
+                  Closure is an event raised against a zero exception report.
+                  Until then it is a refusal that names what is still open.
+                </p>
+              </div>
+              <span className="subtle-tag">EMP-0091 · Priya Menon</span>
+            </div>
+            <div className="three-cards">
+              <div>
+                <small>Last working day</small>
+                <h3>{exitDate}</h3>
+                <p>
+                  Re-dating is an amendment. The superseded date stays on the
+                  record and every dependent date moves with it.
+                </p>
+              </div>
+              <div>
+                <small>Exception report</small>
+                <h3>
+                  {openItems.length} {plural(openItems.length, "line")} open
+                </h3>
+                <p>
+                  {openItems.length === 0
+                    ? "Cleared. The exit can be closed, and only now."
+                    : openItems.map((l) => short[l.key]).join(" · ")}
+                </p>
+              </div>
+              <div>
+                <small>Records not itemised</small>
+                <h3>Restricted</h3>
+                <p>
+                  Payslip, appraisal and medical records stay with HR. A
+                  handover lists company property and open commitments, not
+                  personal files.
+                </p>
+              </div>
+            </div>
+            <div className="form-footer">
+              <p className="muted">
+                {exitClosed
+                  ? "Closed record. Nothing was written to an identity, an asset register or a payroll run."
+                  : "Session state. No access change, custody event or settlement is executed."}
+              </p>
+              <div className="header-actions">
+                {!exitClosed && !done("custody") && (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        "Recovery is a custody event with a receiver, a condition and a time. A list item cannot clear company property, so nothing is marked returned.",
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Mark the instrument returned
+                  </button>
+                )}
+                {!exitClosed && done("identity") && (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        "A deactivated identity is not re-animated to satisfy a checklist. Access needed after exit is a new provisioning request with a reason, not the old account turned back on.",
+                      )
+                    }
+                  >
+                    <LogIn size={15} />
+                    Reopen her account to finish
+                  </button>
+                )}
+                {exitClosed ? (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        "A closed exit is not reopened by editing it. Anything found afterwards becomes a new exception line on a new effective-dated record.",
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Reopen the checklist
+                  </button>
+                ) : openItems.length > 0 ? (
+                  <button
+                    className="button"
+                    onClick={() =>
+                      notify(
+                        `Exit held: ${openItems
+                          .map((l) => short[l.key])
+                          .join(", ")} still open. Access can end on the day; the exit cannot close while company property is out and a live order has no owner.`,
+                      )
+                    }
+                  >
+                    <LockKeyhole size={15} />
+                    Try closing the exit
+                  </button>
+                ) : (
+                  <button
+                    className="button primary"
+                    onClick={() => {
+                      setExitClosed(true);
+                      notify(
+                        "Exit closed at 18:30 against an empty exception report: five action lines closed by an event, one checked and empty, nothing left open.",
+                      );
+                    }}
+                  >
+                    <CheckCheck size={16} />
+                    Close exit at 18:30
+                  </button>
+                )}
+                {!exitClosed && (
+                  <button
+                    className="button"
+                    onClick={() => {
+                      setExitDate("20 Nov 2026");
+                      notify(
+                        "Exit re-dated to 20 Nov 2026. The deactivation timestamp, the custody due date and DLG-0007's start date move with it; 14 Nov remains on the record as the superseded value.",
+                      );
+                    }}
+                  >
+                    <CalendarClock size={15} />
+                    Move last working day
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+          <section className="card padded">
+            <h2>Handover trail</h2>
+            {trail.map((t) => (
+              <div className="checklist-line" key={t.what}>
+                <span className={t.done ? "checked-box" : "unchecked-box"}>
+                  {t.done && <Check size={14} />}
+                </span>
+                <span>{t.what}</span>
+                <small>{t.state}</small>
+              </div>
+            ))}
+            <div className="note-box">
+              <TriangleAlert size={16} />
+              States this layout has to carry: instrument not returned, a
+              revoked account used anyway, claim pending after exit, delegation
+              expired, exit date moved, checklist reopened.
+            </div>
+            <div className="detail-side">
+              {detailLink(
+                "Assets",
+                "AST-0086 on the calibration schedule",
+                "Calibration",
+              )}
+              {detailLink("Purchase", "PO-0112 in the order list", "Overview")}
+              {detailLink(
+                "User Management",
+                "Identity, provisioning and privileged review",
+              )}
+              {detailLink(
+                "Payroll",
+                "Where a full-and-final figure would come from",
+              )}
+            </div>
+          </section>
+        </div>
+      </>
+    );
+  }
   function supplierComparison() {
     return (
       <>
@@ -1924,12 +2387,21 @@ function App() {
             : route === "Projects"
               ? ["Overview", "Project detail"]
               : route === "HR"
-                ? ["People", "Deployment", "Leave & attendance"]
+                ? [
+                    "People",
+                    "Deployment",
+                    "Leave & attendance",
+                    "Exit & handover",
+                  ]
                 : route === "CRM"
                   ? ["Pipeline", "List"]
                   : route === "Sales"
                     ? ["Orders & quotations", "Billing advice"]
                     : [];
+    /* Landing state is the literal "Overview" even on routes whose first tab
+       carries a different label, so the tab the visitor actually sees is the
+       first label whenever the state does not name one of them. */
+    const activeTab = tabs.includes(tab) ? tab : tabs[0];
     return (
       <>
         <div className="welcome-row">
@@ -1989,7 +2461,7 @@ function App() {
                     drafts.filter((d) => d.module === route).length
                   : undefined,
             }))}
-            value={tab === "Overview" ? tabs[0] : tab}
+            value={activeTab}
             onChange={(t) => {
               setTab(t);
               setFilter("All statuses");
@@ -2013,6 +2485,8 @@ function App() {
           countsView()
         ) : route === "Inventory" && tab === "Subcontract" ? (
           subcontractView()
+        ) : route === "HR" && tab === "Exit & handover" ? (
+          exitView()
         ) : route === "Purchase" && tab === "Supplier comparison" ? (
           supplierComparison()
         ) : route === "Assets" && tab === "Service desk" ? (
@@ -2279,6 +2753,15 @@ function App() {
                   Review demand
                   <ArrowUpRight size={14} />
                 </button>
+              </div>
+            )}
+            {route === "HR" && activeTab === "People" && (
+              <div className="note-box">
+                <Users size={17} />
+                EMP-0091 Priya Menon has a last working day of 14 Nov 2026. The
+                roster keeps her as a person; her instrument, her open order and
+                the approvals that route to her are cleared on Exit &amp;
+                handover, because a roster row is not a handover.
               </div>
             )}
             {route === "HR" && tab === "Deployment" && (

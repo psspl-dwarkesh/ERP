@@ -502,3 +502,82 @@ export const subcontractLines: SubcontractLine[] = [
     review: "Overdue",
   },
 ];
+
+/* The leaver is designed around Priya Menon (EMP-0091) because she is already
+   the fixture that holds company property: the calibration custodian in Assets
+   → Calibration, the owner of the company-held calibrator AST-0086, and the
+   named owner of an approved purchase order whose delivery date falls after her
+   last working day. The exit record, the claim and the delegation identifiers
+   are illustrative; the asset, purchase order and calibration references are the
+   existing fixtures, because an exit only means something if it is tied to
+   records that outlive the person. */
+export type ExitLine = {
+  key:
+    | "identity"
+    | "custody"
+    | "commitment"
+    | "claim"
+    | "delegation"
+    | "allocation";
+  item: string;
+  owner: string;
+  due: string;
+  reference: string;
+  closes: string;
+};
+export const exitLines: ExitLine[] = [
+  {
+    key: "identity",
+    item: "Identity and workspace access",
+    owner: "IT security",
+    due: "14 Nov 2026 · 18:30",
+    reference: "USR-0091 · mapped to EMP-0091",
+    closes:
+      "Deactivation is an event with its own timestamp. Access ends at or before the exit date, never after it.",
+  },
+  {
+    key: "custody",
+    item: "Company-held instrument",
+    owner: "Central lab store · Salim Khot",
+    due: "12 Nov 2026",
+    reference: "AST-0086 · CAL-0096 still due",
+    closes:
+      "Recovery is a custody event that records the condition the equipment came back in, not a tick on a list.",
+  },
+  {
+    key: "commitment",
+    item: "Open purchase commitment",
+    owner: "Purchase · Nikhil Joshi",
+    due: "09 Nov 2026 · delivery date",
+    reference: "PO-0112 · ₹1.88 L · Approved",
+    closes:
+      "A live order needs a named owner before the goods are accepted; the maker stays on the approval history.",
+  },
+  {
+    key: "claim",
+    item: "Travel and expense claim",
+    owner: "Payroll",
+    due: "14 Nov 2026",
+    reference: "CLM-0071 · ₹6,120 · submitted 28 Oct",
+    closes:
+      "Settled or rejected before the last working day. The full-and-final figure is a payroll reference, not a number this screen computes.",
+  },
+  {
+    key: "delegation",
+    item: "Approvals that route to her",
+    owner: "Quality · reporting manager",
+    due: "15 Nov 2026 · start date",
+    reference: "DLG-0007 · calibration review",
+    closes:
+      "Delegation carries a start date and an end condition, so nothing waits in a queue nobody is left to open.",
+  },
+  {
+    key: "allocation",
+    item: "Project and site allocation",
+    owner: "HR · verified against registers",
+    due: "—",
+    reference: "No WBS, site or contract allocation",
+    closes:
+      "Checked and empty. An exception report has to show the lines it looked at, not only the ones it found.",
+  },
+];
