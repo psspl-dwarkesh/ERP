@@ -14,6 +14,7 @@ import type { Command } from "./commands/registry";
 import { AppError, can, requireLevel, type Actor } from "./core";
 import type { Database } from "./db/client";
 import { env } from "./env";
+import { demoResetEnabled, resetDemoData } from "./demo-reset";
 import { broadcast, liveCount, registerLive } from "./live";
 import { read } from "./read";
 
@@ -166,6 +167,17 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   });
 
   app.get<{ Querystring: { q?: string } }>("/api/search", async (req) => searchRecords(db, actorOf(req), req.query.q ?? ""));
+
+  /** Hosted demos: an Users & Access admin can restore the starting data without a terminal. */
+  app.post("/api/admin/reset-demo", async (req) => {
+    const actor = actorOf(req);
+    if (!demoResetEnabled()) throw new AppError("FORBIDDEN", "Demo reset is disabled on this deployment.");
+    requireLevel(actor, "users", "admin");
+    const out = await resetDemoData(db);
+    broadcast({ command: "admin.resetDemo", module: "dashboard", actor: actor.name, actorId: actor.userId, at: new Date().toISOString() });
+    req.log.warn({ actor: actor.userId }, "demo data reset");
+    return { ok: true, ...out };
+  });
 
   app.post<{ Params: { name: string }; Body: unknown }>("/api/commands/:name", async (req) => {
     const actor = actorOf(req);

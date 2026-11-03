@@ -265,3 +265,16 @@ describe("accounting outbox (E2E-10)", () => {
     await conn.close();
   }, 60_000);
 });
+
+describe("demo reset (hosted demos)", () => {
+  it("is refused for non-admins and restores the seed for the IT administrator", async () => {
+    expect((await app.inject({ method: "POST", url: "/api/admin/reset-demo", headers: { cookie: cookies.ops }, payload: {} })).statusCode).toBe(403);
+    const login = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "it.admin@abc.example", password: DEMO_PASSWORD } });
+    const admin = String(login.headers["set-cookie"]).split(";")[0];
+    const res = await app.inject({ method: "POST", url: "/api/admin/reset-demo", headers: { cookie: admin }, payload: {} });
+    expect(res.statusCode).toBe(200);
+    // PR-0084 was approved earlier in this run; after reset it is back to awaiting approval.
+    const prs = (await get("ops", "/api/purchase-requests")).json();
+    expect(prs.find((p: { id: string }) => p.id === "PR-0084").status).toBe("Awaiting approval");
+  });
+});

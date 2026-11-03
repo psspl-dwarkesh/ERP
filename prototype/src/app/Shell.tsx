@@ -23,7 +23,9 @@ import { ago } from "../api/format";
 import { useQuery } from "../api/hooks";
 import type { ModuleKey } from "../api/types";
 import { Avatar, Button, Dialog, IconButton, Kbd, Menu, Popover, Status, cx, useToast } from "../ds/components";
+import { http } from "../api/http";
 import { describe, onRemoteChange, useLiveUpdates, useOnline } from "../api/live";
+import { invalidate } from "../api/store";
 import { Logo, TENANT } from "./brand";
 import { DemoGuide } from "./DemoGuide";
 import { MODULES, moduleDef } from "./modules";
@@ -236,6 +238,24 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
                   { label: "Leave workspace", icon: LogOut, onSelect: () => navigate("/") },
                 ]
               : [
+                  ...(canAccess(session, "users", "admin")
+                    ? [
+                        {
+                          label: "Reset demo data",
+                          icon: RotateCcw,
+                          detail: "Restore the starting records for everyone",
+                          onSelect: async () => {
+                            try {
+                              await http.post("/admin/reset-demo", {});
+                              invalidate();
+                              toast({ title: "Demo data restored", body: "Every user now sees the starting records." });
+                            } catch (e) {
+                              toast({ title: "Reset refused", body: e instanceof Error ? e.message : String(e), tone: "risk" });
+                            }
+                          },
+                        },
+                      ]
+                    : []),
                   { separator: true as const },
                   {
                     label: "Sign out",

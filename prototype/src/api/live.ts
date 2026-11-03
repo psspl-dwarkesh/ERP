@@ -84,6 +84,7 @@ export function describe(command: string) {
     "hr.decideLeave": "decided a leave request",
     "hr.completeExitItem": "closed an exit checklist line",
     "projects.raiseChangeRequest": "raised a change request",
+    "admin.resetDemo": "reset the demo data",
   };
   return verb[command] ?? "made a change";
 }
