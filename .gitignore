@@ -9,3 +9,7 @@ prototype/dist/
 .impeccable/config.local.json
 .agents/
 .codex/
+
+# Local secrets — never committed (the repo is public)
+*.local.md
+server/.env

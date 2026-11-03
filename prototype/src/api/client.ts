@@ -6,6 +6,9 @@
  * Mutations persist to localStorage so a demo survives reloads; `resetDemo()` restores fixtures.
  */
 import * as fx from "./fixtures";
+import { http } from "./http";
+import { getSessionUser } from "./session";
+import { API_MODE, ApiError, invalidate } from "./store";
 import type {
   Approval,
   ModuleKey,
@@ -14,7 +17,7 @@ import type {
   StockMovement,
 } from "./types";
 
-const STORAGE_KEY = "threadline-demo-v1";
+const STORAGE_KEY = "threadline-demo-v2";
 
 type Db = {
   people: typeof fx.people;
@@ -44,6 +47,9 @@ type Db = {
   roles: typeof fx.roles;
   reports: typeof fx.reports;
   notifications: typeof fx.notifications;
+  subcontractIssues: typeof fx.subcontractIssues;
+  exitCases: typeof fx.exitCases;
+  postings: typeof fx.postings;
 };
 
 function seed(): Db {
@@ -75,6 +81,9 @@ function seed(): Db {
     roles: fx.roles,
     reports: fx.reports,
     notifications: fx.notifications,
+    subcontractIssues: fx.subcontractIssues,
+    exitCases: fx.exitCases,
+    postings: fx.postings,
   });
 }
 
@@ -99,35 +108,15 @@ function persist() {
 }
 
 /* ---- change notification so hooks can refetch ---- */
-let version = 0;
-const listeners = new Set<() => void>();
-export function subscribe(fn: () => void) {
-  listeners.add(fn);
-  return () => {
-    listeners.delete(fn);
-  };
-}
-export function getVersion() {
-  return version;
-}
+export { ApiError, getVersion, subscribe, API_MODE } from "./store";
 function commit() {
-  version += 1;
   persist();
-  listeners.forEach((l) => l());
+  invalidate();
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const latency = () => wait(140 + Math.random() * 220);
 const clone = <T,>(v: T): T => structuredClone(v);
-
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public code: "NOT_FOUND" | "BLOCKED" | "VALIDATION",
-  ) {
-    super(message);
-  }
-}
 
 function find<T extends { id: string }>(list: T[], id: string, label: string): T {
   const found = list.find((r) => r.id === id);
@@ -154,8 +143,16 @@ async function list<K extends keyof Db>(key: K): Promise<Db[K]> {
   return clone(db[key]);
 }
 
-export const api = {
-  currentUser: () => fx.people.find((p) => p.name === CURRENT_USER)!,
+/** The signed-in user as a directory entry (name, role, email) — from the session in remote mode. */
+function currentUser() {
+  const s = getSessionUser();
+  const person = fx.people.find((p) => p.name === (s?.name ?? CURRENT_USER));
+  if (s) return { ...(person ?? fx.people[0]), name: s.name, role: s.title, email: s.email, initials: s.initials };
+  return person!;
+}
+
+const mockApi = {
+  currentUser,
   people: () => list("people"),
   customers: () => list("customers"),
   vendors: () => list("vendors"),
@@ -187,11 +184,16 @@ export const api = {
   roles: () => list("roles"),
   reports: () => list("reports"),
   notifications: () => list("notifications"),
+  subcontractIssues: () => list("subcontractIssues"),
+  exitCases: () => list("exitCases"),
+  postings: () => list("postings"),
 
   /* ---------------- Commands ---------------- */
   async decideApproval(id: string, decision: "Approved" | "Rejected", reason: string) {
     await wait(420);
     const a = find(db.approvals, id, "Approval");
+    if (a.status !== "Pending") throw new ApiError(`${a.reference} was already ${a.status.toLowerCase()}.`, "BLOCKED");
+    if (a.maker === (getSessionUser()?.name ?? CURRENT_USER)) throw new ApiError("You raised this request, so someone else has to decide it (maker ≠ checker).", "FORBIDDEN");
     if (decision === "Rejected" && reason.trim().length < 8) {
       throw new ApiError("Give a reason of at least 8 characters so the maker can act on it.", "VALIDATION");
     }
@@ -203,6 +205,10 @@ export const api = {
     if (a.reference.startsWith("CLM-")) {
       const c = db.claims.find((x) => x.id === a.reference);
       if (c) c.status = decision === "Approved" ? "Approved" : "Rejected";
+    }
+    if (a.reference.startsWith("SI-")) {
+      const si = db.subcontractIssues.find((x) => x.id === a.reference);
+      if (si) si.status = decision === "Approved" ? "Closed" : "Open";
     }
     log(CURRENT_USER, decision === "Approved" ? "approved" : "rejected", a.reference, a.module);
     commit();
@@ -386,6 +392,72 @@ export const api = {
   },
 };
 
+/* ================================================================ Remote (Threadline API) */
+type MockApi = typeof mockApi;
+type Result<K extends keyof MockApi> = Awaited<ReturnType<MockApi[K]>>;
+const get =
+  <K extends keyof MockApi>(path: string) =>
+  () =>
+    http.get<Result<K>>(path);
+
+const remoteApi: MockApi = {
+  currentUser,
+  people: get<"people">("/people"),
+  customers: get<"customers">("/customers"),
+  vendors: get<"vendors">("/vendors"),
+  projects: get<"projects">("/projects"),
+  project: (id: string) => http.get<Result<"project">>(`/projects/${encodeURIComponent(id)}`),
+  items: get<"items">("/items"),
+  movements: get<"movements">("/movements"),
+  boms: get<"boms">("/boms"),
+  workOrders: get<"workOrders">("/work-orders"),
+  assets: get<"assets">("/assets"),
+  tickets: get<"tickets">("/tickets"),
+  contracts: get<"contracts">("/contracts"),
+  calibrations: get<"calibrations">("/calibrations"),
+  purchaseRequests: get<"purchaseRequests">("/purchase-requests"),
+  rfqs: get<"rfqs">("/rfqs"),
+  purchaseOrders: get<"purchaseOrders">("/purchase-orders"),
+  opportunities: get<"opportunities">("/opportunities"),
+  quotations: get<"quotations">("/quotations"),
+  salesOrders: get<"salesOrders">("/sales-orders"),
+  billingAdvices: get<"billingAdvices">("/billing-advices"),
+  leaveRequests: get<"leaveRequests">("/leave-requests"),
+  claims: get<"claims">("/claims"),
+  payrollRuns: get<"payrollRuns">("/payroll-runs"),
+  approvals: get<"approvals">("/approvals"),
+  activity: get<"activity">("/activity"),
+  roles: get<"roles">("/roles"),
+  reports: get<"reports">("/reports"),
+  notifications: get<"notifications">("/notifications"),
+  subcontractIssues: get<"subcontractIssues">("/subcontract-issues"),
+  exitCases: get<"exitCases">("/exit-cases"),
+  postings: get<"postings">("/postings"),
+  search: (q: string) => (q.trim().length < 2 ? Promise.resolve([]) : http.get<Result<"search">>(`/search?q=${encodeURIComponent(q)}`)),
+
+  decideApproval: (id, decision, reason) => http.command("approvals.decide", { id, decision, reason }),
+  issueStock: (itemId, qty, to) => http.command("inventory.issueStock", { itemId, qty, to }),
+  releaseFromQc: (itemId, pass) => http.command("inventory.decideQc", { itemId, decision: pass ? "release" : "reject", note: pass ? "" : "Rejected at incoming inspection" }),
+  advanceWorkOrder: (id) => http.command("inventory.advanceWorkOrder", { id }),
+  awardRfq: (id, vendorId, rationale) => http.command("purchase.awardRfq", { id, vendorId, rationale }),
+  updateTicket: (id, patch) => http.command("assets.updateTicket", { id, patch }),
+  createPurchaseRequest: (input) => http.command("purchase.createRequest", input),
+  moveOpportunity: (id, stage) => http.command("crm.moveOpportunity", { id, stage }),
+  decideLeave: (id, status) => http.command("hr.decideLeave", { id, status }),
+  markNotificationsRead: () => http.command("notifications.markRead", {}),
+};
+
+export const api: MockApi = API_MODE === "remote" ? remoteApi : mockApi;
+
+/**
+ * Declare a module command once; it runs against the browser mock or the API
+ * depending on the build. `toInput` maps the call's arguments to the server
+ * command's JSON body; `local` is the in-browser implementation.
+ */
+export function defineCommand<A extends unknown[], R>(name: string, toInput: (...args: A) => unknown, local: (...args: A) => Promise<R>): (...args: A) => Promise<R> {
+  return (...args: A) => (API_MODE === "remote" ? http.command<R>(name, toInput(...args)) : local(...args));
+}
+
 /**
  * Escape hatch for module-level commands (kept in src/modules/<m>/commands.ts):
  * mutate the in-memory db, log an audit event, persist and notify subscribers.
@@ -398,7 +470,7 @@ export async function mutate<T>(
 ): Promise<T> {
   await wait(delayMs);
   const result = fn(db);
-  if (audit) log(CURRENT_USER, audit.action, audit.reference, audit.module);
+  if (audit) log(getSessionUser()?.name ?? CURRENT_USER, audit.action, audit.reference, audit.module);
   commit();
   return clone(result);
 }
@@ -442,6 +514,8 @@ export function moduleForId(id: string): ModuleKey | null {
     QUO: "sales",
     SO: "sales",
     BA: "sales",
+    SI: "inventory",
+    EXT: "hr",
     EMP: "hr",
     LV: "hr",
     CLM: "hr",

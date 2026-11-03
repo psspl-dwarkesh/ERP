@@ -106,12 +106,23 @@ export async function seed(db: Database) {
     await tx.insert(t.reports).values(fx.reports);
     await tx.insert(t.notifications).values(fx.notifications);
 
+    await tx.insert(t.subcontractIssues).values(fx.subcontractIssues.map(({ lines: _l, ...si }) => ({ ...si, poId: si.poId ?? null, projectId: si.projectId ?? null, partnerReport: si.partnerReport ?? null })));
+    await tx.insert(t.subcontractLines).values(fx.subcontractIssues.flatMap((si) => si.lines.map((l, seq) => ({ ...l, issueId: si.id, seq }))));
+    await tx.insert(t.exitCases).values(fx.exitCases.map(({ items: _i, ...c }) => c));
+    await tx.insert(t.exitItems).values(
+      fx.exitCases.flatMap((c) => c.items.map((i, seq) => ({ ...i, caseId: c.id, seq, outcome: i.outcome ?? null, doneBy: i.doneBy ?? null, doneAt: i.doneAt ?? null }))),
+    );
+    await tx.insert(t.accountingPostings).values(
+      fx.postings.map((p) => ({ ...p, projectId: p.projectId ?? null, lastAttempt: p.lastAttempt ?? null, lastError: p.lastError ?? null, posted: p.posted ?? null, external: p.external ?? null, supersedes: p.supersedes ?? null, supersededBy: p.supersededBy ?? null })),
+    );
+
     // Counters continue after the highest seeded number of each prefix.
     const allIds = [
       ...fx.projects.map((x) => x.id), ...fx.items.map((x) => x.id), ...fx.movements.map((x) => x.id), ...fx.assets.map((x) => x.id),
       ...fx.tickets.map((x) => x.id), ...fx.purchaseRequests.map((x) => x.id), ...fx.rfqs.map((x) => x.id), ...fx.purchaseOrders.map((x) => x.id),
       ...fx.opportunities.map((x) => x.id), ...fx.quotations.map((x) => x.id), ...fx.salesOrders.map((x) => x.id), ...fx.billingAdvices.map((x) => x.id),
       ...fx.leaveRequests.map((x) => x.id), ...fx.claims.map((x) => x.id), ...fx.approvals.map((x) => x.id), ...fx.calibrations.map((x) => x.id),
+      ...fx.subcontractIssues.map((x) => x.id), ...fx.exitCases.map((x) => x.id),
       "GRN-0073", "CNT-0013", "ACT-0007", "N-4", "PO-0120",
     ];
     const max = new Map<string, number>();

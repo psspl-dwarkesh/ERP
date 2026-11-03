@@ -58,6 +58,10 @@ export const decideApproval = command({
     if (a.reference.startsWith("CLM-")) {
       await tx.update(s.claims).set({ status: decision }).where(eq(s.claims.id, a.reference));
     }
+    if (a.reference.startsWith("SI-")) {
+      // An approved variance closes the issue; a rejected one reopens it for recount.
+      await tx.update(s.subcontractIssues).set({ status: decision === "Approved" ? "Closed" : "Open" }).where(eq(s.subcontractIssues.id, a.reference));
+    }
     await audit(tx, actor, decision === "Approved" ? "approved" : "rejected", a.reference, a.module as never, reason ? { reason } : undefined);
     return (await read.approvals(tx)).find((x) => x.id === a.id);
   },

@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Boxes, ClipboardList, Download, Factory, ListTree } from "lucide-react";
+import { ArrowLeftRight, Boxes, ClipboardList, Download, Factory, Handshake, ListTree } from "lucide-react";
 import { api } from "../../api/client";
 import { useQuery } from "../../api/hooks";
 import { ModuleFrame } from "../../app/Shell";
@@ -9,16 +9,18 @@ import { CountsView } from "./CountsView";
 import { MovementsView } from "./MovementsView";
 import { MrpView } from "./MrpView";
 import { ItemDrawer, StockView } from "./StockView";
+import { SubcontractView } from "./SubcontractView";
 import { freeQty, type InvTab } from "./shared";
 import "./inventory.css";
 
-const TABS: InvTab[] = ["stock", "movements", "mrp", "assembly", "counts"];
+const TABS: InvTab[] = ["stock", "movements", "mrp", "assembly", "subcontract", "counts"];
 
 /** Which tab a record id belongs to when the URL names a record but no tab. */
 function tabForRecord(id?: string): InvTab | undefined {
   if (!id) return undefined;
   if (id.startsWith("WO-")) return "assembly";
   if (id.startsWith("BOM-")) return "mrp";
+  if (id.startsWith("SI-")) return "subcontract";
   if (/^(MOV|TRF|GRN|RTN)-/.test(id)) return "movements";
   return undefined;
 }
@@ -28,6 +30,7 @@ const DESCRIPTIONS: Record<InvTab, string> = {
   movements: "Every receipt, issue, transfer, return and adjustment with its source document.",
   mrp: "Released BOM requirements against free, reserved and on-order stock, with what covers each shortage.",
   assembly: "Panel work orders from kitting to dispatch, with the material and QC gates that hold them.",
+  subcontract: "Material issued to partner shops: what was used, returned, damaged and is still outstanding.",
   counts: "Cycle counts, variances and the approvals that turn them into ledger adjustments.",
 };
 
@@ -55,6 +58,8 @@ export default function InventoryPage() {
         const it = allItems.find((i) => i.id === l.itemId);
         return l.required - l.reserved - (it ? freeQty(it) : l.available) - l.onOrder > 0;
       }).length ?? undefined;
+  const subIssues = useQuery(api.subcontractIssues);
+  const subOpen = subIssues.data?.filter((s) => s.status !== "Closed").length;
   const pendingAdj = allMoves.filter((m) => m.type === "Adjustment" && m.status === "Pending").length;
 
   const exportStock = () => {
@@ -89,6 +94,7 @@ export default function InventoryPage() {
           { value: "movements", label: "Movements", icon: ArrowLeftRight },
           { value: "mrp", label: "Requirements", icon: ListTree, count: shortLines || undefined },
           { value: "assembly", label: "Assembly", icon: Factory },
+          { value: "subcontract", label: "Subcontract", icon: Handshake, count: subOpen || undefined },
           { value: "counts", label: "Counts", icon: ClipboardList, count: pendingAdj || undefined },
         ]}
       />
@@ -97,6 +103,7 @@ export default function InventoryPage() {
       {tab === "movements" && <MovementsView movements={allMoves} items={allItems} loading={movements.loading} highlight={tabForRecord(rid) === "movements" ? rid : undefined} />}
       {tab === "mrp" && <MrpView items={allItems} highlight={rid?.startsWith("BOM-") ? rid : undefined} />}
       {tab === "assembly" && <AssemblyView selectedId={rid?.startsWith("WO-") ? rid : undefined} items={allItems} movements={allMoves} />}
+      {tab === "subcontract" && <SubcontractView highlight={rid?.startsWith("SI-") ? rid : undefined} />}
       {tab === "counts" && <CountsView items={allItems} movements={allMoves} loading={items.loading || movements.loading} />}
 
       {itemId && <ItemDrawer id={itemId} items={allItems} loading={items.loading} onClose={closeRecord} />}

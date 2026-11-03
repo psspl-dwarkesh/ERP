@@ -4,6 +4,7 @@
  * → PO-0121 → WO-0187 → AST-0042 → AMC-0031 → SR-0148. "Today" is 3 Nov 2026, 09:40 IST.
  */
 import type {
+  AccountingPosting,
   ActivityEvent,
   Approval,
   Asset,
@@ -12,6 +13,7 @@ import type {
   CalibrationJob,
   Claim,
   Customer,
+  ExitCase,
   Item,
   LeaveRequest,
   Notification,
@@ -29,6 +31,7 @@ import type {
   ServiceContract,
   ServiceTicket,
   StockMovement,
+  SubcontractIssue,
   Vendor,
   WorkOrder,
 } from "./types";
@@ -293,6 +296,7 @@ export const billingAdvices: BillingAdvice[] = [
   { id: "BA-0063", salesOrderId: "SO-0179", customer: "Crest Chemicals", trigger: "MS-2 Loop checks complete", value: 528000, raised: "2026-10-20", status: "Ready for review" },
   { id: "BA-0061", salesOrderId: "SO-0196", customer: "Northstar Pharma", trigger: "MS-2 Panel FAT passed", value: 1455000, raised: "2026-09-16", status: "Posted" },
   { id: "BA-0064", salesOrderId: "SO-0201", customer: "Northstar Pharma", trigger: "AMC quarter 3 billing", value: 170000, raised: "2026-10-01", status: "Sent to accounting" },
+  { id: "BA-0062", salesOrderId: "SO-0172", customer: "Aster Biologics", trigger: "Calibration services H1 — final instalment", value: 156000, raised: "2026-11-02", status: "Sent to accounting" },
   { id: "BA-0060", salesOrderId: "SO-0188", customer: "Meridian Foods", trigger: "MS-2 Panel FAT passed", value: 1312000, raised: "2026-10-10", status: "Mismatch" },
 ];
 
@@ -306,6 +310,7 @@ export const claims: Claim[] = [
   { id: "CLM-0068", personId: "EMP-0072", person: "Karan Patel", kind: "Travel", reference: "SR-0144 · Pune → Chakan", amount: 8450, submitted: "2026-11-02", status: "Pending" },
   { id: "CLM-0066", personId: "EMP-0056", person: "Vikram Shah", kind: "Lodging", reference: "PRJ-0249 · Vadodara", amount: 21600, submitted: "2026-10-31", status: "Pending" },
   { id: "CLM-0061", personId: "EMP-0048", person: "Meera Nair", kind: "Travel", reference: "PRJ-0271 · Hyderabad", amount: 14200, submitted: "2026-10-24", status: "Approved" },
+  { id: "CLM-0071", personId: "EMP-0091", person: "Priya Menon", kind: "Travel", reference: "CAL-0090 · Bengaluru reference lab", amount: 6120, submitted: "2026-10-28", status: "Pending" },
   { id: "CLM-0058", personId: "EMP-0027", person: "Rahul Desai", kind: "Site expense", reference: "PRJ-0258 · Nashik", amount: 5300, submitted: "2026-10-20", status: "Paid" },
 ];
 
@@ -393,3 +398,44 @@ export const verticals = [
   "O&M",
   "CSV / Manufacturing IT",
 ] as const;
+
+/* ---------------------------------------------------------------- E2E-04 · material at a partner's shop */
+export const subcontractIssues: SubcontractIssue[] = [
+  {
+    id: "SI-0044", partner: "Vector Controls", package: "Control cabinet sub-assembly · PO-0118 line 2", poId: "PO-0118", projectId: "PRJ-0258",
+    custodian: "Vector Controls, Pune shop · Salim Khot (custody changed 30 Oct)", issuedOn: "2026-10-20", reconcileBy: "2026-11-10", issuedBy: "Imran Sheikh", status: "Open",
+    lines: [
+      { itemId: "ITM-0214", item: "Panel enclosure · IP65 1800×800", issued: 2, consumed: 1, returned: 0, damaged: 0, unitValue: 41000, note: "Cut and formed; one held for the bending fixture." },
+      { itemId: "ITM-0089", item: "24 V DC power supply · 10 A", issued: 10, consumed: 6, returned: 2, damaged: 1, unitValue: 6400, note: "One unit burnt on the bench test. Partner report not yet recorded." },
+      { itemId: "ITM-0042", item: "PLC CPU · S7-1200 series", issued: 4, consumed: 2, returned: 1, damaged: 0, unitValue: 38500, note: "Serialized units stay company stock until work acceptance." },
+    ],
+  },
+  {
+    id: "SI-0039", partner: "Kaveri Electricals", package: "Wiring harness sub-assembly · PO-0115", poId: "PO-0115", projectId: "PRJ-0258",
+    custodian: "Kaveri stores, Nashik · no named custodian since 28 Oct", issuedOn: "2026-10-06", reconcileBy: "2026-10-28", issuedBy: "Imran Sheikh", status: "Open",
+    lines: [{ itemId: "ITM-0214", item: "Panel enclosure · IP65 1800×800", issued: 4, consumed: 4, returned: 0, damaged: 0, unitValue: 41000, note: "Fully consumed. Reconciliation was due 28 Oct and is still open." }],
+  },
+];
+
+/* ---------------------------------------------------------------- E2E-12 · a leaver's checklist is the record */
+export const exitCases: ExitCase[] = [
+  {
+    id: "EXT-0003", personId: "EMP-0091", person: "Priya Menon", role: "Calibration Engineer · Quality", lastDay: "2026-11-14", reason: "Resignation accepted 31 Oct", status: "In progress",
+    items: [
+      { key: "identity", item: "Workspace access", owner: "IT security", due: "2026-11-14", reference: "Account mapped to EMP-0091", rule: "Deactivation is an event with its own time. Access ends on or before the last day, never after.", status: "Open" },
+      { key: "custody", item: "Company-held instrument", owner: "Central lab store", due: "2026-11-12", reference: "AST-0086 · CAL-0096 due 5 Nov", rule: "Recovery is a custody event that records the condition the equipment came back in.", status: "Open" },
+      { key: "commitment", item: "Open purchase commitment", owner: "Purchase · Nikhil Joshi", due: "2026-11-09", reference: "PR-0079 → PO-0112 · ₹1.88 L, delivery 9 Nov", rule: "A live order needs a named owner before the goods arrive. The maker stays on the approval history.", status: "Open" },
+      { key: "claim", item: "Travel and expense claim", owner: "Payroll", due: "2026-11-14", reference: "CLM-0071 · ₹6,120", rule: "Settled or rejected before the last day. The full-and-final figure belongs to payroll, not this screen.", status: "Open" },
+      { key: "delegation", item: "Approvals that route to her", owner: "Quality · reporting manager", due: "2026-11-15", reference: "Calibration review queue", rule: "Delegation carries a start date, so nothing waits in a queue nobody is left to open.", status: "Open" },
+      { key: "allocation", item: "Project and site allocation", owner: "HR", due: "2026-11-14", reference: "No project, site or contract allocation", rule: "Checked and empty. An exception check shows what it looked at, not only what it found.", status: "Checked — nothing found", outcome: "Registers checked: projects, deployments, contracts", doneBy: "Kavya Iyer", doneAt: "2026-11-02T16:40:00+05:30" },
+    ],
+  },
+];
+
+/* ---------------------------------------------------------------- E2E-10 · accounting outbox, one key per posting */
+export const postings: AccountingPosting[] = [
+  { key: "BA-0061/R1", advice: "BA-0061", party: "Northstar Pharma", projectId: "PRJ-0264", state: "Acknowledged", attempts: 1, lastAttempt: "2026-09-16T15:05:00+05:30", amount: 1455000, posted: 1455000, external: "ACC-INV/26-27/0371", note: "Posted, acknowledged and equal to the advice. Kept visible as evidence of a clean match." },
+  { key: "BA-0060/R1", advice: "BA-0060", party: "Meridian Foods", projectId: "PRJ-0258", state: "Needs attention", attempts: 1, lastAttempt: "2026-10-10T09:18:00+05:30", amount: 1312000, posted: 1246400, external: "ACC-INV/26-27/0418", note: "Accounting deducted 5% retention the advice doesn't carry. Re-sending would repeat the wrong number." },
+  { key: "BA-0064/R1", advice: "BA-0064", party: "Northstar Pharma", state: "Failed", attempts: 3, lastAttempt: "2026-11-02T17:42:00+05:30", lastError: "Accounting endpoint unavailable (503)", amount: 170000, note: "Transport failed before any invoice number came back, so the key is still unused." },
+  { key: "BA-0062/R1", advice: "BA-0062", party: "Aster Biologics", state: "Sent", attempts: 1, lastAttempt: "2026-11-03T08:10:00+05:30", amount: 156000, note: "Acknowledgement pending. An unanswered send is not a failed send." },
+];

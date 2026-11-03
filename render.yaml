@@ -1,0 +1,28 @@
+# Threadline full stack on Render: one web service runs the API and serves the
+# front end built in API mode (same origin, so the session cookie just works).
+# Database: set DATABASE_URL to a PostgreSQL connection string (e.g. Neon, Render Postgres).
+# Without it the service falls back to embedded PGlite, which is wiped on every redeploy.
+services:
+  - type: web
+    name: threadline
+    runtime: node
+    plan: free
+    buildCommand: cd prototype && npm ci && npm run build:api && cd ../server && npm ci
+    startCommand: cd server && npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: HOST
+        value: 0.0.0.0
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: LOG_LEVEL
+        value: info
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL_CA
+        value: certs/supabase-ca.crt   # commit the downloaded Supabase CA at server/certs/supabase-ca.crt
+      - key: DB_POOL_MAX
+        value: "5"

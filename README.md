@@ -1,36 +1,43 @@
-# Threadline — engineering ERP design and prototype
+# Threadline — engineering ERP
 
-Threadline is a connected ERP for firms that run engineering projects, build electrical panels, trade instruments and deliver calibration, AMC and O&M services. This repository holds the discovery analysis of the client scope (anonymised as **ABC Limited**), the design system, and an interactive front-end prototype covering all 11 modules.
+Threadline is a connected ERP for firms that run engineering projects, build electrical panels, trade instruments and deliver calibration, AMC and O&M services. This repository holds the discovery analysis of the client scope (anonymised as **ABC Limited**), the design system, the front end for all 11 modules, and the API server behind it.
 
-> The prototype runs entirely in the browser on illustrative data. Approvals, stock issues and edits are simulated and saved to `localStorage`. There is no backend, real authentication, payroll calculation or accounting integration yet. The supplied scope is a **draft discovery SoW**, not a signed FRD.
+> The supplied scope is a **draft discovery SoW**, not a signed FRD. Demo data is illustrative. There is no payroll calculation, statutory filing or live accounting integration; those depend on decisions still open in the scope.
 
-## Run it
+## Two ways to run it
 
-```powershell
-cd "D:\5. GitUploaded\ERP\prototype"
-npm.cmd install
-npm.cmd run dev        # http://127.0.0.1:5173
-npm.cmd run build      # type-check + production build into prototype/dist
-```
+| | Command | What you get |
+| --- | --- | --- |
+| **Browser demo** | `cd prototype` → `npm install` → `npm run dev` | The whole ERP on demo data in your browser, no server. This is what the Vercel deployment runs |
+| **Full stack** | `cd server` → `npm install` → `npm run dev`, then in a second terminal `cd prototype` → `npm run dev:api` | Sign-in, role permissions and a shared PostgreSQL database (embedded PGlite locally, no install) |
+
+Open `http://127.0.0.1:5173`. In full-stack mode, sign in with any demo account on the sign-in page; the password is `Threadline@2026`.
 
 - `#/` is the product showcase: animated hero, interactive job thread, module map, verticals, the 12 end-to-end flows, controls, roles and delivery approach.
-- `#/app/dashboard` is the ERP workspace. Every record has a URL, for example `#/app/projects/PRJ-0264`, `#/app/purchase/RFQ-0041` and `#/app/assets/SR-0148`.
-- Press `Ctrl` + `K` anywhere in the workspace to search records. To restore the starting data, open the account menu and choose **Reset demo data**.
+- `#/app/dashboard` is the workspace. Every record has a URL, for example `#/app/projects/PRJ-0264`, `#/app/purchase/RFQ-0041` and `#/app/assets/SR-0148`.
+- Press `Ctrl` + `K` anywhere in the workspace to search records.
 
-## Prototype structure
+Deployment (Vercel for the demo; Render + PostgreSQL for the full stack): [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Structure
 
 | Path | What it holds |
 | --- | --- |
 | `prototype/src/ds/` | Design system: tokens, base styles and the component library (custom controls, Radix behaviour) |
-| `prototype/src/api/` | Domain types, fixtures, the async mock API (`client.ts`), `useQuery` / `useMutation` hooks and formatters |
-| `prototype/src/app/` | Shell (sidebar, top bar, command palette), hash router, module registry, shared domain patterns |
-| `prototype/src/modules/<module>/` | One folder per ERP module; each is lazy-loaded |
+| `prototype/src/api/` | Domain types, fixtures, the in-browser mock, the HTTP transport, session and data hooks |
+| `prototype/src/app/` | Shell, sign-in, router, module registry and shared domain patterns |
+| `prototype/src/modules/<module>/` | One folder per ERP module, lazy-loaded. `commands.ts` holds each business action once, with its in-browser body and its server command name |
 | `prototype/src/showcase/` | The product showcase page |
+| `server/src/db/` | PostgreSQL schema (Drizzle), migrations in `server/drizzle/`, seed and connection |
+| `server/src/commands/` | Business commands: validated, permission-checked, transactional and audited |
+| `server/src/read.ts`, `app.ts`, `auth.ts` | Read models, HTTP routes, sign-in and sessions |
+| `server/test/` | API tests against a throwaway database (`npm test`) |
 
-The mock API is the contract for the backend phase: money as integer rupees, ISO dates, stable record IDs and linked IDs. Replacing the bodies in `api/client.ts` with `fetch` calls to a Node + PostgreSQL service leaves the screens unchanged.
+The front end and server share one set of record types (`prototype/src/api/types.ts`), so a record looks the same in the browser demo and from the API.
 
 ## Documents
 
+- [Deployment](docs/DEPLOYMENT.md): Vercel demo, Render + PostgreSQL full stack, environment variables
 - [Design system](DESIGN.md): colour, type, motion, the no-browser-defaults rule
 - [Project brief](docs/PROJECT_BRIEF.md) and [screen & workflow plan](docs/SCREEN_AND_WORKFLOW_PLAN.md)
 - [Requirement coverage](docs/REQUIREMENT_COVERAGE.md): all 219 scope requirement IDs with their C/V/D status

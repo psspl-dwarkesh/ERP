@@ -7,6 +7,7 @@ import { ZodError } from "zod";
 import type { ModuleKey } from "../../prototype/src/api/types";
 import { demoAccounts, login, logout, profile, resolveSession, SESSION_COOKIE } from "./auth";
 import { commercialCommands } from "./commands/commercial";
+import { custodyCommands } from "./commands/custody";
 import { operationsCommands } from "./commands/operations";
 import type { Command } from "./commands/registry";
 import { AppError, can, requireLevel, type Actor } from "./core";
@@ -50,9 +51,12 @@ const RESOURCES: Record<string, { module: ModuleKey; load: (db: Database) => Pro
   "payroll-runs": { module: "payroll", load: read.payrollRuns },
   roles: { module: "users", load: read.roles },
   reports: { module: "reports", load: read.reports },
+  "subcontract-issues": { module: "inventory", load: read.subcontractIssues },
+  "exit-cases": { module: "hr", load: read.exitCases },
+  postings: { module: "sales", load: read.postings },
 };
 
-const COMMANDS = new Map<string, Command>([...operationsCommands, ...commercialCommands].map((c) => [c.name, c]));
+const COMMANDS = new Map<string, Command>([...operationsCommands, ...commercialCommands, ...custodyCommands].map((c) => [c.name, c]));
 
 export async function buildApp(db: Database, opts: { logger?: boolean; serveFrontend?: boolean } = {}) {
   const app = Fastify({

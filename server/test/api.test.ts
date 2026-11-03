@@ -14,6 +14,8 @@ const EMAIL = {
   stores: "imran.sheikh@abc.example",
   hr: "kavya.iyer@abc.example",
   finance: "ritu.agarwal@abc.example",
+  qc: "deepa.kulkarni@abc.example",
+  sales: "sana.kapoor@abc.example",
 };
 
 beforeAll(async () => {
@@ -170,4 +172,96 @@ describe("purchase flow", () => {
     const res = await cmd("pm", "purchase.recordReceipt", { poId: "PO-0118", lines: [{ index: 1, received: 99, rejected: 0 }] });
     expect(res.statusCode).toBe(409);
   });
+});
+
+describe("subcontract custody (E2E-04)", () => {
+  it("refuses damage without the partner's report, figures that go down, and closure with material outstanding", async () => {
+    const noReport = await cmd("qc", "inventory.reconcileSubcontract", { issueId: "SI-0044", index: 1, consumed: 6, returned: 2, damaged: 2 });
+    expect(noReport.statusCode).toBe(400);
+    const down = await cmd("qc", "inventory.reconcileSubcontract", { issueId: "SI-0044", index: 1, consumed: 5, returned: 2, damaged: 1 });
+    expect(down.statusCode).toBe(409);
+    expect((await cmd("qc", "inventory.closeSubcontract", { issueId: "SI-0044" })).statusCode).toBe(409);
+  });
+
+  it("posts returns to stock, then routes damage to a variance approval that closes the issue", async () => {
+    const before = (await get("ops", "/api/items")).json().find((i: { id: string }) => i.id === "ITM-0214").onHand;
+    const lines = [
+      { index: 0, consumed: 1, returned: 1, damaged: 0 },
+      { index: 1, consumed: 6, returned: 3, damaged: 1 },
+      { index: 2, consumed: 3, returned: 1, damaged: 0 },
+    ];
+    for (const l of lines) {
+      const r = await cmd("qc", "inventory.reconcileSubcontract", { issueId: "SI-0044", ...l, partnerReport: "One PSU burnt on bench test; photos attached" });
+      expect(r.statusCode, JSON.stringify(r.json())).toBe(200);
+    }
+    const after = (await get("ops", "/api/items")).json().find((i: { id: string }) => i.id === "ITM-0214").onHand;
+    expect(after).toBe(before + 1);
+    const close = await cmd("qc", "inventory.closeSubcontract", { issueId: "SI-0044" });
+    expect(close.json().data.status).toBe("Variance in approval");
+    const approval = (await get("ops", "/api/approvals")).json().find((a: { reference: string }) => a.reference === "SI-0044");
+    expect((await cmd("qc", "approvals.decide", { id: approval.id, decision: "Approved", reason: "" })).statusCode).toBe(403);
+    expect((await cmd("ops", "approvals.decide", { id: approval.id, decision: "Approved", reason: "" })).statusCode).toBe(200);
+    const si = (await get("qc", "/api/subcontract-issues")).json().find((x: { id: string }) => x.id === "SI-0044");
+    expect(si.status).toBe("Closed");
+  });
+});
+
+describe("exit & handover (E2E-12)", () => {
+  it("won't close the claim line over a pending claim, or end access after the last day", async () => {
+    const claim = await cmd("hr", "hr.completeExitItem", { caseId: "EXT-0003", key: "claim", outcome: "Settled in full and final" });
+    expect(claim.statusCode).toBe(409);
+    expect(claim.json().error.message).toMatch(/CLM-0071 is still pending/);
+    const late = await cmd("hr", "hr.completeExitItem", { caseId: "EXT-0003", key: "identity", outcome: "Deactivation scheduled", detail: "2026-11-20" });
+    expect(late.statusCode).toBe(400);
+  });
+
+  it("closes lines with evidence and refuses to close the exit while any line is open", async () => {
+    const custody = await cmd("hr", "hr.completeExitItem", { caseId: "EXT-0003", key: "custody", outcome: "AST-0086 received at the lab store", detail: "Working, case intact" });
+    expect(custody.statusCode).toBe(200);
+    const asset = (await get("ops", "/api/assets")).json().find((a: { id: string }) => a.id === "AST-0086");
+    expect(asset.custodian).toBe("Central lab store");
+    const self = await cmd("hr", "hr.completeExitItem", { caseId: "EXT-0003", key: "commitment", outcome: "PO-0112 handed over", detail: "Priya Menon" });
+    expect(self.statusCode).toBe(400);
+    expect((await cmd("hr", "hr.closeExit", { caseId: "EXT-0003" })).statusCode).toBe(409);
+  });
+});
+
+describe("accounting outbox (E2E-10)", () => {
+  it("retries a failed send under the same key and won't retry a sent one", async () => {
+    const r = await cmd("sales", "sales.retryPosting", { key: "BA-0064/R1" });
+    expect(r.statusCode).toBe(200);
+    expect(r.json().data.state).toBe("Sent");
+    expect((await cmd("sales", "sales.retryPosting", { key: "BA-0064/R1" })).statusCode).toBe(409);
+  });
+
+  it("turns an unequal acknowledgement into Needs attention, and a correction supersedes rather than re-sends", async () => {
+    const ack = await cmd("sales", "sales.recordAcknowledgement", { key: "BA-0062/R1", external: "ACC-INV/26-27/0460", posted: 150000 });
+    expect(ack.json().data.state).toBe("Needs attention");
+    const fix = await cmd("sales", "sales.raiseCorrection", { key: "BA-0060/R1", amount: 1246400, reason: "5% retention per SO-0188 clause 7.2" });
+    expect(fix.statusCode).toBe(200);
+    expect(fix.json().data).toMatchObject({ key: "BA-0060/R2", state: "Queued", supersedes: "BA-0060/R1" });
+    const all = (await get("sales", "/api/postings")).json();
+    expect(all.find((p: { key: string }) => p.key === "BA-0060/R1").state).toBe("Superseded");
+  });
+
+  it("queues an advice only after its approval, and only once", async () => {
+    // APR-0121 (BA-0063) was approved by the finance owner in the approvals suite above.
+    const first = await cmd("sales", "sales.queuePosting", { adviceId: "BA-0063" });
+    expect(first.statusCode).toBe(200);
+    expect(first.json().data).toMatchObject({ key: "BA-0063/R1", state: "Queued" });
+    expect((await cmd("sales", "sales.queuePosting", { adviceId: "BA-0063" })).statusCode).toBe(409);
+  });
+
+  it("refuses to queue an advice whose approval is still pending", async () => {
+    const conn = await connect({ memory: true }); // a pending approval on an advice needs its own dataset
+    await conn.migrate();
+    await seed(conn.db);
+    const fresh = await buildApp(conn.db, { logger: false, serveFrontend: false });
+    const login = await fresh.inject({ method: "POST", url: "/api/auth/login", payload: { email: EMAIL.sales, password: DEMO_PASSWORD } });
+    const res = await fresh.inject({ method: "POST", url: "/api/commands/sales.queuePosting", headers: { cookie: String(login.headers["set-cookie"]).split(";")[0] }, payload: { adviceId: "BA-0063" } });
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error.message).toMatch(/waiting on Finance owner/);
+    await fresh.close();
+    await conn.close();
+  }, 60_000);
 });

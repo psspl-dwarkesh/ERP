@@ -122,3 +122,27 @@
 .hr-exc-count { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: var(--radius-md); background: var(--warn-soft); color: var(--warn-fg); font-weight: var(--weight-semibold); }
 @media (max-width: 1180px) { .hr-layout { grid-template-columns: minmax(0, 1fr); } }
 .hr-layout > * { min-width: 0; }
+
+/* ---- Exit & handover (E2E-12) ---- */
+.hr-exit-card { display: flex; flex-direction: column; gap: var(--space-4); }
+.hr-exit-progress { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.hr-exit-meter { display: flex; align-items: center; gap: var(--space-3); min-width: 220px; flex: 0 1 320px; color: var(--fg-muted); font-size: var(--text-sm); white-space: nowrap; }
+.hr-exit-list { display: flex; flex-direction: column; border: 1px solid var(--line-default); border-radius: var(--radius-lg); overflow: hidden; }
+.hr-exit-line { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: var(--space-3); padding: var(--space-4); border-top: 1px solid var(--line-subtle); background: var(--bg-surface); }
+.hr-exit-line:first-child { border-top: 0; }
+.hr-exit-line.is-closed { background: var(--bg-subtle); }
+.hr-exit-mark { color: var(--slate-300); padding-top: 1px; }
+.hr-exit-line.is-closed .hr-exit-mark { color: var(--ok); }
+.hr-exit-main { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.hr-exit-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px var(--space-3); color: var(--fg-strong); }
+.hr-exit-ref { color: var(--fg-muted); font-size: var(--text-sm); }
+.hr-exit-rule { color: var(--fg-muted); font-size: var(--text-sm); max-width: 720px; }
+.hr-exit-outcome { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; color: var(--fg-default); font-size: var(--text-sm); }
+.hr-exit-outcome svg { color: var(--ok); }
+.hr-exit-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.hr-exit-owner { color: var(--fg-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); white-space: nowrap; }
+.hr-exit-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .hr-exit-line { grid-template-columns: 24px minmax(0, 1fr); }
+  .hr-exit-side { grid-column: 2; align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+}

@@ -1,4 +1,4 @@
-import { CalendarDays, Download, Receipt, Users, UsersRound } from "lucide-react";
+import { CalendarDays, DoorOpen, Download, Receipt, Users, UsersRound } from "lucide-react";
 import { api } from "../../api/client";
 import { date } from "../../api/format";
 import { useQuery } from "../../api/hooks";
@@ -8,14 +8,15 @@ import { Button, Callout, PageHeader, RecordLink, Stat, Tabs, downloadCsv, useTo
 import { ClaimsView } from "./Claims";
 import { DeploymentRoster } from "./Deployment";
 import { Directory } from "./Directory";
+import { ExitsView } from "./ExitsView";
 import { LeaveView } from "./Leave";
 import { PersonDrawer } from "./PersonDrawer";
 import { ClaimDrawer, LeaveDrawer } from "./RecordDrawers";
 import { expiringCerts } from "./shared";
 import "./hr.css";
 
-const TABS = ["directory", "deployment", "leave", "claims"] as const;
-const TAB_FOR_PREFIX: Record<string, (typeof TABS)[number]> = { EMP: "directory", LV: "leave", CLM: "claims" };
+const TABS = ["directory", "deployment", "leave", "claims", "exits"] as const;
+const TAB_FOR_PREFIX: Record<string, (typeof TABS)[number]> = { EMP: "directory", LV: "leave", CLM: "claims", EXT: "exits" };
 
 export default function HrPage() {
   const route = useRoute();
@@ -37,6 +38,8 @@ export default function HrPage() {
   const pendingLeave = (leave.data ?? []).filter((l) => l.status === "Pending").length;
   const pendingClaims = (claims.data ?? []).filter((c) => c.status === "Pending").length;
   const certs = expiringCerts(list);
+  const exits = useQuery(api.exitCases);
+  const openExits = exits.data?.filter((e) => e.status !== "Closed").length;
 
   return (
     <ModuleFrame>
@@ -88,12 +91,14 @@ export default function HrPage() {
           { value: "deployment", label: "Deployment", icon: UsersRound },
           { value: "leave", label: "Leave & attendance", icon: CalendarDays, count: pendingLeave || undefined },
           { value: "claims", label: "Claims", icon: Receipt, count: pendingClaims || undefined },
+          { value: "exits", label: "Exits", icon: DoorOpen, count: openExits || undefined },
         ]}
       />
 
       {tab === "directory" && <Directory rows={list} loading={people.loading} onOpen={open} activeId={recordId} />}
       {tab === "deployment" && <DeploymentRoster people={list} leave={leave.data ?? []} loading={people.loading || leave.loading} />}
       {tab === "leave" && <LeaveView leave={leave.data ?? []} people={list} loading={leave.loading || people.loading} onOpen={open} activeId={recordId} />}
+      {tab === "exits" && <ExitsView />}
       {tab === "claims" && <ClaimsView claims={claims.data ?? []} people={list} loading={claims.loading} onOpen={open} activeId={recordId} />}
 
       <PersonDrawer id={prefix === "EMP" ? recordId : undefined} onClose={close} />

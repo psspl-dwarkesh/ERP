@@ -7,6 +7,8 @@ import { ago, date, inr, time } from "../../api/format";
 import { useQuery } from "../../api/hooks";
 import type { Approval } from "../../api/types";
 import { ModuleFrame } from "../../app/Shell";
+import { canAccess, useSession } from "../../api/session";
+import type { ModuleKey } from "../../api/types";
 import { ApprovalDialog, FLAGSHIP_THREAD, HealthDots, RecordThread, SlaClock } from "../../app/patterns";
 import { href, navigate } from "../../app/router";
 import {
@@ -30,14 +32,19 @@ import {
 } from "../../ds/components";
 import "./dashboard.css";
 
+const none = async () => [] as never[];
+
 export default function DashboardPage() {
   const toast = useToast();
   const me = api.currentUser();
-  const projects = useQuery(api.projects);
+  // Only ask for what this role may see; everything else shows as outside the role, not as an error.
+  const user = useSession().user;
+  const can = (m: ModuleKey) => canAccess(user, m);
+  const projects = useQuery(can("projects") ? api.projects : none);
   const approvals = useQuery(api.approvals);
-  const tickets = useQuery(api.tickets);
+  const tickets = useQuery(can("assets") ? api.tickets : none);
   const items = useQuery(api.items);
-  const orders = useQuery(api.salesOrders);
+  const orders = useQuery(can("sales") ? api.salesOrders : none);
   const activity = useQuery(api.activity);
   const [period, setPeriod] = useState("2026-11");
   const [chartView, setChartView] = useState<"milestones" | "billing">("milestones");
@@ -139,10 +146,10 @@ export default function DashboardPage() {
 
       {/* ---- KPIs ---- */}
       <div className="stat-strip">
-        <Stat label="Open order book" value={inr(orderBook)} foot="Unbilled value across 4 orders" onClick={() => navigate("/app/sales")} />
-        <Stat label="Active projects" value={projects.data?.filter((p) => p.status !== "Closed").length ?? "–"} foot={<span><b className="t-risk">{atRisk} at risk</b> · 1 on hold</span>} onClick={() => navigate("/app/projects")} />
+        {can("sales") ? <Stat label="Open order book" value={inr(orderBook)} foot={`Unbilled value across ${(orders.data ?? []).filter((o) => o.status !== "Closed").length} orders`} onClick={() => navigate("/app/sales")} /> : <Stat label="Open order book" value="—" foot="Not part of your role" />}
+        <Stat label="Active projects" value={can("projects") ? projects.data?.filter((p) => p.status !== "Closed").length ?? "–" : "—"} foot={<span><b className="t-risk">{atRisk} at risk</b> · 1 on hold</span>} onClick={() => navigate("/app/projects")} />
         <Stat label="Material shortages" value={short.length} tone={short.length ? "warn" : undefined} foot="Items below free stock need" icon={PackageX} onClick={() => navigate("/app/inventory?tab=mrp")} />
-        <Stat label="Open service tickets" value={openTickets.length} foot={`${openTickets.filter((t) => t.priority === "P1" || t.priority === "P2").length} urgent · SLA 96% this month`} icon={Wrench} onClick={() => navigate("/app/assets?tab=tickets")} />
+        <Stat label="Open service tickets" value={can("assets") ? openTickets.length : "—"} foot={`${openTickets.filter((t) => t.priority === "P1" || t.priority === "P2").length} urgent · SLA 96% this month`} icon={Wrench} onClick={() => navigate("/app/assets?tab=tickets")} />
         <Stat label="Approvals waiting" value={pending.length} foot="Oldest raised 2 days ago" icon={ClipboardCheck} />
       </div>
 
@@ -153,7 +160,7 @@ export default function DashboardPage() {
           description="PRJ-0264 traced from customer order to the service ticket raised this morning. Each card opens its record."
           actions={<ButtonLink to={href.record("PRJ-0264")} variant="ghost" size="sm" iconRight={ArrowRight}>Open project</ButtonLink>}
         />
-        <RecordThread nodes={FLAGSHIP_THREAD} />
+        {can("projects") ? <RecordThread nodes={FLAGSHIP_THREAD} /> : <p className="t-muted">Project records are outside your role.</p>}
       </Card>
 
       <div className="grid grid-main-aside">
@@ -196,7 +203,7 @@ export default function DashboardPage() {
           </Card>
 
           {/* ---- Portfolio ---- */}
-          <Card padded={false}>
+          {can("projects") && (<Card padded={false}>
             <div className="card-padded" style={{ paddingBottom: 0 }}>
               <CardHeader title="Project portfolio" description="Health dots: schedule · cost · material" actions={<ButtonLink to={href.module("projects")} variant="ghost" size="sm" iconRight={ArrowRight}>All projects</ButtonLink>} />
             </div>
@@ -214,7 +221,7 @@ export default function DashboardPage() {
                 ]}
               />
             </div>
-          </Card>
+          </Card>)}
         </div>
 
         <div className="stack" style={{ gap: "var(--space-5)" }}>
@@ -243,7 +250,7 @@ export default function DashboardPage() {
           </Card>
 
           {/* ---- Field today ---- */}
-          <Card>
+          {can("assets") && (<Card>
             <CardHeader title="Field service today" description="Open tickets by response deadline" icon={Wrench} actions={<ButtonLink to={href.module("assets", "tickets")} variant="ghost" size="sm">Service desk</ButtonLink>} />
             <ul className="divider-list">
               {openTickets
@@ -265,7 +272,7 @@ export default function DashboardPage() {
                   </li>
                 ))}
             </ul>
-          </Card>
+          </Card>)}
 
           {/* ---- Activity ---- */}
           <Card>

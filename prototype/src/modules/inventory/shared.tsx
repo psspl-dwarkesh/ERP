@@ -5,7 +5,7 @@ import type { Item, StockMovement } from "../../api/types";
 import { navigate } from "../../app/router";
 import { RecordLink } from "../../ds/components";
 
-export type InvTab = "stock" | "movements" | "mrp" | "assembly" | "counts";
+export type InvTab = "stock" | "movements" | "mrp" | "assembly" | "subcontract" | "counts";
 
 export const freeQty = (i: Pick<Item, "onHand" | "reserved" | "quarantined">) => Math.max(0, i.onHand - i.reserved - i.quarantined);
 

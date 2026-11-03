@@ -1,7 +1,7 @@
-import { ApiError, mutate } from "../../api/client";
+import { ApiError, mutate, defineCommand } from "../../api/client";
 
 /** USR-016: every report export is an audit event, and restricted reports refuse to export. */
-export function logReportExport(reportId: string, rows: number) {
+function logReportExportLocal(reportId: string, rows: number) {
   return mutate(
     (db) => {
       const r = db.reports.find((x) => x.id === reportId);
@@ -13,3 +13,6 @@ export function logReportExport(reportId: string, rows: number) {
     160,
   );
 }
+
+/* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
+export const logReportExport = defineCommand("reports.logExport", (reportId, rows) => ({ reportId, rows }), logReportExportLocal);

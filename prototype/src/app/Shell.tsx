@@ -6,6 +6,7 @@ import {
   ChevronsUpDown,
   CircleHelp,
   CornerDownLeft,
+  LockKeyhole,
   LogOut,
   Menu as MenuIcon,
   RotateCcw,
@@ -14,7 +15,8 @@ import {
   X,
 } from "lucide-react";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
-import { api, resetDemo } from "../api/client";
+import { API_MODE, api, resetDemo } from "../api/client";
+import { canAccess, signOut, useSession } from "../api/session";
 import { ago } from "../api/format";
 import { useQuery } from "../api/hooks";
 import type { ModuleKey } from "../api/types";
@@ -29,6 +31,7 @@ export function Shell() {
   const [navOpen, setNavOpen] = useState(false);
   const def = moduleDef(route.module);
   const Page = def.page;
+  const user = useSession().user;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -56,7 +59,7 @@ export function Shell() {
         <Topbar onMenu={() => setNavOpen(true)} onSearch={() => setPaletteOpen(true)} moduleLabel={def.label} />
         <main className="content" id="main">
           <Suspense fallback={<PageLoading />}>
-            <Page key={def.key} />
+            {canAccess(user, def.key) ? <Page key={def.key} /> : <AccessDenied module={def.label} role={user?.role ?? ""} />}
           </Suspense>
         </main>
       </div>
@@ -83,6 +86,7 @@ function PageLoading() {
 }
 
 function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }) {
+  const user = useSession().user;
   const { data: approvals } = useQuery(api.approvals);
   const { data: tickets } = useQuery(api.tickets);
   const counts: Partial<Record<ModuleKey, number>> = {
@@ -126,11 +130,12 @@ function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }
             {MODULES.filter((m) => m.group === g).map((m) => {
               const Icon = m.icon;
               const isActive = active === m.key;
+              const locked = !canAccess(user, m.key);
               return (
                 <a key={m.key} href={href.module(m.key)} className={cx("nav-item", isActive && "is-active")} aria-current={isActive ? "page" : undefined}>
                   <Icon size={17} aria-hidden />
                   <span>{m.label}</span>
-                  {counts[m.key] ? <span className="nav-count">{counts[m.key]}</span> : null}
+                  {locked ? <LockKeyhole size={13} className="nav-lock" aria-label="No access" /> : counts[m.key] ? <span className="nav-count">{counts[m.key]}</span> : null}
                 </a>
               );
             })}
@@ -150,6 +155,7 @@ function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }
 function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearch: () => void; moduleLabel: string }) {
   const toast = useToast();
   const me = api.currentUser();
+  const session = useSession().user;
   return (
     <header className="topbar">
       <button className="icon-btn icon-btn-ghost topbar-menu" aria-label="Open menu" onClick={onMenu}>
@@ -195,19 +201,33 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
             </button>
           }
           items={[
-            { heading: me.email },
-            { label: "Preferences", icon: Settings, onSelect: () => toast({ title: "Preferences", body: "Personal settings arrive with the backend phase.", tone: "info" }) },
-            {
-              label: "Reset demo data",
-              icon: RotateCcw,
-              detail: "Restore every record to its starting state",
-              onSelect: () => {
-                resetDemo();
-                toast({ title: "Demo data restored", body: "All records are back to their starting state." });
-              },
-            },
-            { separator: true },
-            { label: "Leave workspace", icon: LogOut, onSelect: () => navigate("/") },
+            { heading: `${me.email} · ${session?.role ?? me.role}` },
+            { label: "Preferences", icon: Settings, onSelect: () => toast({ title: "Preferences", body: "Personal settings are not part of this release.", tone: "info" }) },
+            ...(API_MODE === "mock"
+              ? [
+                  {
+                    label: "Reset demo data",
+                    icon: RotateCcw,
+                    detail: "Restore every record to its starting state",
+                    onSelect: () => {
+                      resetDemo();
+                      toast({ title: "Demo data restored", body: "All records are back to their starting state." });
+                    },
+                  },
+                  { separator: true as const },
+                  { label: "Leave workspace", icon: LogOut, onSelect: () => navigate("/") },
+                ]
+              : [
+                  { separator: true as const },
+                  {
+                    label: "Sign out",
+                    icon: LogOut,
+                    onSelect: async () => {
+                      await signOut();
+                      navigate("/login", { replace: true });
+                    },
+                  },
+                ]),
           ]}
         />
       </div>
@@ -339,4 +359,19 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
 
 export function ModuleFrame({ children }: { children: ReactNode }) {
   return <div className="module">{children}</div>;
+}
+
+function AccessDenied({ module, role }: { module: string; role: string }) {
+  return (
+    <div className="denied" role="alert">
+      <span className="denied-icon">
+        <LockKeyhole size={24} aria-hidden />
+      </span>
+      <h1 className="denied-title">{module} isn't part of your role</h1>
+      <p className="denied-body">
+        Your role ({role}) has no access to {module}. Access is granted per role by the system administrator in Users & Access, and every change to it is audited.
+      </p>
+      <Button onClick={() => navigate("/app/dashboard")}>Back to your dashboard</Button>
+    </div>
+  );
 }

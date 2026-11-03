@@ -124,3 +124,14 @@ td .inv-ref { color: var(--fg-muted); font-size: var(--text-sm); }
 .inv-count-sum { color: var(--fg-default); font-size: var(--text-sm); min-width: 0; }
 .inv-count-sum b { color: var(--fg-strong); }
 .inv-review-sum { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* ---- Subcontract custody (E2E-04) ---- */
+.inv-sc-card { display: flex; flex-direction: column; gap: var(--space-4); }
+.inv-sc-card.is-highlighted { border-color: var(--accent); box-shadow: 0 0 0 3px var(--teal-50); }
+.inv-sc-table { box-shadow: none; }
+.inv-sc-out { color: var(--warn-fg); }
+.inv-sc-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; padding-top: var(--space-3); border-top: 1px solid var(--line-subtle); }
+.inv-sc-identity { display: flex; align-items: center; gap: 8px; color: var(--fg-muted); font-size: var(--text-sm); }
+.inv-sc-identity svg { color: var(--accent); flex: none; }
+.inv-sc-balance { display: flex; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--bg-subtle); border: 1px solid var(--line-subtle); font-size: var(--text-sm); color: var(--fg-default); }
+.inv-sc-balance.is-bad { background: var(--risk-soft); border-color: var(--tone-line, #f0bcb8); color: var(--risk-fg); }

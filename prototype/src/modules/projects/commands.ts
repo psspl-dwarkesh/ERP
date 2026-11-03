@@ -1,4 +1,4 @@
-import { ApiError, mutate } from "../../api/client";
+import { ApiError, mutate, defineCommand } from "../../api/client";
 import { NOW } from "../../api/fixtures";
 import { inr } from "../../api/format";
 import type { Approval } from "../../api/types";
@@ -21,7 +21,7 @@ export const CHANGE_REQUEST_TYPE = "Project change request";
  * A change request is an approval, not an edit: budget and dates stay as they are
  * until the commercial head decides. It lands in the shared approvals inbox.
  */
-export function raiseChangeRequest(input: ChangeRequestInput) {
+function raiseChangeRequestLocal(input: ChangeRequestInput) {
   return mutate(
     (db) => {
       const project = db.projects.find((p) => p.id === input.projectId);
@@ -54,3 +54,6 @@ export function raiseChangeRequest(input: ChangeRequestInput) {
     { action: "raised a change request on", reference: input.projectId, module: "projects" },
   );
 }
+
+/* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
+export const raiseChangeRequest = defineCommand("projects.raiseChangeRequest", (input) => (input), raiseChangeRequestLocal);

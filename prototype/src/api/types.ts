@@ -460,3 +460,77 @@ export interface Notification {
   tone: Tone;
   read: boolean;
 }
+
+/* ---------------------------------------------------------------- Subcontract custody (E2E-04) */
+export interface SubcontractLine {
+  itemId: string;
+  item: string;
+  issued: number;
+  consumed: number;
+  returned: number;
+  damaged: number;
+  unitValue: Rupees;
+  note: string;
+}
+
+export interface SubcontractIssue {
+  id: string; // SI-0044
+  partner: string;
+  package: string;
+  poId?: string;
+  projectId?: string;
+  custodian: string;
+  issuedOn: ISODate;
+  reconcileBy: ISODate;
+  issuedBy: string;
+  status: "Open" | "Variance in approval" | "Closed";
+  partnerReport?: string;
+  lines: SubcontractLine[];
+}
+
+/* ---------------------------------------------------------------- Exit & handover (E2E-12) */
+export type ExitItemKey = "identity" | "custody" | "commitment" | "claim" | "delegation" | "allocation";
+
+export interface ExitItem {
+  key: ExitItemKey;
+  item: string;
+  owner: string;
+  due: ISODate;
+  reference: string;
+  rule: string;
+  status: "Open" | "Done" | "Checked — nothing found";
+  outcome?: string;
+  doneBy?: string;
+  doneAt?: ISODateTime;
+}
+
+export interface ExitCase {
+  id: string; // EXT-0003
+  personId: string;
+  person: string;
+  role: string;
+  lastDay: ISODate;
+  reason: string;
+  status: "In progress" | "Closed";
+  items: ExitItem[];
+}
+
+/* ---------------------------------------------------------------- Accounting outbox (E2E-10) */
+export type PostingState = "Queued" | "Sent" | "Acknowledged" | "Failed" | "Needs attention" | "Superseded";
+
+export interface AccountingPosting {
+  key: string; // BA-0060/R1 — idempotency key, never reused for a different amount
+  advice: string;
+  party: string;
+  projectId?: string;
+  state: PostingState;
+  attempts: number;
+  lastAttempt?: ISODateTime;
+  lastError?: string;
+  amount: Rupees;
+  posted?: Rupees;
+  external?: string;
+  supersedes?: string;
+  supersededBy?: string;
+  note: string;
+}

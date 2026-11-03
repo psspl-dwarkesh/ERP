@@ -2,7 +2,7 @@
  * Assets & Service commands the shared mock API does not cover. Each goes through
  * mutate(): audited, persisted, and every screen refetches. Throw ApiError to reject.
  */
-import { ApiError, mutate } from "../../api/client";
+import { ApiError, mutate, defineCommand } from "../../api/client";
 import { TODAY } from "../../api/fixtures";
 import type { StockMovement } from "../../api/types";
 
@@ -17,7 +17,7 @@ export interface SpareUse {
  * Resolve a ticket from the field worksheet (AST-015, AST-016). A resolution note is required,
  * and every spare consumed posts an Issue movement against the ticket so stock and visit agree.
  */
-export function resolveTicket(id: string, note: string, spares: SpareUse[]) {
+function resolveTicketLocal(id: string, note: string, spares: SpareUse[]) {
   return mutate(
     (db) => {
       const t = db.tickets.find((x) => x.id === id);
@@ -61,7 +61,7 @@ export function resolveTicket(id: string, note: string, spares: SpareUse[]) {
 }
 
 /** Record the reviewer's disposition of an out-of-tolerance calibration (AST-008, E2E-07). */
-export function dispositionCalibration(id: string, choice: "adjust" | "external", note: string) {
+function dispositionCalibrationLocal(id: string, choice: "adjust" | "external", note: string) {
   return mutate(
     (db) => {
       const job = db.calibrations.find((c) => c.id === id);
@@ -76,3 +76,7 @@ export function dispositionCalibration(id: string, choice: "adjust" | "external"
     { action: "recorded out-of-tolerance disposition on", reference: id, module: "assets" },
   );
 }
+
+/* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
+export const resolveTicket = defineCommand("assets.resolveTicket", (id, note, spares) => ({ id, note, spares }), resolveTicketLocal);
+export const dispositionCalibration = defineCommand("assets.dispositionCalibration", (id, choice, note) => ({ id, choice, note }), dispositionCalibrationLocal);

@@ -612,3 +612,85 @@ export const payrollChecks = pgTable(
   },
   (t) => [primaryKey({ columns: [t.runId, t.seq] })],
 );
+
+/* ================================================================ Subcontract custody (E2E-04) */
+export const subcontractIssues = pgTable("subcontract_issues", {
+  id: text("id").primaryKey(),
+  partner: text("partner").notNull(),
+  package: text("package").notNull(),
+  poId: text("po_id"),
+  projectId: text("project_id"),
+  custodian: text("custodian").notNull(),
+  issuedOn: day("issued_on").notNull(),
+  reconcileBy: day("reconcile_by").notNull(),
+  issuedBy: text("issued_by").notNull(),
+  status: text("status").notNull(),
+  partnerReport: text("partner_report"),
+});
+
+export const subcontractLines = pgTable(
+  "subcontract_lines",
+  {
+    issueId: text("issue_id").notNull().references(() => subcontractIssues.id, { onDelete: "cascade" }),
+    seq: integer("seq").notNull(),
+    itemId: text("item_id").notNull().references(() => items.id),
+    item: text("item").notNull(),
+    issued: integer("issued").notNull(),
+    consumed: integer("consumed").notNull(),
+    returned: integer("returned").notNull(),
+    damaged: integer("damaged").notNull(),
+    unitValue: money("unit_value").notNull(),
+    note: text("note").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.issueId, t.seq] })],
+);
+
+/* ================================================================ Exit & handover (E2E-12) */
+export const exitCases = pgTable("exit_cases", {
+  id: text("id").primaryKey(),
+  personId: text("person_id").notNull().references(() => people.id),
+  person: text("person").notNull(),
+  role: text("role").notNull(),
+  lastDay: day("last_day").notNull(),
+  reason: text("reason").notNull(),
+  status: text("status").notNull(),
+});
+
+export const exitItems = pgTable(
+  "exit_items",
+  {
+    caseId: text("case_id").notNull().references(() => exitCases.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    seq: integer("seq").notNull(),
+    item: text("item").notNull(),
+    owner: text("owner").notNull(),
+    due: day("due").notNull(),
+    reference: text("reference").notNull(),
+    rule: text("rule").notNull(),
+    status: text("status").notNull(),
+    outcome: text("outcome"),
+    doneBy: text("done_by"),
+    doneAt: ts("done_at"),
+  },
+  (t) => [primaryKey({ columns: [t.caseId, t.key] })],
+);
+
+/* ================================================================ Accounting outbox (E2E-10) */
+export const accountingPostings = pgTable("accounting_postings", {
+  /** Idempotency key sent to accounting: <advice>/R<n>. Never reused for a different amount. */
+  key: text("key").primaryKey(),
+  advice: text("advice").notNull(),
+  party: text("party").notNull(),
+  projectId: text("project_id"),
+  state: text("state").notNull(),
+  attempts: integer("attempts").notNull().default(0),
+  lastAttempt: ts("last_attempt"),
+  lastError: text("last_error"),
+  amount: money("amount").notNull(),
+  posted: money("posted"),
+  external: text("external"),
+  supersedes: text("supersedes"),
+  supersededBy: text("superseded_by"),
+  note: text("note").notNull(),
+  createdAt: ts("created_at").notNull().defaultNow(),
+});

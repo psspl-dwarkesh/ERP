@@ -3,7 +3,7 @@
  * Each mirrors a future POST and goes through mutate(), so it is audited, persisted
  * and every screen refetches. Throw ApiError to reject.
  */
-import { ApiError, api, mutate, type Db } from "../../api/client";
+import { ApiError, api, defineCommand, mutate, type Db } from "../../api/client";
 import { TODAY } from "../../api/fixtures";
 import type { StockMovement } from "../../api/types";
 
@@ -14,7 +14,7 @@ function nextMovementId(db: Db) {
 }
 
 /** QC decision on quarantined stock (INV-005). Release goes through the shared API, then relocates the stock. */
-export async function decideQc(itemId: string, decision: "release" | "reject", note: string) {
+async function decideQcLocal(itemId: string, decision: "release" | "reject", note: string) {
   if (decision === "reject" && note.trim().length < 8) {
     throw new ApiError("Say why the lot is rejected (at least 8 characters) so the supplier return has a reason.", "VALIDATION");
   }
@@ -70,7 +70,7 @@ export async function decideQc(itemId: string, decision: "release" | "reject", n
 }
 
 /** Site acknowledges an in-transit transfer (INV-007). Until then it belongs to neither store. */
-export function acknowledgeTransfer(movementId: string) {
+function acknowledgeTransferLocal(movementId: string) {
   return mutate(
     (db) => {
       const mv = db.movements.find((m) => m.id === movementId);
@@ -91,7 +91,7 @@ export interface CountLine {
 }
 
 /** Submit a count session: every variance becomes a pending adjustment that someone else approves (INV-024). */
-export function submitCount(sessionId: string, lines: CountLine[]) {
+function submitCountLocal(sessionId: string, lines: CountLine[]) {
   return mutate(
     (db) => {
       const missing = lines.filter((l) => Number.isNaN(l.counted));
@@ -126,7 +126,7 @@ export function submitCount(sessionId: string, lines: CountLine[]) {
 }
 
 /** Approve or send back a pending adjustment. Approval posts it; the row is never edited afterwards. */
-export function decideAdjustment(movementId: string, approve: boolean, note: string) {
+function decideAdjustmentLocal(movementId: string, approve: boolean, note: string) {
   return mutate(
     (db) => {
       const mv = db.movements.find((m) => m.id === movementId);
@@ -150,7 +150,7 @@ export function decideAdjustment(movementId: string, approve: boolean, note: str
 }
 
 /** Record the production QC result on a work order in testing (INV-020, INV-030). */
-export function recordWorkOrderQc(woId: string, result: "Passed" | "Failed", note: string) {
+function recordWorkOrderQcLocal(woId: string, result: "Passed" | "Failed", note: string) {
   return mutate(
     (db) => {
       const wo = db.workOrders.find((w) => w.id === woId);
@@ -165,3 +165,97 @@ export function recordWorkOrderQc(woId: string, result: "Passed" | "Failed", not
     { action: `recorded QC ${result.toLowerCase()} on`, reference: woId, module: "inventory" },
   );
 }
+
+/* ================================================================ Subcontract custody (E2E-04) */
+export interface ReconcileFigures {
+  consumed: number;
+  returned: number;
+  damaged: number;
+}
+
+export const outstandingOf = (l: { issued: number; consumed: number; returned: number; damaged: number }) => l.issued - l.consumed - l.returned - l.damaged;
+
+/**
+ * Record what the partner used, sent back or damaged. Posted figures only grow:
+ * a correction is a new movement, never an edit. Returns post a stock movement,
+ * and damage can't be recorded without the partner's report.
+ */
+export const reconcileSubcontractLine = defineCommand(
+  "inventory.reconcileSubcontract",
+  (issueId: string, index: number, figures: ReconcileFigures, partnerReport: string = "") => ({ issueId, index, ...figures, partnerReport }),
+  (issueId: string, index: number, figures: ReconcileFigures, partnerReport: string = "") =>
+    mutate(
+      (db) => {
+        const si = db.subcontractIssues.find((x) => x.id === issueId);
+        if (!si) throw new ApiError(`Subcontract issue ${issueId} not found`, "NOT_FOUND");
+        if (si.status !== "Open") throw new ApiError(`${si.id} is ${si.status.toLowerCase()}; figures are frozen.`, "BLOCKED");
+        const line = si.lines[index];
+        if (!line) throw new ApiError("That line doesn't exist.", "NOT_FOUND");
+        const { consumed, returned, damaged } = figures;
+        if ([consumed, returned, damaged].some((v) => !Number.isInteger(v) || v < 0)) throw new ApiError("Enter whole, non-negative quantities.", "VALIDATION");
+        if (consumed < line.consumed || returned < line.returned || damaged < line.damaged) {
+          throw new ApiError("Recorded figures can't go down. A correction is a new movement against the issue, not an edit.", "BLOCKED");
+        }
+        if (consumed + returned + damaged > line.issued) {
+          throw new ApiError(`That accounts for ${consumed + returned + damaged} of ${line.issued} issued. Nothing can be used that wasn't issued.`, "VALIDATION");
+        }
+        if (damaged > line.damaged && partnerReport.trim().length < 12 && !si.partnerReport) {
+          throw new ApiError("Damage needs the partner's report (at least 12 characters) before it is recorded.", "VALIDATION");
+        }
+        const back = returned - line.returned;
+        if (back > 0) {
+          const item = db.items.find((i) => i.id === line.itemId);
+          if (item) {
+            item.onHand += back;
+            item.lastMovement = TODAY;
+            db.movements.unshift({
+              id: nextMovementId(db), type: "Return", itemId: item.id, item: item.name, qty: back, from: `${si.partner} · ${si.id}`, to: item.warehouse,
+              reference: si.id, at: new Date().toISOString(), by: ME, status: "Posted",
+            });
+          }
+        }
+        Object.assign(line, { consumed, returned, damaged });
+        if (partnerReport.trim()) si.partnerReport = partnerReport.trim();
+        return si;
+      },
+      { action: `reconciled ${figures.consumed} used / ${figures.returned} returned / ${figures.damaged} damaged on`, reference: issueId, module: "inventory" },
+    ),
+);
+
+/** Close the issue once nothing is outstanding. Damage turns closure into a variance approval for someone else. */
+export const closeSubcontractIssue = defineCommand(
+  "inventory.closeSubcontract",
+  (issueId: string) => ({ issueId }),
+  (issueId: string) =>
+    mutate(
+      (db) => {
+        const si = db.subcontractIssues.find((x) => x.id === issueId);
+        if (!si) throw new ApiError(`Subcontract issue ${issueId} not found`, "NOT_FOUND");
+        if (si.status !== "Open") throw new ApiError(`${si.id} is already ${si.status.toLowerCase()}.`, "BLOCKED");
+        const open = si.lines.filter((l) => outstandingOf(l) > 0);
+        if (open.length) throw new ApiError(`${open.length} line${open.length > 1 ? "s still have" : " still has"} material outstanding at ${si.partner}. Outstanding can't be zeroed without a movement.`, "BLOCKED");
+        const variance = si.lines.reduce((a, l) => a + l.damaged * l.unitValue, 0);
+        if (variance > 0) {
+          const n = Math.max(0, ...db.approvals.map((a) => Number(a.id.split("-")[1]) || 0)) + 1;
+          db.approvals.unshift({
+            id: `APR-${String(n).padStart(4, "0")}`, type: "Subcontract variance", module: "inventory", reference: si.id,
+            title: `${si.partner} · ${si.package.split(" · ")[0]}`, maker: si.issuedBy, value: `₹${variance.toLocaleString("en-IN")} damaged`,
+            submitted: new Date().toISOString(), level: "Level 1 of 1 · Operations head", status: "Pending",
+            evidence: [si.partnerReport ? `Partner report: ${si.partnerReport}` : "No partner report", ...si.lines.filter((l) => l.damaged).map((l) => `${l.damaged} × ${l.item}`)],
+          });
+          si.status = "Variance in approval";
+        } else {
+          si.status = "Closed";
+        }
+        return si;
+      },
+      { action: "submitted reconciliation for closure on", reference: issueId, module: "inventory" },
+    ),
+);
+
+/* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
+export const decideQc = defineCommand("inventory.decideQc", (itemId, decision, note) => ({ itemId, decision, note }), decideQcLocal);
+export const acknowledgeTransfer = defineCommand("inventory.acknowledgeTransfer", (movementId) => ({ movementId }), acknowledgeTransferLocal);
+export const submitCount = defineCommand("inventory.submitCount", (sessionId, lines) => ({ sessionId, lines }), submitCountLocal);
+export const decideAdjustment = defineCommand("inventory.decideAdjustment", (movementId, approve, note) => ({ movementId, approve, note }), decideAdjustmentLocal);
+export const recordWorkOrderQc = defineCommand("inventory.recordWorkOrderQc", (woId, result, note) => ({ woId, result, note }), recordWorkOrderQcLocal);

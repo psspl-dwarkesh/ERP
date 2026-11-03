@@ -1,11 +1,13 @@
 {
   "name": "abc-operations-design-prototype",
   "private": true,
-  "version": "0.3.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
+    "dev:api": "vite --host 127.0.0.1 --port 5173 --mode api",
     "build": "tsc --noEmit && vite build",
+    "build:api": "tsc --noEmit && vite build --mode api",
     "preview": "vite preview --host 127.0.0.1 --port 5173"
   },
   "dependencies": {

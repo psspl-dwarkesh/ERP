@@ -1,4 +1,4 @@
-import { ApiError, api, mutate } from "../../api/client";
+import { ApiError, api, mutate, defineCommand } from "../../api/client";
 import { TODAY } from "../../api/fixtures";
 import type { Opportunity, Vertical } from "../../api/types";
 
@@ -14,7 +14,7 @@ export function addDays(iso: string, days: number) {
 }
 
 /** CRM-013: a renewal opportunity created from a contract nearing its end date. */
-export async function createRenewalOpportunity(contractId: string) {
+async function createRenewalOpportunityLocal(contractId: string) {
   const id = nextOppId(await api.opportunities());
   return mutate(
     (db) => {
@@ -55,7 +55,7 @@ export interface NewOpportunityInput {
 }
 
 /** CRM-002/003: capture a new lead with source, vertical and owner. */
-export async function createOpportunity(input: NewOpportunityInput, owner: string) {
+async function createOpportunityLocal(input: NewOpportunityInput, owner: string) {
   const id = nextOppId(await api.opportunities());
   return mutate(
     (db) => {
@@ -89,7 +89,7 @@ export async function createOpportunity(input: NewOpportunityInput, owner: strin
 }
 
 /** CRM-005: a presales note on the opportunity, kept in the audit trail. */
-export function logOpportunityNote(id: string, note: string) {
+function logOpportunityNoteLocal(id: string, note: string) {
   return mutate(
     (db) => {
       if (note.trim().length < 4) throw new ApiError("Write at least a few words so the next person can act on it.", "VALIDATION");
@@ -101,3 +101,8 @@ export function logOpportunityNote(id: string, note: string) {
     260,
   );
 }
+
+/* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
+export const createRenewalOpportunity = defineCommand("crm.createRenewalOpportunity", (contractId) => ({ contractId }), createRenewalOpportunityLocal);
+export const createOpportunity = defineCommand("crm.createOpportunity", (input, owner) => ({ input, owner }), createOpportunityLocal);
+export const logOpportunityNote = defineCommand("crm.logOpportunityNote", (id, note) => ({ id, note }), logOpportunityNoteLocal);

@@ -173,6 +173,20 @@ export const read = {
   async reports(q: Q): Promise<T.ReportDef[]> {
     return q.select().from(s.reports).orderBy(asc(s.reports.id)) as Promise<T.ReportDef[]>;
   },
+  async subcontractIssues(q: Q): Promise<T.SubcontractIssue[]> {
+    const [is, ls] = await Promise.all([q.select().from(s.subcontractIssues).orderBy(desc(s.subcontractIssues.id)), q.select().from(s.subcontractLines).orderBy(asc(s.subcontractLines.seq))]);
+    const L = group(ls, "issueId");
+    return is.map((i) => clean({ ...i, lines: (L.get(i.id) ?? []).map(({ issueId: _i, seq: _s, ...l }) => l) }));
+  },
+  async exitCases(q: Q): Promise<T.ExitCase[]> {
+    const [cs, is] = await Promise.all([q.select().from(s.exitCases).orderBy(desc(s.exitCases.id)), q.select().from(s.exitItems).orderBy(asc(s.exitItems.seq))]);
+    const I = group(is, "caseId");
+    return cs.map((c) => clean({ ...c, items: (I.get(c.id) ?? []).map(({ caseId: _c, seq: _s, ...i }) => clean(i)) }));
+  },
+  async postings(q: Q): Promise<T.AccountingPosting[]> {
+    const rows = await q.select().from(s.accountingPostings).orderBy(desc(s.accountingPostings.createdAt), asc(s.accountingPostings.key));
+    return rows.map(({ createdAt: _c, ...p }) => clean(p));
+  },
   async notifications(q: Q): Promise<T.Notification[]> {
     return q.select().from(s.notifications).orderBy(desc(s.notifications.at)) as Promise<T.Notification[]>;
   },

@@ -1,4 +1,4 @@
-import { ApiError, mutate } from "../../api/client";
+import { ApiError, mutate, defineCommand } from "../../api/client";
 import { NOW, TODAY } from "../../api/fixtures";
 import { inr } from "../../api/format";
 import type { Approval, PurchaseOrder } from "../../api/types";
@@ -7,7 +7,7 @@ import { OPS_HEAD_THRESHOLD, addDays, prStatus } from "./util";
 const nextNum = (ids: string[]) => Math.max(0, ...ids.map((id) => Number(id.split("-")[1]) || 0)) + 1;
 
 /** Send a draft requisition into the approval route its value requires. */
-export function submitRequisition(prId: string) {
+function submitRequisitionLocal(prId: string) {
   return mutate(
     (db) => {
       const pr = db.purchaseRequests.find((p) => p.id === prId);
@@ -42,7 +42,7 @@ export function submitRequisition(prId: string) {
 }
 
 /** Turn an awarded RFQ into a purchase order. Blocked until the requisition is approved. */
-export function raisePurchaseOrder(rfqId: string) {
+function raisePurchaseOrderLocal(rfqId: string) {
   return mutate(
     (db) => {
       const rfq = db.rfqs.find((r) => r.id === rfqId);
@@ -87,7 +87,7 @@ export interface ReceiptLine {
 }
 
 /** Record a goods receipt against PO lines. Rejected units are part of what arrived. */
-export function recordReceipt(poId: string, lines: ReceiptLine[]) {
+function recordReceiptLocal(poId: string, lines: ReceiptLine[]) {
   return mutate(
     (db) => {
       const po = db.purchaseOrders.find((p) => p.id === poId);
@@ -135,3 +135,8 @@ export function recordReceipt(poId: string, lines: ReceiptLine[]) {
     { action: "recorded a goods receipt on", reference: poId, module: "purchase" },
   );
 }
+
+/* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
+export const submitRequisition = defineCommand("purchase.submitRequisition", (prId) => ({ prId }), submitRequisitionLocal);
+export const raisePurchaseOrder = defineCommand("purchase.raisePurchaseOrder", (rfqId) => ({ rfqId }), raisePurchaseOrderLocal);
+export const recordReceipt = defineCommand("purchase.recordReceipt", (poId, lines) => ({ poId, lines }), recordReceiptLocal);

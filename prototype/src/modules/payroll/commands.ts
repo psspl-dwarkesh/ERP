@@ -1,7 +1,7 @@
-import { ApiError, mutate } from "../../api/client";
+import { ApiError, mutate, defineCommand } from "../../api/client";
 
 /** Ask HR to chase a blocked payroll input. Logged; no message actually leaves the demo. */
-export function chasePayrollInput(runId: string, check: string) {
+function chasePayrollInputLocal(runId: string, check: string) {
   return mutate(
     (db) => {
       const run = db.payrollRuns.find((r) => r.id === runId);
@@ -13,3 +13,6 @@ export function chasePayrollInput(runId: string, check: string) {
     300,
   );
 }
+
+/* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
+export const chasePayrollInput = defineCommand("payroll.chaseInput", (runId, check) => ({ runId, check }), chasePayrollInputLocal);

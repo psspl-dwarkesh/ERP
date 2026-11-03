@@ -56,3 +56,8 @@
 
 .sal-upcoming { padding: var(--space-1) var(--space-5) var(--space-2); border-top: 1px solid var(--line-subtle); }
 .sal-upcoming-v { width: 86px; text-align: right; flex: none; }
+
+/* ---- Accounting outbox (E2E-10) ---- */
+.sal-pkey { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; color: var(--fg-strong); font-weight: 500; }
+.sal-pkey svg { color: var(--accent); }
+.sal-note { display: block; max-width: 420px; color: var(--fg-muted); font-size: var(--text-sm); line-height: 1.4; }
