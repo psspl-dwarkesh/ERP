@@ -55,7 +55,7 @@ export default function HrPage() {
                 ["Employee", "Name", "Role", "Department", "Location", "Employment", "Status", "Assignment", "Until", "Utilisation %"],
                 list.map((p) => [p.id, p.name, p.role, p.department, p.location, p.employment, p.status, p.assignment ?? "", p.assignmentUntil ?? "", p.utilisation]),
               );
-              toast({ title: "Directory exported", body: "threadline-people.csv · no salary or identity fields · illustrative data" });
+              toast({ title: "Directory exported", body: "threadline-people.csv · no salary or identity fields" });
             }}
           >
             Export

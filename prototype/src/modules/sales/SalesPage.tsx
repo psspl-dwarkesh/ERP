@@ -60,7 +60,7 @@ export default function SalesPage() {
                 ["Order", "Title", "Customer", "Status", "Value (₹)", "Billed (₹)", "Unbilled (₹)", "Project", "Quotation"],
                 (orders.data ?? []).map((o) => [o.id, o.title, o.customer, o.status, o.value, o.billed, unbilled(o), o.projectId ?? "", o.quotationId ?? ""]),
               );
-              toast({ title: "Order book exported", body: "threadline-order-book.csv · values before tax · illustrative data" });
+              toast({ title: "Order book exported", body: "threadline-order-book.csv · values before tax" });
             }}
           >
             Export order book

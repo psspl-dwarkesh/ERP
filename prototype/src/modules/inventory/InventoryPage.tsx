@@ -68,7 +68,7 @@ export default function InventoryPage() {
       ["Item", "Name", "Make", "Warehouse", "Bin", "On hand", "Reserved", "QC hold", "Free", "On order", "UOM", "Unit cost", "Status"],
       allItems.map((i) => [i.id, i.name, i.make, i.warehouse, i.bin, i.onHand, i.reserved, i.quarantined, freeQty(i), i.onOrder, i.uom, i.unitCost, i.status]),
     );
-    toast({ title: "Stock register exported", body: `${allItems.length} items · threadline-stock.csv · illustrative data` });
+    toast({ title: "Stock register exported", body: `${allItems.length} items · threadline-stock.csv` });
   };
 
   return (

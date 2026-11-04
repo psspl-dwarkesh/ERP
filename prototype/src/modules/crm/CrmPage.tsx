@@ -55,7 +55,7 @@ export default function CrmPage() {
                   ["Opportunity", "Name", "Account", "Vertical", "Stage", "Value (₹)", "Probability %", "Weighted (₹)", "Expected close", "Owner", "Next action", "Next action due"],
                   rows.map((o) => [o.id, o.name, o.account, o.vertical, o.stage, o.value, o.probability, weighted(o), o.closeDate, o.owner, o.nextAction, o.nextActionDue]),
                 );
-                toast({ title: "Pipeline exported", body: `threadline-pipeline.csv · ${rows.length} opportunities · illustrative data` });
+                toast({ title: "Pipeline exported", body: `threadline-pipeline.csv · ${rows.length} opportunities` });
               }}
             >
               Export

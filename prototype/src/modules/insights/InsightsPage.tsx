@@ -58,7 +58,7 @@ export default function InsightsPage() {
       ["Severity", "Area", "Finding", "Detail", "Numbers", "Records", "Rule"],
       analysis.findings.map((f) => [SEVERITY_LABEL[f.severity], AREA_LABEL[f.area], f.title, f.detail, f.numbers.map((n) => `${n.label}: ${n.value}`).join("; "), f.cites.join(" "), f.rule]),
     );
-    toast({ title: "Findings exported", body: `threadline-insights.csv · ${analysis.findings.length} findings · illustrative data` });
+    toast({ title: "Findings exported", body: `threadline-insights.csv · ${analysis.findings.length} findings` });
   };
 
   return (

@@ -33,7 +33,7 @@ function ProjectsHome({ tab }: { tab: string }) {
       ["Project", "Name", "Customer", "Site", "Vertical", "Manager", "Status", "Progress %", "Start", "Due", "Contract value", "Budget", "Committed", "Incurred", "Billed", "Estimated margin %"],
       list.map((p) => [p.id, p.name, p.customer, p.site, p.vertical, p.manager, p.status, p.progress, p.start, p.due, p.contractValue, p.budget, p.committed, p.incurred, p.billed, margin(p).pct.toFixed(1)]),
     );
-    toast({ title: "Portfolio exported", body: `threadline-projects.csv · ${list.length} projects · illustrative data` });
+    toast({ title: "Portfolio exported", body: `threadline-projects.csv · ${list.length} projects` });
   };
 
   return (

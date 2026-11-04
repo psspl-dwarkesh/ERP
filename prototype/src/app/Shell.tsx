@@ -129,7 +129,7 @@ function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }
             <span className="workspace-badge">ABC</span>
             <span className="workspace-text">
               <span className="workspace-name">{TENANT}</span>
-              <span className="workspace-detail">Demo workspace · Pune HQ</span>
+              <span className="workspace-detail">Engineering &amp; field service · Pune HQ</span>
             </span>
             <ChevronsUpDown size={14} aria-hidden />
           </button>
@@ -165,6 +165,7 @@ function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }
           <span className={cx("sidebar-note-dot", API_MODE === "remote" && "is-live")} aria-hidden />
           {API_MODE === "remote" ? `${Math.max(online, 1)} ${Math.max(online, 1) === 1 ? "person" : "people"} online · shared workspace` : "Demo data · changes stay in this browser"}
         </div>
+        <p className="sidebar-credit">Threadline — a Prakash Infotech product</p>
       </div>
     </div>
   );
@@ -206,7 +207,11 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
               <div><dt>Close panel or dialog</dt><dd><Kbd>Esc</Kbd></dd></div>
               <div><dt>Open focused row</dt><dd><Kbd>Enter</Kbd></dd></div>
             </dl>
-            <p className="help-note">This is a demonstration workspace with illustrative records. Approvals, stock issues and edits are simulated and saved only in this browser.</p>
+            <p className="help-note">
+              {API_MODE === "remote"
+                ? "Records are shared with everyone signed in to this workspace, and your role decides what you can open and change."
+                : "Approvals, stock issues and edits are saved only in this browser."}
+            </p>
           </div>
         </Popover>
         <Menu

@@ -155,7 +155,7 @@ export function LoginPage() {
             </div>
           )}
         </div>
-        <p className="login-foot">Threadline demonstration workspace · illustrative data</p>
+        <p className="login-foot">Threadline — a Prakash Infotech product</p>
       </main>
     </div>
   );
