@@ -284,7 +284,9 @@ main:focus { outline: none; }
 .sc-record-bar span { display: block; height: 100%; background: var(--teal-glow); transition: width var(--dur-slower) var(--ease-out); }
 .sc-record-foot { margin-top: 8px; color: #8193a1; font-size: var(--text-xs); }
 .sc-record-open { align-self: flex-start; }
-.sc-thread-controls { display: flex; justify-content: center; gap: var(--space-2); margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--line-subtle); }
+/* All three controls share the small-button height so the row lines up. */
+.sc-thread-controls { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--line-subtle); }
+.sc-thread-controls .icon-btn { width: 30px; height: 30px; border-radius: var(--radius-sm); }
 
 /* ---------------------------------------------------------------- Module map */
 .sc-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-8); align-items: center; }

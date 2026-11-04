@@ -263,9 +263,12 @@
 .login-thread path { fill: none; stroke: rgba(69, 196, 205, 0.2); stroke-width: 1.5; }
 .login-thread .login-thread-pulse { stroke: var(--teal-glow); stroke-width: 2; stroke-dasharray: 90 1100; animation: login-run 6s linear infinite; filter: drop-shadow(0 0 6px rgba(69, 196, 205, 0.8)); }
 @keyframes login-run { from { stroke-dashoffset: 1190; } to { stroke-dashoffset: 0; } }
-.login-brand-copy { max-width: 440px; }
+/* The thread art runs straight behind this copy, so keep it a background
+   texture and give the words enough contrast to stay readable over it. */
+.login-brand .thr { opacity: 0.4; }
+.login-brand-copy { position: relative; max-width: 440px; text-shadow: 0 1px 3px rgba(12, 24, 32, 0.55); }
 .login-brand-title { color: #fff; font-size: clamp(32px, 3.4vw, 46px); }
-.login-brand-text { margin-top: var(--space-4); color: #b5c4cf; font-size: var(--text-lg); line-height: 1.6; }
+.login-brand-text { margin-top: var(--space-4); color: #d4dfe6; font-size: var(--text-lg); line-height: 1.6; }
 .login-brand-facts { display: flex; gap: var(--space-8); padding-top: var(--space-5); border-top: 1px solid rgba(255, 255, 255, 0.08); color: #8193a1; font-size: var(--text-sm); }
 .login-brand-facts b { display: block; color: #fff; font-size: var(--text-2xl); font-variation-settings: "wdth" 88; }
 .login-main { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-5); padding: var(--space-8) var(--space-5); }
@@ -280,10 +283,11 @@
 .login-demo { margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--line-subtle); }
 .login-demo-title { color: var(--fg-strong); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .login-demo-sub { margin-top: 2px; color: var(--fg-muted); font-size: var(--text-xs); }
-.login-accounts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: var(--space-3); }
-.login-account { display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 9px; border: 1px solid var(--line-default); border-radius: var(--radius-md); text-align: left; transition: border-color var(--dur-fast), background-color var(--dur-fast); }
-.login-account:hover { border-color: var(--slate-300); background: var(--bg-hover); }
-.login-account.is-on { border-color: var(--accent); background: var(--teal-25); }
+/* Quiet list, not nine boxes: the roles stay scannable and the card stays calm. */
+.login-accounts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: var(--space-2); }
+.login-account { display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 8px; border: 1px solid transparent; border-radius: var(--radius-sm); text-align: left; transition: border-color var(--dur-fast), background-color var(--dur-fast); }
+.login-account:hover { background: var(--bg-hover); }
+.login-account.is-on { border-color: var(--accent-line); background: var(--accent-soft); }
 .login-account-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
 .login-account-text b { color: var(--fg-strong); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .login-account-text small { color: var(--fg-muted); font-size: var(--text-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
