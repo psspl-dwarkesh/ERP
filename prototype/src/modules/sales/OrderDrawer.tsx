@@ -1,8 +1,14 @@
+import { FolderPlus } from "lucide-react";
+import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { date, inr, relativeDay } from "../../api/format";
-import { useQuery } from "../../api/hooks";
-import { href } from "../../app/router";
-import { ButtonLink, Callout, Drawer, EmptyState, KeyValues, LoadingRows, Meter, Person, RecordLink, Status, Tag } from "../../ds/components";
+import { useMutation, useQuery } from "../../api/hooks";
+import type { SalesOrder } from "../../api/types";
+import { TODAY } from "../../api/fixtures";
+import { href, navigate } from "../../app/router";
+import { Button, ButtonLink, Callout, Dialog, Drawer, EmptyState, Field, Input, KeyValues, LoadingRows, Meter, Person, RecordLink, Select, Status, Tag, useToast } from "../../ds/components";
+import { openFromOrder } from "../projects/commands";
+import { addDays } from "../projects/util";
 import { adviceStatus, billedPct, milestoneBilling, unbilled } from "./shared";
 
 /** Illustrative customer PO references (SAL-005). */
@@ -37,10 +43,14 @@ export function OrderDrawer({ id, onClose }: { id: string | undefined; onClose: 
       title={o?.title ?? (orders.loading ? "Loading order…" : "Order not found")}
       subtitle={o ? `${o.customer} · booked ${date(o.booked)}` : undefined}
       footer={
-        o?.projectId ? (
-          <ButtonLink to={href.record(o.projectId)} variant="primary">
-            Open {o.projectId}
-          </ButtonLink>
+        o ? (
+          o.projectId ? (
+            <ButtonLink to={href.record(o.projectId)} variant="primary">
+              Open {o.projectId}
+            </ButtonLink>
+          ) : o.quotationId ? (
+            <OpenProjectAction o={o} />
+          ) : undefined
         ) : undefined
       }
     >
@@ -150,5 +160,95 @@ export function OrderDrawer({ id, onClose }: { id: string | undefined; onClose: 
         </>
       )}
     </Drawer>
+  );
+}
+
+/** E2E-01 step 6 — open the delivery project from a confirmed order that has no project yet. */
+function OpenProjectAction({ o }: { o: SalesOrder }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="primary" icon={FolderPlus} onClick={() => setOpen(true)}>
+        Create delivery project
+      </Button>
+      <OpenProjectDialog o={o} open={open} onOpenChange={setOpen} />
+    </>
+  );
+}
+
+function OpenProjectDialog({ o, open, onOpenChange }: { o: SalesOrder; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const toast = useToast();
+  const people = useQuery(api.people);
+  const m = useMutation(openFromOrder);
+  const [manager, setManager] = useState("");
+  const [start, setStart] = useState(TODAY);
+  const [due, setDue] = useState(addDays(TODAY, 90));
+  useEffect(() => {
+    if (open) {
+      setManager("");
+      setStart(TODAY);
+      setDue(addDays(TODAY, 90));
+      m.reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const submit = async () => {
+    const p = await m.run(o.id, manager, start, due);
+    if (!p) return;
+    onOpenChange(false);
+    toast({
+      title: `${p.id} opened`,
+      body: `Delivery project created from ${o.id} for ${p.manager}. Milestones follow the ${p.vertical} billing pattern; the working budget is ${inr(p.budget)}.`,
+      action: { label: `Open ${p.id}`, onClick: () => navigate(href.record(p.id)) },
+    });
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="md"
+      icon={FolderPlus}
+      title="Create delivery project"
+      description={`Open the project that delivers ${o.id} for ${o.customer}. Scope and vertical carry over from the accepted quotation; the working budget is 80% of the ${inr(o.value)} contract value.`}
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" loading={m.pending} onClick={submit}>
+            Create project
+          </Button>
+        </>
+      }
+    >
+      <div className="stack">
+        <Field label="Project manager" htmlFor="op-pm">
+          <Select
+            id="op-pm"
+            label="Project manager"
+            value={manager}
+            placeholder="Choose a manager"
+            onChange={(v) => { setManager(v); m.reset(); }}
+            options={(people.data ?? []).map((p) => ({ value: p.name, label: p.name, detail: p.role }))}
+            invalid={m.error?.includes("manager") || undefined}
+          />
+        </Field>
+        <div className="row" style={{ gap: 12, alignItems: "flex-start" }}>
+          <Field label="Start" htmlFor="op-start">
+            <Input id="op-start" type="date" value={start} onChange={(e) => { setStart(e.target.value); m.reset(); }} />
+          </Field>
+          <Field label="Due" htmlFor="op-due">
+            <Input id="op-due" type="date" min={start} value={due} onChange={(e) => { setDue(e.target.value); m.reset(); }} />
+          </Field>
+        </div>
+        {m.error && (
+          <Callout tone="risk" title="The project wasn't created">
+            {m.error}
+          </Callout>
+        )}
+      </div>
+    </Dialog>
   );
 }

@@ -144,7 +144,7 @@ function Nav({ page }: { page: Page }) {
             else navigate("/");
           }}
         >
-          <Logo inverse />
+          <Logo inverse={scrolled || open} />
         </a>
         <nav className="sc-nav-links" aria-label="Product tour" ref={linksRef}>
           <span className={`sc-nav-ind ${ind ? "is-on" : ""}`} style={ind ? { transform: `translateX(${ind.x}px)`, width: ind.w } : undefined} aria-hidden />

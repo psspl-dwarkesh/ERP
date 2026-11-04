@@ -23,7 +23,7 @@ export function useInView<T extends Element>(threshold = 0.2) {
           io.disconnect();
         }
       },
-      { threshold, rootMargin: "0px 0px -8% 0px" },
+      { threshold, rootMargin: "0px 0px 14% 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
