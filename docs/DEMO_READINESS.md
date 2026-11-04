@@ -71,6 +71,30 @@ Runtime is fine: the home page holds 60fps at 2560×1440 with no janky frames, s
 
 ---
 
+## Page-by-page review (done 4 Nov, against the live database)
+
+Every module was signed into and inventoried as **Operations head** and as **IT administrator**, on the deployed site reading Supabase.
+
+**Works, with real data and no console errors**
+
+| Module | What it gives you |
+| --- | --- |
+| Dashboard | "3 things need you today" — approval to decide, breakdown against its clock, stock held at QC |
+| Insights | 28 findings over 23 checks: briefing, findings, forecasts, project risk. Permission-aware ("1 of 23 checks are outside your role") and honest ("rule-based · no AI in the findings") |
+| Projects | Portfolio / milestone timeline / resources; 6 engagements, health, progress, contract value |
+| Inventory & Assembly | Stock, movements, requirements, assembly, subcontract, counts. Free vs reserved vs held is explicit |
+| Assets & Service | Service desk with response clocks, assets, contracts, calibration |
+| Purchase | Requisitions, RFQs, purchase orders, vendors — with the approval gate |
+| CRM | Pipeline, opportunities, renewals |
+| Sales | Orders, quotations, billing advice, reconciliation |
+| People | Directory, deployment, leave, claims, exits |
+| Reports | 6 of 13 ready; the rest labelled as planned |
+| Users & Access | Accounts and role permissions |
+
+**Permissions are genuinely enforced, not just hidden.** As Operations head, Payroll and Users & Access are locked. As IT administrator, every operational module is refused. The refusals come back as HTTP 403 from the API, so the rule is on the server, not only in the interface. This is worth showing a client.
+
+**Found: Insights is the slow page.** It makes **24 API calls** and takes **3.1 seconds** to first content, against 1.3 seconds for Projects, showing loading skeletons meanwhile. It is not broken, but on a cold free-tier instance it can look like it is. The fix is one server-side endpoint that returns the computed findings instead of the browser fetching every module and computing locally. This is the single best performance change available and is likely what makes the app "feel laggy".
+
 ## Checked and clean
 
 All twelve modules (dashboard, insights, projects, inventory, assets, purchase, CRM, sales, people, payroll, reports, users): **no console errors, no horizontal page overflow, no empty pages.**
