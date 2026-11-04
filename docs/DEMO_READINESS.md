@@ -100,6 +100,26 @@ Every module was signed into and inventoried as **Operations head** and as **IT 
 
 **Found: Insights is the slow page.** It makes **24 API calls** and takes **3.1 seconds** to first content, against 1.3 seconds for Projects, showing loading skeletons meanwhile. It is not broken, but on a cold free-tier instance it can look like it is. The fix is one server-side endpoint that returns the computed findings instead of the browser fetching every module and computing locally. This is the single best performance change available and is likely what makes the app "feel laggy".
 
+## Branches — read before merging anything
+
+`git branch -a` shows two besides `main`. Both were checked:
+
+- **`origin/redesign/threadline`** — nothing on it that `main` does not already have. Safe to ignore or delete.
+- **`wip/receipt-three-way-match`** — **do not merge this.** It carries one commit ("Build the receipt and three-way match E2E-02 was only describing") but it is based on the monolithic prototype from before the refactor: the branch contains **0 files under `server/` and 0 under `prototype/src/modules/`**, where `main` has 44 and 106. `main` has moved 35 commits past its base. Merging it would delete the API, the database layer and every module, taking the Supabase integration with them.
+
+  The work it describes — goods receipt and a three-way match (ordered = received = accepted = payable), with the debit-note and substitution refusals — is **not in `main`** and is a genuine gap against E2E-02. It would have to be rebuilt against the current architecture, not merged. The branch is kept so the logic can be read from it.
+
+## Deployment check (4 Nov)
+
+Both deployments current and serving the same database.
+
+| | Render | Vercel |
+| --- | --- | --- |
+| Health | 200 · `engine: postgresql` | 200 |
+| Smoke test | **23 / 23 passed** | **23 / 23 passed** |
+
+Covered: landing renders and credits the company; the CTA always opens the role picker; one-click role sign-in reaches the workspace; the sidebar reports a shared workspace rather than browser storage; no "demo" wording anywhere on screen; dashboard, projects, inventory, purchase and insights all load real data with no horizontal overflow; payroll is refused for the operations head; the walkthrough menu opens with three tracks, no stray scrollbar, and the overview video present. The only console message is the expected 401 from the pre-sign-in session check.
+
 ## Checked and clean
 
 All twelve modules (dashboard, insights, projects, inventory, assets, purchase, CRM, sales, people, payroll, reports, users): **no console errors, no horizontal page overflow, no empty pages.**
