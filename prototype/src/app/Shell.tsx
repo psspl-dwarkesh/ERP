@@ -165,7 +165,7 @@ function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }
           <span className={cx("sidebar-note-dot", API_MODE === "remote" && "is-live")} aria-hidden />
           {API_MODE === "remote" ? `${Math.max(online, 1)} ${Math.max(online, 1) === 1 ? "person" : "people"} online · shared workspace` : "Sample data · changes stay in this browser"}
         </div>
-        <p className="sidebar-credit">Threadline — a Prakash Infotech product</p>
+        <p className="sidebar-credit">Threadline — a Prakash Software Solutions product</p>
       </div>
     </div>
   );

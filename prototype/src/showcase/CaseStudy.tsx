@@ -159,7 +159,7 @@ export default function CaseStudy() {
           <p className="cs-kicker">Case study · November 2026</p>
           <h1 className="cs-title t-display">From a draft scope to a working ERP prototype</h1>
           <p className="cs-lede">
-            ABC Limited, an engineering firm with seven lines of business, shared a draft statement of work for an eleven-module ERP. Prakash Infotech turned it into a requirement register, twelve end-to-end journeys, a design system, an interactive front end for every module and an API that enforces role permissions and keeps an audit trail.
+            ABC Limited, an engineering firm with seven lines of business, shared a draft statement of work for an eleven-module ERP. Prakash Software Solutions turned it into a requirement register, twelve end-to-end journeys, a design system, an interactive front end for every module and an API that enforces role permissions and keeps an audit trail.
           </p>
           <dl className="cs-meta">
             <div>
@@ -172,7 +172,7 @@ export default function CaseStudy() {
             </div>
             <div>
               <dt>Team</dt>
-              <dd>Prakash Infotech</dd>
+              <dd>Prakash Software Solutions</dd>
             </div>
             <div>
               <dt>Status</dt>

@@ -210,9 +210,9 @@ function Footer() {
           <div className="sc-footer-brand">
             <Logo />
             <p className="sc-footer-note">
-              A working product demonstration from Prakash Software Solutions: one connected ERP for engineering,
-              panel-manufacturing and field-service firms. Every record inside belongs to a fictional demonstration
-              workspace and is illustrative only.
+              A working product from Prakash Software Solutions: one connected ERP for engineering,
+              panel-manufacturing and field-service firms. Every record inside belongs to a fictional sample
+              workspace.
             </p>
             <div className="sc-footer-social">
               <a href="https://www.linkedin.com/company/prakash-software-solutions-pvt--ltd/" target="_blank" rel="noreferrer noopener" aria-label="Prakash Software Solutions on LinkedIn">
