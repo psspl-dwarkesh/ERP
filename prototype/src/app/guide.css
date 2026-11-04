@@ -34,6 +34,38 @@
 .guide-step-text small { color: var(--fg-muted); font-size: var(--text-xs); line-height: 1.4; }
 .guide-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line-subtle); font-size: var(--text-xs); }
 .guide-done { color: var(--ok-fg); font-weight: var(--weight-semibold); }
+
+/* ---- Menu: pick a track, or watch the overview first ---- */
+.guide-menu { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.guide-video-card {
+  position: relative; display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px;
+  border: 1px solid var(--line-default); border-radius: var(--radius-lg); background: var(--bg-subtle);
+  text-align: left; transition: border-color var(--dur-fast), background-color var(--dur-fast);
+}
+.guide-video-card:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+.guide-video-card img { width: 96px; height: 54px; flex: none; border-radius: var(--radius-sm); object-fit: cover; background: var(--slate-900); }
+.guide-video-play {
+  position: absolute; left: 44px; top: 50%; transform: translate(-50%, -50%);
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(12, 24, 32, 0.72); color: #fff;
+}
+.guide-video-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.guide-video-text b { color: var(--fg-strong); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.guide-video-text small { color: var(--fg-muted); font-size: var(--text-xs); line-height: 1.35; }
+.guide-menu-label { color: var(--fg-subtle); font-size: var(--text-2xs); font-weight: var(--weight-semibold); letter-spacing: 0.04em; text-transform: uppercase; }
+.guide-tracks { display: flex; flex-direction: column; gap: 2px; margin: 0 -6px; }
+.guide-tracks button { display: flex; flex-direction: column; gap: 3px; width: 100%; padding: 8px 6px; border-radius: var(--radius-md); text-align: left; }
+.guide-tracks button:hover { background: var(--bg-hover); }
+.guide-track-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.guide-track-text b { color: var(--fg-strong); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.guide-track-text small { color: var(--fg-muted); font-size: var(--text-xs); line-height: 1.4; }
+.guide-track-meta { display: flex; align-items: center; gap: 8px; color: var(--fg-subtle); font-size: var(--text-2xs); }
+.guide-track-meta em { font-style: normal; color: var(--ok-fg); font-weight: var(--weight-semibold); }
+
+/* ---- The overview video ---- */
+.guide-video { display: flex; flex-direction: column; gap: 8px; }
+.guide-video video { width: 100%; border-radius: var(--radius-md); background: var(--slate-950); }
+.guide-video p { font-size: var(--text-xs); line-height: 1.45; }
 @media (max-width: 720px) { .guide-fab span:not(.guide-fab-count) { display: none; } }
 .sidebar-note-dot.is-live { background: #3ecf8e; box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.18); }
 /* Never sit over a drawer's or dialog's footer buttons: step aside while one is open. */
