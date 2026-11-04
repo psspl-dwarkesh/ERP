@@ -74,6 +74,26 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   await app.register(cookie);
   app.decorateRequest("actor", null);
 
+  // Cross-site mode: when CORS_ORIGIN is set the front end is served from a
+  // different origin (e.g. Vercel) than this API, so the session cookie must be
+  // SameSite=None (which the browser only accepts together with Secure).
+  const crossSite = env.corsOrigin !== "";
+
+  /* ---- CORS: let the configured front-end origin call the API with its cookie ----
+     CORS_ORIGIN="*" reflects any origin (allow-all); otherwise only that exact origin. */
+  app.addHook("onRequest", async (req, reply) => {
+    const origin = req.headers.origin;
+    if (origin && crossSite && (env.corsOrigin === "*" || origin === env.corsOrigin)) {
+      reply.header("Access-Control-Allow-Origin", origin);
+      reply.header("Vary", "Origin");
+      reply.header("Access-Control-Allow-Credentials", "true");
+      reply.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+      reply.header("Access-Control-Allow-Headers", "Content-Type");
+      reply.header("Access-Control-Max-Age", "86400");
+    }
+    if (req.method === "OPTIONS") return reply.status(204).send();
+  });
+
   /* ---- security headers on every response ---- */
   app.addHook("onSend", async (_req, reply, payload) => {
     reply.header("X-Content-Type-Options", "nosniff");
@@ -89,7 +109,7 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
     if (origin) {
       const host = req.headers["x-forwarded-host"] ?? req.headers.host;
       const sameOrigin = new URL(origin).host === host;
-      if (!sameOrigin && origin !== env.corsOrigin) throw new AppError("FORBIDDEN", "Cross-site request refused.");
+      if (!sameOrigin && env.corsOrigin !== "*" && origin !== env.corsOrigin) throw new AppError("FORBIDDEN", "Cross-site request refused.");
     }
     const type = req.headers["content-type"] ?? "";
     if (req.method === "POST" && !type.startsWith("application/json")) throw new AppError("VALIDATION", "Send JSON (Content-Type: application/json).");
@@ -135,7 +155,7 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   registerAssist(app, db, actorOf); // POST /api/assist — Claude answers when ANTHROPIC_API_KEY is set
 
   const setSession = (reply: FastifyReply, token: string, expires: string) =>
-    reply.setCookie(SESSION_COOKIE, token, { path: "/", httpOnly: true, sameSite: "lax", secure: env.cookieSecure, expires: new Date(expires) });
+    reply.setCookie(SESSION_COOKIE, token, { path: "/", httpOnly: true, sameSite: crossSite ? "none" : "lax", secure: env.cookieSecure, expires: new Date(expires) });
 
   app.post<{ Body: { email?: string; password?: string } }>("/api/auth/login", async (req, reply) => {
     const { email = "", password = "" } = req.body ?? {};
@@ -149,7 +169,7 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
 
   app.post("/api/auth/logout", async (req, reply) => {
     await logout(db, req.cookies[SESSION_COOKIE]);
-    reply.clearCookie(SESSION_COOKIE, { path: "/" });
+    reply.clearCookie(SESSION_COOKIE, { path: "/", sameSite: crossSite ? "none" : "lax", secure: env.cookieSecure });
     return { ok: true };
   });
 
