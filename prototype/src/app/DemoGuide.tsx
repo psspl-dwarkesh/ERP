@@ -4,7 +4,7 @@
  * be shown. Steps know they are done by reading the records themselves, so the
  * guide works the same against the browser build and the API.
  */
-import { ArrowLeft, CheckCircle2, ChevronDown, ChevronUp, Circle, Compass, Play, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronDown, ChevronRight, ChevronUp, Circle, Compass, Play, RotateCcw, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { api, API_MODE, resetDemo } from "../api/client";
 import { useQuery } from "../api/hooks";
@@ -160,8 +160,8 @@ export function DemoGuide() {
           <Compass size={16} aria-hidden className="guide-icon" />
         )}
         <div className="guide-head-text">
-          <b>{active ? active.title : track === "video" ? "Short overview" : "Walkthrough"}</b>
-          <span>{active ? `${done} of ${active.steps.length} steps` : track === "video" ? "90 seconds" : "Pick what you want to be shown"}</span>
+          <b>{active ? active.title : track === "video" ? "Overview" : "Walkthrough"}</b>
+          <span>{active ? `${done} of ${active.steps.length} steps` : track === "video" ? "2½ minutes" : "Pick what you want to be shown"}</span>
         </div>
         <button className="icon-btn icon-btn-ghost icon-btn-sm" aria-label={collapsed ? "Expand" : "Collapse"} onClick={() => setCollapsed((c) => !c)}>
           {collapsed ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
@@ -184,8 +184,8 @@ export function DemoGuide() {
                   <Play size={16} />
                 </span>
                 <span className="guide-video-text">
-                  <b>Watch the short overview</b>
-                  <small>90 seconds · what the product is, before you click anything</small>
+                  <b>Watch the overview</b>
+                  <small>2½ min · the modules, the controls, and how a role changes the workspace</small>
                 </span>
               </button>
               <p className="guide-menu-label">Or be walked through it</p>
@@ -198,11 +198,12 @@ export function DemoGuide() {
                         <span className="guide-track-text">
                           <b>{t.title}</b>
                           <small>{t.blurb}</small>
+                          <span className="guide-track-meta">
+                            {t.steps.length} steps · {t.minutes}
+                            {d > 0 && <em>{d} done</em>}
+                          </span>
                         </span>
-                        <span className="guide-track-meta">
-                          {t.steps.length} steps · {t.minutes}
-                          {d > 0 && <em>{d} done</em>}
-                        </span>
+                        <ChevronRight size={16} aria-hidden />
                       </button>
                     </li>
                   );
