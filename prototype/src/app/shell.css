@@ -296,6 +296,19 @@
   .login-card { padding: var(--space-5); }
   .login-accounts { grid-template-columns: 1fr; }
 }
+/* Big screens: contain the split in a centred panel so neither the dark brand
+   nor the sign-in form sprawls across a wide 1920-2560 monitor. */
+@media (min-width: 1500px) {
+  .login {
+    max-width: 1340px;
+    margin: var(--space-8) auto;
+    min-height: calc(100vh - var(--space-8) * 2);
+    border: 1px solid var(--line-default);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+}
 
 /* ---- Access denied ---- */
 .denied { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); max-width: 520px; margin: var(--space-16) auto; text-align: center; }
