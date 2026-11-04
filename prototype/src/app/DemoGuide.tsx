@@ -103,7 +103,7 @@ export function DemoGuide() {
           { title: "Reconcile material at a partner", show: "Subcontract: every unit used, returned, damaged or outstanding.", to: "/app/inventory?tab=subcontract", done: !!subs.data?.some((s) => s.status !== "Open") },
           { title: "Correct a billing mismatch", show: "Reconciliation → Correct BA-0060. Never re-sent, superseded.", to: "/app/sales?tab=reconciliation", done: postings.data?.find((p) => p.key === "BA-0060/R1")?.state === "Superseded" },
           { title: "Close a leaver's checklist line", show: "People → Exits: custody needs the condition on return.", to: "/app/hr?tab=exits", done: (exits.data?.[0]?.items.filter((i) => i.status !== "Open").length ?? 0) > 1 },
-          { title: "Show who did what", show: "Users & Access → Audit: every step above, by name and time.", to: "/app/users?tab=audit", done: looked("/app/users?tab=audit") },
+          { title: "Show who did what", show: "Switch role → IT Administrator (account menu, top-right), then Users & Access → Audit: every step above, by name and time. The operations head can't see the audit — that's separation of duties.", to: "/app/users?tab=audit", done: looked("/app/users?tab=audit") },
         ],
       },
       {

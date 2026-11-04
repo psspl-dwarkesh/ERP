@@ -25,6 +25,8 @@ export default function DashboardPage() {
   // Only ask for what this role may see; everything else simply doesn't appear.
   const user = useSession().user;
   const can = (m: ModuleKey) => canAccess(user, m);
+  // Business approvals only reach roles that can actually approve something; a users-only admin sees none.
+  const canApprove = (["projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll"] as ModuleKey[]).some((m) => canAccess(user, m, "approve"));
   const approvals = useQuery(api.approvals);
   const tickets = useQuery(can("assets") ? api.tickets : none);
   const items = useQuery(can("inventory") ? api.items : none);
@@ -35,7 +37,7 @@ export default function DashboardPage() {
   const decided = (approvals.data ?? []).filter((a) => a.status !== "Pending");
   const openTickets = (tickets.data ?? []).filter((t) => t.status !== "Resolved" && t.status !== "Closed").sort((a, b) => a.slaDue.localeCompare(b.slaDue));
   const p1 = openTickets.find((t) => t.priority === "P1" && (t.status === "New" || t.status === "Assigned"));
-  const lead = pending.find((a) => a.reference === "PR-0084") ?? pending[0];
+  const lead = canApprove ? (pending.find((a) => a.reference === "PR-0084") ?? pending[0]) : undefined;
   const held = (items.data ?? []).filter((i) => i.quarantined > 0);
   const flagged = (projects.data ?? []).map((p) => ({ p, a: attention(p) })).filter((x) => x.a);
 
@@ -103,8 +105,10 @@ export default function DashboardPage() {
         </Card>
       )}
 
+      {(canApprove || can("assets") || can("projects")) && (
       <div className="grid grid-main-aside dash-grid">
         {/* ---- Approvals ---- */}
+        {canApprove && (
         <Card padded={false}>
           <div className="card-padded dash-card-head">
             <CardHeader title="Approvals" description={pending.length ? `${pending.length} waiting${decided.length ? ` · ${decided.length} decided` : ""}` : "Nothing waiting"} />
@@ -132,6 +136,7 @@ export default function DashboardPage() {
             </ul>
           )}
         </Card>
+        )}
 
         <div className="stack" style={{ gap: "var(--space-5)" }}>
           {/* ---- Service by deadline ---- */}
@@ -194,6 +199,7 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+      )}
 
       {/* ---- The flagship job, end to end ---- */}
       {can("projects") && (
