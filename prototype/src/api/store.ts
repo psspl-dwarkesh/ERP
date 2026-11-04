@@ -33,5 +33,9 @@ export function invalidate() {
   listeners.forEach((l) => l());
 }
 
-/** "mock" runs the whole ERP in the browser; "remote" talks to the Threadline API. */
-export const API_MODE: "mock" | "remote" = import.meta.env.VITE_API_MODE === "remote" ? "remote" : "mock";
+/**
+ * "mock" runs the whole ERP in the browser; "remote" talks to the Threadline API.
+ * The demo runs against the real database, so "remote" is the default — only an
+ * explicit `--mode mock` build (VITE_API_MODE="mock") falls back to in-browser data.
+ */
+export const API_MODE: "mock" | "remote" = import.meta.env.VITE_API_MODE === "mock" ? "mock" : "remote";

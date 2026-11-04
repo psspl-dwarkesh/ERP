@@ -3,12 +3,15 @@ import react from "@vitejs/plugin-react";
 
 /**
  * Two builds of the same front end:
- *  - default (`npm run dev` / `npm run build`): the whole ERP runs in the browser on demo data.
- *  - `--mode api` (`npm run dev:api` / `npm run build:api`): talks to the Threadline API with sign-in.
+ *  - default (`npm run dev` / `npm run build`, and `--mode api`): talks to the Threadline API
+ *    with sign-in, so every read and write goes to the server (the real database). This is the
+ *    demo default.
+ *  - `--mode mock` (`npm run dev:mock` / `npm run build:mock`): the whole ERP runs in the
+ *    browser on demo data, no backend — the old static-demo build.
  */
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  define: mode === "api" ? { "import.meta.env.VITE_API_MODE": JSON.stringify("remote") } : {},
+  define: { "import.meta.env.VITE_API_MODE": JSON.stringify(mode === "mock" ? "mock" : "remote") },
   server: {
     // In API mode the dev server forwards /api to the backend, so cookies stay same-origin.
     proxy: { "/api": { target: process.env.API_TARGET ?? "http://127.0.0.1:4000", changeOrigin: false } },

@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
     "dev:api": "vite --host 127.0.0.1 --port 5173 --mode api",
+    "dev:mock": "vite --host 127.0.0.1 --port 5173 --mode mock",
     "build": "tsc --noEmit && vite build",
     "build:api": "tsc --noEmit && vite build --mode api",
+    "build:mock": "tsc --noEmit && vite build --mode mock",
     "preview": "vite preview --host 127.0.0.1 --port 5173"
   },
   "dependencies": {
