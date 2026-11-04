@@ -1,4 +1,4 @@
-import { ArrowRight, Menu as MenuIcon, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Github, Linkedin, Mail, MapPin, Menu as MenuIcon, Phone, X } from "lucide-react";
 import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { Logo } from "../app/brand";
 import { navigate, useRoute } from "../app/router";
@@ -205,15 +205,65 @@ function FinalCta() {
 function Footer() {
   return (
     <footer className="sc-footer">
-      <div className="sc-wrap sc-footer-inner">
-        <Logo />
-        <p>Threadline is a demonstration ERP designed and engineered by Prakash Infotech. Records shown belong to a fictional ABC Limited workspace and are illustrative only.</p>
-        <nav className="sc-footer-links" aria-label="Footer">
-          <a href="#/">Product tour</a>
-          <a href="#/case-study">Case study</a>
-          <a href="#/app/dashboard">Live demo</a>
-        </nav>
-        <p className="sc-footer-meta">Prototype · November 2026</p>
+      <div className="sc-wrap">
+        <div className="sc-footer-grid">
+          <div className="sc-footer-brand">
+            <Logo />
+            <p className="sc-footer-note">
+              A working product demonstration from Prakash Software Solutions: one connected ERP for engineering,
+              panel-manufacturing and field-service firms. Every record inside belongs to a fictional demonstration
+              workspace and is illustrative only.
+            </p>
+            <div className="sc-footer-social">
+              <a href="https://www.linkedin.com/company/prakash-software-solutions-pvt--ltd/" target="_blank" rel="noreferrer noopener" aria-label="Prakash Software Solutions on LinkedIn">
+                <Linkedin size={16} aria-hidden />
+              </a>
+              <a href="https://github.com/prakashinfotech/" target="_blank" rel="noreferrer noopener" aria-label="Prakash Software Solutions on GitHub">
+                <Github size={16} aria-hidden />
+              </a>
+            </div>
+          </div>
+
+          <div className="sc-footer-col">
+            <p className="sc-footer-head">Designed and built by</p>
+            <a className="sc-footer-org" href="https://prakashinfotech.com" target="_blank" rel="noreferrer noopener">
+              Prakash Software Solutions Pvt. Ltd. <ArrowUpRight size={14} aria-hidden />
+            </a>
+            <p>Software engineering since 2000. ISO 9001 and ISO 27001 certified, and a Microsoft Solutions Partner for Data &amp; AI and for Digital &amp; App Innovation.</p>
+            <p>Development centres in Vadodara, Ahmedabad and Indore, with client teams across the US, Europe and Asia.</p>
+          </div>
+
+          <div className="sc-footer-col">
+            <p className="sc-footer-head">Talk to us</p>
+            <a className="sc-footer-contact" href="mailto:info@prakashinfotech.com">
+              <Mail size={15} aria-hidden /> info@prakashinfotech.com
+            </a>
+            <a className="sc-footer-contact" href="tel:+918799465558">
+              <Phone size={15} aria-hidden /> +91 87994 65558
+            </a>
+            <p className="sc-footer-address">
+              <MapPin size={15} aria-hidden />
+              <span>
+                601 Ananta Stallion, Gotri&ndash;Sevasi Road,
+                <br />
+                Vadodara 391101, Gujarat, India
+              </span>
+            </p>
+          </div>
+
+          <div className="sc-footer-col">
+            <p className="sc-footer-head">This demonstration</p>
+            <a href="#/">Product tour</a>
+            <a href="#/case-study">Case study</a>
+            <a href="#/app/dashboard">Live demo</a>
+            <a href="mailto:info@prakashinfotech.com?subject=Threadline%20demo">Request a walkthrough</a>
+          </div>
+        </div>
+
+        <div className="sc-footer-bar">
+          <p className="sc-footer-meta">&copy; 2026 Prakash Software Solutions Pvt. Ltd. &middot; CIN U72200GJ2001PTC039384</p>
+          <p className="sc-footer-meta">Threadline prototype &middot; November 2026</p>
+        </div>
       </div>
     </footer>
   );
