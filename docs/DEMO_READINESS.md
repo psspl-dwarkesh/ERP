@@ -47,18 +47,23 @@ Sign in as each of the nine roles and walk every module against the live databas
 ### 4. Requirement coverage review
 Original scope is in `source/ABC_Limited_ERP_Detailed_Scope_of_Work_v2.docx` and `source/requirements.json`, with `docs/REQUIREMENT_COVERAGE.md`. Re-check the built product against it to catch anything basic that was missed. **Not yet done.**
 
-### 5. Narrated walkthrough video
-Requested: a recorded walkthrough (home → workspace → a module such as Projects) with a natural TTS voice, embedded behind the walkthrough button with a short written explanation.
+### 5. Make Insights feel fast
+Insights makes **24 API calls** and takes **3.1 seconds** to first content (Projects takes 1.3s), showing loading skeletons meanwhile, because the browser fetches every module and computes the findings locally. One server-side endpoint returning the computed findings would cut 24 round-trips to one. This is the single highest-value performance change left, and it is the most likely reason the app "feels laggy".
 
-Feasible, but it is its own project: Playwright can record the browser session, a TTS API can generate the voice, and the two have to be muxed together (ffmpeg). Scripting, timing and re-takes are the real work.
+### 6. Walkthrough guide for the manager
+`docs/CLIENT_DEMO_SCRIPT.md` is written for someone who already knows the product. A manager presenting it needs a plain-English version: which page to open, in what order, what to say, what to click. The in-app walkthrough now covers the clicking; this covers the talking.
 
-**Important:** do not paste an API key into chat. Put it in the git-ignored `server/.env` (for example `CARTESIA_API_KEY=…`) and it can be read from there.
+### 7. Requirement coverage review
+Original scope is in `source/ABC_Limited_ERP_Detailed_Scope_of_Work_v2.docx` and `source/requirements.json`, with `docs/REQUIREMENT_COVERAGE.md`. Re-check the built product against it to catch anything basic that was missed. **Not yet done.**
 
-### 6. Page-by-page depth review
-A sweep of all twelve modules found no console errors, no horizontal overflow and no empty pages. What has **not** been done is a feature-by-feature review of each page — whether every control does something useful, what should be removed, and where the information architecture could be simpler.
+### 8. Finish the role-by-role test
+Two roles have been walked end to end (operations head, IT administrator) and permissions held up — refusals come back as 403 from the API. The remaining seven seeded roles have not been walked. Worth finishing before a client sits in front of it.
 
-### 7. Load weight (optional)
-Runtime is fine: the home page holds 60fps at 2560×1440 with no janky frames, so there is no scroll jank to chase. If it still feels slow it is first paint, not animation — main bundle ≈340 kB (104 kB gzip) plus self-hosted Archivo.
+## Done since this list was written
+
+- **Narrated overview video** — 2½ minutes, recorded against the live database, segment by segment so any line can be re-shot alone. Covers the dashboard, the project record chain, purchasing controls, stock states and QC hold, Insights, and permissions. It ships in `prototype/public/` and plays inside the walkthrough panel on both deployments.
+- **Walkthrough rebuilt** — opens on a menu (watch the overview, or three guided tracks: the whole job, the commercial slice, how roles change the workspace) instead of one 11-step list. Every step keeps its live completion check.
+- **Page-by-page review** — all twelve modules inventoried against the live database as two roles. See below.
 
 ---
 
