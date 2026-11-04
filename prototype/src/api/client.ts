@@ -7,7 +7,7 @@
  */
 import * as fx from "./fixtures";
 import { http } from "./http";
-import { canAccess, getSessionUser, isFullDemoUser } from "./session";
+import { canAccess, getSessionUser, isFullDemoUser, refreshMockUser, setMockRoleSource } from "./session";
 import { API_MODE, ApiError, invalidate } from "./store";
 import type {
   Approval,
@@ -17,7 +17,8 @@ import type {
   StockMovement,
 } from "./types";
 
-const STORAGE_KEY = "threadline-demo-v2";
+// v3: payroll maker-checker fields, November joiners and sign-in accounts joined the demo data.
+const STORAGE_KEY = "threadline-demo-v3";
 
 type Db = {
   people: typeof fx.people;
@@ -50,6 +51,7 @@ type Db = {
   subcontractIssues: typeof fx.subcontractIssues;
   exitCases: typeof fx.exitCases;
   postings: typeof fx.postings;
+  users: typeof fx.accounts;
 };
 
 function seed(): Db {
@@ -84,6 +86,7 @@ function seed(): Db {
     subcontractIssues: fx.subcontractIssues,
     exitCases: fx.exitCases,
     postings: fx.postings,
+    users: fx.accounts,
   });
 }
 
@@ -98,6 +101,7 @@ function load(): Db {
 }
 
 let db: Db = load();
+setMockRoleSource(() => db.roles);
 
 function persist() {
   try {
@@ -190,6 +194,7 @@ const mockApi = {
   subcontractIssues: () => list("subcontractIssues"),
   exitCases: () => list("exitCases"),
   postings: () => list("postings"),
+  users: () => list("users"),
 
   /* ---------------- Commands ---------------- */
   async decideApproval(id: string, decision: "Approved" | "Rejected", reason: string) {
@@ -224,6 +229,14 @@ const mockApi = {
       if (si) si.status = decision === "Approved" ? "Closed" : "Open";
     }
     log(CURRENT_USER, decision === "Approved" ? "approved" : "rejected", a.reference, a.module);
+    if (a.type === "Payroll reversal" && decision === "Approved") {
+      // An approved reversal reopens the locked run for correction (same as server approvals.decide).
+      const run = db.payrollRuns.find((r) => r.id === a.reference);
+      if (run?.status === "Locked") {
+        Object.assign(run, { status: "Collecting inputs", preparedBy: undefined, preparedAt: undefined, approvedBy: undefined, approvedAt: undefined, approvalNote: undefined, lockedBy: undefined, lockedAt: undefined });
+        log(getSessionUser()?.name ?? CURRENT_USER, "reopened after an approved reversal", run.id, "payroll");
+      }
+    }
     commit();
     return clone(a) as Approval;
   },
@@ -446,6 +459,7 @@ const remoteApi: MockApi = {
   subcontractIssues: get<"subcontractIssues">("/subcontract-issues"),
   exitCases: get<"exitCases">("/exit-cases"),
   postings: get<"postings">("/postings"),
+  users: get<"users">("/users"),
   search: (q: string) => (q.trim().length < 2 ? Promise.resolve([]) : http.get<Result<"search">>(`/search?q=${encodeURIComponent(q)}`)),
 
   decideApproval: (id, decision, reason) => http.command("approvals.decide", { id, decision, reason }),
@@ -478,12 +492,14 @@ export function defineCommand<A extends unknown[], R>(name: string, toInput: (..
  */
 export async function mutate<T>(
   fn: (db: Db) => T,
-  audit?: { action: string; reference: string; module: ModuleKey },
+  /** Static, or derived from the result when the trail needs what the command found (before → after, a new id). */
+  audit?: { action: string; reference: string; module: ModuleKey } | ((result: T) => { action: string; reference: string; module: ModuleKey }),
   delayMs = 380,
 ): Promise<T> {
   await wait(delayMs);
   const result = fn(db);
-  if (audit) log(getSessionUser()?.name ?? CURRENT_USER, audit.action, audit.reference, audit.module);
+  const a = typeof audit === "function" ? audit(result) : audit;
+  if (a) log(getSessionUser()?.name ?? CURRENT_USER, a.action, a.reference, a.module);
   commit();
   return clone(result);
 }
@@ -497,6 +513,7 @@ export function resetDemo() {
     /* ignore */
   }
   commit();
+  refreshMockUser();
 }
 
 /** Which module owns a record id prefix — used for cross-module links. */
@@ -533,6 +550,7 @@ export function moduleForId(id: string): ModuleKey | null {
     LV: "hr",
     CLM: "hr",
     PAY: "payroll",
+    USR: "users",
     ROLE: "users",
     RPT: "reports",
   };

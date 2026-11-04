@@ -8,9 +8,9 @@ import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "node:crypto";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { ModuleKey } from "../../prototype/src/api/types";
-import { AppError, type Actor, type Level } from "./core";
+import { AppError, nextId, type Actor, type Level } from "./core";
 import type { Database } from "./db/client";
-import { people, rolePermissions, roles, sessions, users } from "./db/schema";
+import { auditEvents, people, rolePermissions, roles, sessions, users } from "./db/schema";
 import { env } from "./env";
 
 export const SESSION_COOKIE = "tl_session";
@@ -79,6 +79,34 @@ export async function resolveSession(db: Database, token: string | undefined) {
 
 export async function logout(db: Database, token: string | undefined) {
   if (token) await db.delete(sessions).where(eq(sessions.id, sha256(token)));
+}
+
+const MIN_PASSWORD = 10;
+
+/**
+ * Accept an invite: the token from the activation link (only its SHA-256 is stored)
+ * sets the first password and activates the account. The token works once.
+ */
+export async function activate(db: Database, token: string, password: string) {
+  const invalid = new AppError("VALIDATION", "This activation link isn't valid any more. It may have been used or expired; ask your administrator for a new invite.");
+  if (!token || token.length > 200) throw invalid;
+  if (password.length < MIN_PASSWORD) throw new AppError("VALIDATION", `Choose a password of at least ${MIN_PASSWORD} characters.`);
+  if (password.length > 200) throw new AppError("VALIDATION", "That password is too long (200 characters at most).");
+  const [u] = await db.select().from(users).where(eq(users.inviteTokenHash, sha256(token)));
+  if (!u || u.status !== "Invited" || !u.inviteExpiresAt || new Date(u.inviteExpiresAt).getTime() < Date.now()) throw invalid;
+  if (password.toLowerCase() === u.email.toLowerCase()) throw new AppError("VALIDATION", "Your password can't be your email address.");
+  const passwordHash = await bcrypt.hash(password, 10);
+  // Conditional on the token still being there, so two submissions of one link can't both win.
+  await db.transaction(async (tx) => {
+    const done = await tx
+      .update(users)
+      .set({ passwordHash, status: "Active", inviteTokenHash: null, inviteExpiresAt: null, failedLogins: 0, lockedUntil: null, note: null })
+      .where(and(eq(users.id, u.id), eq(users.inviteTokenHash, sha256(token))))
+      .returning({ id: users.id });
+    if (!done.length) throw invalid;
+    await tx.insert(auditEvents).values({ id: await nextId(tx, "ACT", 6), at: new Date().toISOString(), actor: u.name, userId: u.id, action: "activated their account", reference: u.id, module: "users", detail: null });
+  });
+  return { ok: true, email: u.email, name: u.name };
 }
 
 /** Public profile sent to the browser after sign-in. */

@@ -62,6 +62,8 @@ export const people = pgTable("people", {
   joined: day("joined").notNull(),
   utilisation: integer("utilisation").notNull().default(0),
   reportsTo: text("reports_to"),
+  /** Set for joiners in the open pay period: bank verification state, never the account itself. */
+  joining: jsonb("joining").$type<{ bank: "Pending" | "Verified"; note: string }>(),
 });
 
 export const users = pgTable(
@@ -74,11 +76,16 @@ export const users = pgTable(
     roleId: text("role_id").notNull().references(() => roles.id),
     passwordHash: text("password_hash").notNull(),
     mfaEnabled: boolean("mfa_enabled").notNull().default(false),
-    status: text("status").notNull().default("Active"), // Active | Invited | Disabled
+    status: text("status").notNull().default("Active"), // Active | Invited | Deactivated
     failedLogins: integer("failed_logins").notNull().default(0),
     lockedUntil: ts("locked_until"),
     lastLoginAt: ts("last_login_at"),
     createdAt: ts("created_at").notNull().defaultNow(),
+    note: text("note"),
+    /** SHA-256 of the one-time activation token; the token itself is shown once and never stored. */
+    inviteTokenHash: text("invite_token_hash"),
+    inviteExpiresAt: ts("invite_expires_at"),
+    invitedBy: text("invited_by"),
   },
   (t) => [uniqueIndex("users_email_uq").on(sql`lower(${t.email})`)],
 );
@@ -550,7 +557,41 @@ export const quotations = pgTable("quotations", {
   validUntil: day("valid_until").notNull(),
   status: text("status").notNull(),
   owner: text("owner").notNull(),
+  /** Why the current revision was issued. Earlier revisions keep theirs in quotation_revisions. */
+  revisionNote: text("revision_note"),
 });
+
+/** Priced lines per revision. Billing type stays on the line: material, engineering, commissioning and AMC bill differently. */
+export const quotationLines = pgTable(
+  "quotation_lines",
+  {
+    quotationId: text("quotation_id").notNull().references(() => quotations.id, { onDelete: "cascade" }),
+    revision: text("revision").notNull(),
+    seq: integer("seq").notNull(),
+    description: text("description").notNull(),
+    billing: text("billing").notNull(),
+    qty: real("qty").notNull(),
+    rate: money("rate").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.quotationId, t.revision, t.seq] }), check("quotation_lines_positive", sql`${t.qty} > 0 and ${t.rate} > 0`)],
+);
+
+/** A superseded revision as it stood when the next one replaced it. Append-only. */
+export const quotationRevisions = pgTable(
+  "quotation_revisions",
+  {
+    quotationId: text("quotation_id").notNull().references(() => quotations.id, { onDelete: "cascade" }),
+    revision: text("revision").notNull(),
+    value: money("value").notNull(),
+    validUntil: day("valid_until").notNull(),
+    /** Status the revision had when it was superseded (Draft, Sent, In review, Expired). */
+    wasStatus: text("was_status").notNull(),
+    note: text("note"),
+    supersededAt: ts("superseded_at").notNull(),
+    supersededBy: text("superseded_by").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.quotationId, t.revision] })],
+);
 
 export const salesOrders = pgTable("sales_orders", {
   id: text("id").primaryKey(),
@@ -563,6 +604,9 @@ export const salesOrders = pgTable("sales_orders", {
   status: text("status").notNull(),
   projectId: text("project_id"),
   owner: text("owner").notNull(),
+  /** Customer PO or contract reference the acceptance was recorded against (SAL-005). */
+  customerPo: text("customer_po"),
+  acceptedOn: day("accepted_on"),
 });
 
 export const billingAdvices = pgTable("billing_advices", {
@@ -607,6 +651,14 @@ export const payrollRuns = pgTable("payroll_runs", {
   gross: money("gross").notNull(),
   deductions: money("deductions").notNull(),
   net: money("net").notNull(),
+  /** Maker-checker trail: preparer submits, Finance owner approves, lock is explicit. */
+  preparedBy: text("prepared_by"),
+  preparedAt: ts("prepared_at"),
+  approvedBy: text("approved_by"),
+  approvedAt: ts("approved_at"),
+  approvalNote: text("approval_note"),
+  lockedBy: text("locked_by"),
+  lockedAt: ts("locked_at"),
 });
 
 export const payrollChecks = pgTable(
@@ -617,6 +669,10 @@ export const payrollChecks = pgTable(
     name: text("name").notNull(),
     status: text("status").notNull(),
     detail: text("detail").notNull(),
+    /** A warning carried into review with a note. */
+    ackBy: text("ack_by"),
+    ackAt: ts("ack_at"),
+    ackNote: text("ack_note"),
   },
   (t) => [primaryKey({ columns: [t.runId, t.seq] })],
 );

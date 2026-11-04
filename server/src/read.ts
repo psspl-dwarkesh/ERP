@@ -132,7 +132,23 @@ export const read = {
     return q.select().from(s.opportunities).orderBy(desc(s.opportunities.id)) as Promise<T.Opportunity[]>;
   },
   async quotations(q: Q): Promise<T.Quotation[]> {
-    return (await q.select().from(s.quotations).orderBy(asc(s.quotations.id))).map((x) => clean(x));
+    const [qs, ls, rs] = await Promise.all([
+      q.select().from(s.quotations).orderBy(asc(s.quotations.id)),
+      q.select().from(s.quotationLines).orderBy(asc(s.quotationLines.seq)),
+      q.select().from(s.quotationRevisions).orderBy(asc(s.quotationRevisions.revision)),
+    ]);
+    const L = group(ls, "quotationId");
+    const R = group(rs, "quotationId");
+    const linesOf = (id: string, rev: string) =>
+      (L.get(id) ?? []).filter((l) => l.revision === rev).map(({ description, billing, qty, rate }) => ({ description, billing: billing as T.BillingType, qty, rate }));
+    return qs.map((x) => {
+      const lines = linesOf(x.id, x.revision);
+      const revisions = (R.get(x.id) ?? []).map(({ quotationId: _q, ...r }) => {
+        const rl = linesOf(x.id, r.revision);
+        return clean({ ...r, lines: rl.length ? rl : undefined }) as T.QuoteRevision;
+      });
+      return clean({ ...x, lines: lines.length ? lines : undefined, revisions: revisions.length ? revisions : undefined });
+    });
   },
   async salesOrders(q: Q): Promise<T.SalesOrder[]> {
     return (await q.select().from(s.salesOrders).orderBy(desc(s.salesOrders.id))).map((x) => clean(x));
@@ -149,7 +165,30 @@ export const read = {
   async payrollRuns(q: Q): Promise<T.PayrollRun[]> {
     const [rs, cs] = await Promise.all([q.select().from(s.payrollRuns).orderBy(desc(s.payrollRuns.id)), q.select().from(s.payrollChecks).orderBy(asc(s.payrollChecks.seq))]);
     const C = group(cs, "runId");
-    return rs.map((r) => ({ ...r, checks: (C.get(r.id) ?? []).map(({ runId: _r, seq: _s, ...c }) => c) })) as T.PayrollRun[];
+    return rs.map((r) =>
+      clean({
+        ...r,
+        checks: (C.get(r.id) ?? []).map(({ runId: _r, seq: _s, ackBy, ackAt, ackNote, ...c }) => (ackBy && ackAt ? { ...c, acknowledged: { by: ackBy, at: ackAt, note: ackNote ?? "" } } : c)),
+      }),
+    ) as T.PayrollRun[];
+  },
+  /** Sign-in accounts for Users & Access. Never returns hashes or invite tokens. */
+  async users(q: Q): Promise<T.UserAccount[]> {
+    const PRIVILEGED = ["ROLE-01", "ROLE-06", "ROLE-07", "ROLE-08"];
+    const rows = await q.select().from(s.users).orderBy(asc(s.users.id));
+    return rows.map((u) =>
+      clean({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        employeeId: u.personId,
+        roleId: u.roleId,
+        mfa: u.mfaEnabled ? "On" : PRIVILEGED.includes(u.roleId) ? "Not enrolled" : "Not required",
+        lastActive: u.lastLoginAt,
+        status: u.status === "Disabled" ? "Deactivated" : u.status,
+        note: u.note,
+      }),
+    );
   },
   async approvals(q: Q): Promise<T.Approval[]> {
     const rows = await q.select().from(s.approvals).orderBy(desc(s.approvals.submitted));

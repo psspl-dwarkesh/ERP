@@ -1,4 +1,23 @@
-import { ApiError, defineCommand, mutate } from "../../api/client";
+import { ApiError, defineCommand, mutate, type Db } from "../../api/client";
+import { actorName, addAudit, nextId, requireLevel } from "../../api/command-kit";
+import { TODAY } from "../../api/fixtures";
+import { inr } from "../../api/format";
+import type { Approval, QuoteLine, QuoteRevision, SalesOrder } from "../../api/types";
+import { addDays } from "../projects/util";
+import {
+  ACCEPTABLE_STATUSES,
+  DISCOUNT_AUTHORITY_PCT,
+  QUOTE_VALIDITY_DAYS,
+  discountApprovalTitle,
+  discountPct,
+  firstIssueValue,
+  isLapsed,
+  lineProblem,
+  needsDiscountApproval,
+  nextRevision,
+  quoteValue,
+  revisionApproval,
+} from "./rules";
 
 /**
  * E2E-10: a mismatch stops at "needs attention". This records who was asked to resolve it;
@@ -128,3 +147,135 @@ export const queuePosting = defineCommand(
 
 /* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
 export const escalateMismatch = defineCommand("sales.escalateMismatch", (adviceId, resolution) => ({ adviceId, resolution }), escalateMismatchLocal);
+
+/* ================================================================ Quotation → order (E2E-01) */
+/* Same rules as server/src/commands/commercial-flow.ts; both import ./rules. */
+
+function quoteFor(db: Db, quotationId: string) {
+  const q = db.quotations.find((x) => x.id === quotationId);
+  if (!q) throw new ApiError(`Quotation ${quotationId} not found`, "NOT_FOUND");
+  return q;
+}
+const approverOf = (a: Approval) => a.level.split(" · ")[1] ?? "its approver";
+
+export interface RevisionChanges {
+  lines: QuoteLine[];
+  validUntil?: string;
+}
+
+/**
+ * SAL-003/019: a new revision (A → B …). The previous one is kept as it stood, marked
+ * superseded. A price more than the owner's authority below the first issue goes to the
+ * Operations head and the revision waits In review.
+ */
+export const reviseQuotation = defineCommand(
+  "sales.reviseQuotation",
+  (quotationId: string, changes: RevisionChanges, reason: string) => ({ quotationId, changes, reason }),
+  (quotationId: string, changes: RevisionChanges, reason: string) =>
+    mutate((db) => {
+      requireLevel("sales", "edit");
+      const q = quoteFor(db, quotationId);
+      if (q.status === "Accepted") throw new ApiError(`${q.id} rev ${q.revision} was accepted and is now fixed. Changes go through an order amendment.`, "BLOCKED");
+      if (reason.trim().length < 10) throw new ApiError("Say what changed and why (at least 10 characters). It stays on the revision.", "VALIDATION");
+      const pending = revisionApproval(q, db.approvals);
+      if (pending?.status === "Pending") throw new ApiError(`Rev ${q.revision} is waiting on ${approverOf(pending)} (${pending.id}). Decide it before issuing another revision.`, "BLOCKED");
+      const next = nextRevision(q.revision);
+      if (!next) throw new ApiError(`${q.id} has reached rev Z. Start a fresh quotation from the opportunity.`, "BLOCKED");
+      const problem = lineProblem(changes.lines);
+      if (problem) throw new ApiError(problem, "VALIDATION");
+      const lines = changes.lines.map((l) => ({ ...l, description: l.description.trim(), rate: Math.round(l.rate) }));
+      const validUntil = changes.validUntil ?? addDays(TODAY, QUOTE_VALIDITY_DAYS);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(validUntil)) throw new ApiError("Use a date as YYYY-MM-DD", "VALIDATION");
+      if (validUntil < TODAY) throw new ApiError("Validity must run to today or later.", "VALIDATION");
+      const value = quoteValue(lines);
+      const firstIssue = firstIssueValue(q);
+      const gated = needsDiscountApproval(firstIssue, value);
+
+      const superseded: QuoteRevision = { revision: q.revision, value: q.value, validUntil: q.validUntil, wasStatus: q.status, supersededAt: nowIso(), supersededBy: actorName() };
+      if (q.revisionNote) superseded.note = q.revisionNote;
+      if (q.lines?.length) superseded.lines = q.lines;
+      Object.assign(q, { revisions: [...(q.revisions ?? []), superseded], revision: next, value, validUntil, status: gated ? "In review" : "Draft", revisionNote: reason.trim(), lines });
+
+      let approvalId: string | undefined;
+      if (gated) {
+        approvalId = nextId(db.approvals.map((a) => a.id), "APR");
+        const pct = discountPct(firstIssue, value);
+        db.approvals.unshift({
+          id: approvalId,
+          type: "Quotation discount",
+          module: "sales",
+          reference: q.id,
+          title: discountApprovalTitle(q, next),
+          maker: actorName(),
+          value: `${inr(value)} · ${pct}% below first issue`,
+          submitted: nowIso(),
+          level: "Level 1 of 1 · Operations head",
+          status: "Pending",
+          evidence: [reason.trim(), `First issue ${inr(firstIssue)} → rev ${next} ${inr(value)}; owner's authority is ${DISCOUNT_AUTHORITY_PCT}%`, `${q.customer} · valid until ${validUntil}`],
+        });
+      }
+      const o = db.opportunities.find((x) => x.id === q.opportunityId);
+      if (o) Object.assign(o, { nextAction: gated ? `Rev ${next} discount waiting on Operations head` : `Send ${q.id} rev ${next} to ${q.customer}`, nextActionDue: addDays(TODAY, 2) });
+      addAudit(db, `issued rev ${next} superseding rev ${superseded.revision}${gated ? ", discount sent for approval" : ""}:`, q.id, "sales");
+      return { quotation: q, approvalId };
+    }),
+);
+
+/** Draft (or an approved In-review revision) → Sent. Nothing is e-mailed; this records that it went. */
+export const sendQuotation = defineCommand(
+  "sales.sendQuotation",
+  (quotationId: string) => ({ quotationId }),
+  (quotationId: string) =>
+    mutate((db) => {
+      requireLevel("sales", "edit");
+      const q = quoteFor(db, quotationId);
+      if (q.status !== "Draft" && q.status !== "In review") throw new ApiError(`${q.id} rev ${q.revision} is ${q.status.toLowerCase()}; only a draft or an approved revision is sent.`, "BLOCKED");
+      if (isLapsed(q, TODAY)) throw new ApiError(`Rev ${q.revision} lapsed on ${q.validUntil}. Issue a new revision with refreshed prices.`, "BLOCKED");
+      const a = revisionApproval(q, db.approvals);
+      if (a?.status === "Pending") throw new ApiError(`Rev ${q.revision} can't be sent while its discount waits on ${approverOf(a)} (${a.id}).`, "BLOCKED");
+      if (a?.status === "Rejected") throw new ApiError(`The discount on rev ${q.revision} was rejected (${a.id}). Issue a revision within the ${DISCOUNT_AUTHORITY_PCT}% authority.`, "BLOCKED");
+      q.status = "Sent";
+      const o = db.opportunities.find((x) => x.id === q.opportunityId);
+      if (o) Object.assign(o, { nextAction: `Follow up ${q.id} rev ${q.revision} with ${q.customer}`, nextActionDue: addDays(TODAY, 5) });
+      addAudit(db, `sent rev ${q.revision} to ${q.customer}:`, q.id, "sales");
+      return q;
+    }),
+);
+
+/**
+ * SAL-004/005: the customer's acceptance of the sent revision becomes a sales order at the
+ * quoted value with their PO reference. The opportunity is won; the revision is fixed.
+ */
+export const recordAcceptance = defineCommand(
+  "sales.recordAcceptance",
+  (quotationId: string, customerPo: string, acceptedOn: string) => ({ quotationId, customerPo, acceptedOn }),
+  (quotationId: string, customerPo: string, acceptedOn: string) =>
+    mutate((db) => {
+      requireLevel("sales", "edit");
+      const q = quoteFor(db, quotationId);
+      if (q.status === "Accepted") throw new ApiError(`${q.id} rev ${q.revision} was already accepted.`, "BLOCKED");
+      if (!ACCEPTABLE_STATUSES.includes(q.status)) throw new ApiError(`${q.id} rev ${q.revision} is ${q.status.toLowerCase()}. The customer can only accept a revision that was sent.`, "BLOCKED");
+      const po = customerPo.trim();
+      if (po.length < 3) throw new ApiError("Enter the customer's PO or contract reference.", "VALIDATION");
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(acceptedOn)) throw new ApiError("Use a date as YYYY-MM-DD", "VALIDATION");
+      if (acceptedOn > TODAY) throw new ApiError("Acceptance can't be dated in the future.", "VALIDATION");
+      if (isLapsed(q, acceptedOn)) throw new ApiError(`Rev ${q.revision} lapsed on ${q.validUntil}. Issue a new revision with refreshed prices before recording acceptance.`, "BLOCKED");
+      const a = revisionApproval(q, db.approvals);
+      if (a?.status === "Pending") throw new ApiError(`Rev ${q.revision}'s discount is still waiting on ${approverOf(a)} (${a.id}).`, "BLOCKED");
+      if (a?.status === "Rejected") throw new ApiError(`The discount on rev ${q.revision} was rejected (${a.id}). It can't be accepted at this price.`, "BLOCKED");
+      const dupe = db.salesOrders.find((o) => o.customer === q.customer && o.customerPo === po);
+      if (dupe) throw new ApiError(`PO ${po} is already booked on ${dupe.id}. Check the reference with ${q.customer}.`, "BLOCKED");
+
+      const order: SalesOrder = { id: nextId(db.salesOrders.map((o) => o.id), "SO"), quotationId: q.id, customer: q.customer, title: q.title, value: q.value, billed: 0, booked: acceptedOn, status: "Confirmed", owner: q.owner, customerPo: po, acceptedOn };
+      q.status = "Accepted";
+      db.salesOrders.unshift(order);
+      const o = db.opportunities.find((x) => x.id === q.opportunityId);
+      if (o) {
+        Object.assign(o, { stage: "Won", probability: 100, nextAction: `Open the project from ${order.id}`, nextActionDue: addDays(TODAY, 2) });
+        addAudit(db, `won — ${q.id} rev ${q.revision} accepted as ${order.id}:`, o.id, "crm");
+      }
+      addAudit(db, `recorded acceptance of rev ${q.revision} on PO ${po}:`, q.id, "sales");
+      addAudit(db, `booked from ${q.id} rev ${q.revision} at ${inr(q.value)}:`, order.id, "sales");
+      return { quotation: q, order };
+    }),
+);

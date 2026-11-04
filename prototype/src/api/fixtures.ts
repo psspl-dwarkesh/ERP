@@ -32,6 +32,7 @@ import type {
   ServiceTicket,
   StockMovement,
   SubcontractIssue,
+  UserAccount,
   Vendor,
   WorkOrder,
 } from "./types";
@@ -53,6 +54,9 @@ export const people: Person[] = [
   { id: "EMP-0117", name: "Deepa Kulkarni", initials: "DK", role: "QC Inspector", department: "Quality", location: "Pune", email: "deepa.kulkarni@abc.example", phone: "+91 98200 11117", employment: "Permanent", status: "Available", skills: ["Incoming inspection", "FAT"], certifications: [{ name: "ISO 9001 internal auditor", expires: "2027-05-19" }], joined: "2022-01-17", utilisation: 69, reportsTo: "EMP-0019" },
   { id: "EMP-0129", name: "Rohit Verma", initials: "RV", role: "Field Technician", department: "Field operations", location: "Nashik", email: "rohit.verma@abc.example", phone: "+91 98200 11129", employment: "Contract", status: "On leave", skills: ["Panel wiring", "Preventive maintenance"], certifications: [], joined: "2024-04-08", utilisation: 41, reportsTo: "EMP-0072" },
   { id: "EMP-0135", name: "Kavya Iyer", initials: "KI", role: "HR Executive", department: "HR", location: "Pune", email: "kavya.iyer@abc.example", phone: "+91 98200 11135", employment: "Permanent", status: "Available", skills: ["Payroll inputs", "Onboarding"], certifications: [], joined: "2023-02-01", utilisation: 72 },
+  // November joiners behind the payroll bank-details check (PAY-2026-11). The other three joined with verified accounts.
+  { id: "EMP-0221", name: "Aditi Rane", initials: "AR", role: "Graduate Engineer", department: "Engineering", location: "Pune", email: "aditi.rane@abc.example", phone: "+91 98200 11221", employment: "Probation", status: "Available", skills: ["Induction"], certifications: [], joined: "2026-11-02", utilisation: 0, reportsTo: "EMP-0034", joining: { bank: "Pending", note: "Bank proof uploaded, penny-drop verification not run" } },
+  { id: "EMP-0222", name: "Farhan Ali", initials: "FA", role: "Field Technician", department: "Field operations", location: "Nashik", email: "farhan.ali@abc.example", phone: "+91 98200 11222", employment: "Probation", status: "Available", skills: ["Induction"], certifications: [], joined: "2026-11-02", utilisation: 0, reportsTo: "EMP-0027", joining: { bank: "Pending", note: "Cancelled cheque received 3 Nov, account not yet verified" } },
 ];
 
 export const customers: Customer[] = [
@@ -278,18 +282,29 @@ export const opportunities: Opportunity[] = [
 ];
 
 export const quotations: Quotation[] = [
-  { id: "QUO-0221", opportunityId: "OPP-0061", customer: "Northstar Pharma", title: "Process automation upgrade", revision: "B", value: 4850000, validUntil: "2026-06-15", status: "Accepted", owner: "Sana Kapoor" },
-  { id: "QUO-0237", opportunityId: "OPP-0076", customer: "Summit Engineering", title: "Annual instrumentation support", revision: "A", value: 1240000, validUntil: "2026-11-20", status: "In review", owner: "Arjun Mehta" },
+  { id: "QUO-0221", opportunityId: "OPP-0061", customer: "Northstar Pharma", title: "Process automation upgrade", revision: "B", value: 4850000, validUntil: "2026-06-15", status: "Accepted", owner: "Sana Kapoor",
+    lines: [
+      { description: "PLC, I/O, field instruments and panel", billing: "Material", qty: 1, rate: 2910000 },
+      { description: "Engineering, FAT, installation and SAT", billing: "Engineering", qty: 1, rate: 1940000 },
+    ],
+  },
+  { id: "QUO-0237", opportunityId: "OPP-0076", customer: "Summit Engineering", title: "Annual instrumentation support", revision: "A", value: 1240000, validUntil: "2026-11-20", status: "In review", owner: "Arjun Mehta",
+    lines: [
+      { description: "Annual support cover — breakdown response 6 h", billing: "AMC", qty: 1, rate: 690000 },
+      { description: "Preventive visits", billing: "AMC", qty: 4, rate: 110000 },
+      { description: "Critical spares kit", billing: "Material", qty: 1, rate: 110000 },
+    ],
+  },
   { id: "QUO-0240", opportunityId: "OPP-0072", customer: "Meridian Foods", title: "Panel assembly contract — 14 MCCs", revision: "C", value: 2850000, validUntil: "2026-11-30", status: "Sent", owner: "Sana Kapoor" },
   { id: "QUO-0242", opportunityId: "OPP-0079", customer: "Northstar Pharma", title: "Data integrity remediation", revision: "A", value: 1760000, validUntil: "2026-12-10", status: "Draft", owner: "Sana Kapoor" },
 ];
 
 export const salesOrders: SalesOrder[] = [
-  { id: "SO-0196", quotationId: "QUO-0221", customer: "Northstar Pharma", title: "Process automation upgrade", value: 4850000, billed: 2425000, booked: "2026-05-28", status: "In fulfilment", projectId: "PRJ-0264", owner: "Sana Kapoor" },
-  { id: "SO-0188", customer: "Meridian Foods", title: "MCC panel installation", value: 3280000, billed: 1968000, booked: "2026-07-08", status: "In fulfilment", projectId: "PRJ-0258", owner: "Sana Kapoor" },
-  { id: "SO-0179", customer: "Crest Chemicals", title: "Instrumentation commissioning", value: 2640000, billed: 2112000, booked: "2026-05-10", status: "In fulfilment", projectId: "PRJ-0249", owner: "Arjun Mehta" },
-  { id: "SO-0201", customer: "Northstar Pharma", title: "AMC-0031 annual contract", value: 680000, billed: 340000, booked: "2026-03-25", status: "In fulfilment", owner: "Arjun Mehta" },
-  { id: "SO-0172", customer: "Aster Biologics", title: "Calibration services — H1", value: 312000, billed: 312000, booked: "2026-03-02", status: "Closed", owner: "Arjun Mehta" },
+  { id: "SO-0196", quotationId: "QUO-0221", customer: "Northstar Pharma", title: "Process automation upgrade", value: 4850000, billed: 2425000, booked: "2026-05-28", status: "In fulfilment", projectId: "PRJ-0264", owner: "Sana Kapoor", customerPo: "NSP/PO/26/1187" },
+  { id: "SO-0188", customer: "Meridian Foods", title: "MCC panel installation", value: 3280000, billed: 1968000, booked: "2026-07-08", status: "In fulfilment", projectId: "PRJ-0258", owner: "Sana Kapoor", customerPo: "MF/ENG/PO/2611" },
+  { id: "SO-0179", customer: "Crest Chemicals", title: "Instrumentation commissioning", value: 2640000, billed: 2112000, booked: "2026-05-10", status: "In fulfilment", projectId: "PRJ-0249", owner: "Arjun Mehta", customerPo: "CC/NDS/26-114" },
+  { id: "SO-0201", customer: "Northstar Pharma", title: "AMC-0031 annual contract", value: 680000, billed: 340000, booked: "2026-03-25", status: "In fulfilment", owner: "Arjun Mehta", customerPo: "NSP/AMC/26/031" },
+  { id: "SO-0172", customer: "Aster Biologics", title: "Calibration services — H1", value: 312000, billed: 312000, booked: "2026-03-02", status: "Closed", owner: "Arjun Mehta", customerPo: "AB/CAL/26/007" },
 ];
 
 export const billingAdvices: BillingAdvice[] = [
@@ -325,8 +340,29 @@ export const payrollRuns: PayrollRun[] = [
       { name: "Claims cut-off", status: "Warning", detail: "2 claims awaiting manager approval" },
     ],
   },
-  { id: "PAY-2026-10", period: "October 2026", status: "Locked", employees: 211, gross: 15620000, deductions: 2105000, net: 13515000, checks: [] },
-  { id: "PAY-2026-09", period: "September 2026", status: "Locked", employees: 209, gross: 15410000, deductions: 2081000, net: 13329000, checks: [] },
+  { id: "PAY-2026-10", period: "October 2026", status: "Locked", employees: 211, gross: 15620000, deductions: 2105000, net: 13515000, checks: [], preparedBy: "Kavya Iyer", preparedAt: "2026-10-27T16:10:00+05:30", approvedBy: "Ritu Agarwal", approvedAt: "2026-10-28T11:30:00+05:30", lockedBy: "Kavya Iyer", lockedAt: "2026-10-29T10:05:00+05:30" },
+  { id: "PAY-2026-09", period: "September 2026", status: "Locked", employees: 209, gross: 15410000, deductions: 2081000, net: 13329000, checks: [], preparedBy: "Kavya Iyer", preparedAt: "2026-09-25T15:40:00+05:30", approvedBy: "Ritu Agarwal", approvedAt: "2026-09-26T12:15:00+05:30", lockedBy: "Kavya Iyer", lockedAt: "2026-09-28T09:50:00+05:30" },
+];
+
+/** Joiners this period: the bank-details check passes when none is still pending verification. */
+export const PAYROLL_JOINERS_THIS_PERIOD = 5;
+
+/**
+ * Sign-in accounts. USR-0001…0009 are the demo accounts (one per role, same ids the API seeds);
+ * the last two show the other lifecycle states and can't sign in.
+ */
+export const accounts: UserAccount[] = [
+  { id: "USR-0001", name: "Arjun Mehta", email: "arjun.mehta@abc.example", employeeId: "EMP-0012", roleId: "ROLE-01", mfa: "On", lastActive: "2026-11-03T09:38:00+05:30", status: "Active" },
+  { id: "USR-0002", name: "Ananya Rao", email: "ananya.rao@abc.example", employeeId: "EMP-0034", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-03T07:41:00+05:30", status: "Active" },
+  { id: "USR-0003", name: "Imran Sheikh", email: "imran.sheikh@abc.example", employeeId: "EMP-0104", roleId: "ROLE-03", mfa: "Not required", lastActive: "2026-11-02T16:21:00+05:30", status: "Active" },
+  { id: "USR-0004", name: "Karan Patel", email: "karan.patel@abc.example", employeeId: "EMP-0072", roleId: "ROLE-04", mfa: "Not required", lastActive: "2026-11-03T08:24:00+05:30", status: "Active" },
+  { id: "USR-0005", name: "Sana Kapoor", email: "sana.kapoor@abc.example", employeeId: "EMP-0081", roleId: "ROLE-05", mfa: "Not required", lastActive: "2026-11-03T09:02:00+05:30", status: "Active" },
+  { id: "USR-0006", name: "Kavya Iyer", email: "kavya.iyer@abc.example", employeeId: "EMP-0135", roleId: "ROLE-06", mfa: "On", lastActive: "2026-11-03T09:15:00+05:30", status: "Active" },
+  { id: "USR-0007", name: "Ritu Agarwal", email: "ritu.agarwal@abc.example", roleId: "ROLE-07", mfa: "On", lastActive: "2026-11-02T18:40:00+05:30", status: "Active" },
+  { id: "USR-0008", name: "IT Administrator", email: "it.admin@abc.example", roleId: "ROLE-08", mfa: "On", lastActive: "2026-11-02T18:10:00+05:30", status: "Active" },
+  { id: "USR-0009", name: "Deepa Kulkarni", email: "deepa.kulkarni@abc.example", employeeId: "EMP-0117", roleId: "ROLE-03", mfa: "Not required", lastActive: "2026-11-03T08:55:00+05:30", status: "Active" },
+  { id: "USR-0010", name: "Neha Bansal", email: "neha.bansal@abc.example", roleId: "ROLE-07", mfa: "Not enrolled", status: "Invited", note: "Invited 30 Oct · MFA is enrolled at first sign-in" },
+  { id: "USR-0011", name: "Suresh Pillai", email: "suresh.pillai@abc.example", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-10-30T18:00:00+05:30", status: "Deactivated", note: "Exit 31 Oct · access revoked; approvals delegated to Ananya Rao" },
 ];
 
 export const approvals: Approval[] = [

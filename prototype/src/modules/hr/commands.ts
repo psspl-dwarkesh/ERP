@@ -3,7 +3,10 @@
  * its owner with evidence, and the exit closes only when no line is open.
  */
 import { ApiError, defineCommand, mutate } from "../../api/client";
+import { TODAY } from "../../api/fixtures";
+import { getSessionUser } from "../../api/session";
 import type { ExitItemKey } from "../../api/types";
+import { refreshBankCheck, requireLevel } from "../payroll/commands";
 
 const ME = "Arjun Mehta";
 
@@ -70,5 +73,28 @@ export const closeExit = defineCommand(
         return c;
       },
       { action: "closed exit", reference: caseId, module: "hr" },
+    ),
+);
+
+/**
+ * E2E-08 · HR verifies a joiner's bank account (penny-drop or cancelled cheque checked).
+ * The payroll bank-details check passes once no joiner is pending. Mirrors server hr.verifyBankDetails.
+ */
+export const verifyBankDetails = defineCommand(
+  "hr.verifyBankDetails",
+  (personId: string) => ({ personId }),
+  (personId: string) =>
+    mutate(
+      (db) => {
+        requireLevel("hr", "edit");
+        const p = db.people.find((x) => x.id === personId);
+        if (!p) throw new ApiError(`Person ${personId} not found`, "NOT_FOUND");
+        if (!p.joining) throw new ApiError(`${p.name} isn't a joiner in the open pay period; bank changes for existing staff go through a change request.`, "BLOCKED");
+        if (p.joining.bank === "Verified") throw new ApiError(`${p.name}'s bank account is already verified.`, "BLOCKED");
+        p.joining = { bank: "Verified", note: `Verified by ${getSessionUser()?.name ?? ME} on ${TODAY}` };
+        refreshBankCheck(db);
+        return p;
+      },
+      { action: "verified bank details for", reference: personId, module: "hr" },
     ),
 );

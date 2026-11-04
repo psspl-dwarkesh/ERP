@@ -8,7 +8,6 @@ import { href } from "../../app/router";
 import {
   Button,
   ButtonLink,
-  SoonButton,
   Callout,
   Drawer,
   EmptyState,
@@ -23,9 +22,13 @@ import {
   Tag,
   Textarea,
   Timeline,
+  Tooltip,
   useToast,
 } from "../../ds/components";
 import { logOpportunityNote } from "./commands";
+import { StartQuotationDialog } from "./StartQuotationDialog";
+import { useSession, canAccess } from "../../api/session";
+import { OPEN_QUOTE_STATUSES } from "../sales/rules";
 import { NextAction, OPEN_STAGES, isOpen, moveItems, weighted } from "./shared";
 
 /** Illustrative presales history that predates the demo's audit log. */
@@ -61,16 +64,21 @@ export function OpportunityDrawer({ id, onClose }: { id: string | undefined; onC
   const customers = useQuery(api.customers);
   const activity = useQuery(api.activity);
   const [note, setNote] = useState("");
+  const [quoting, setQuoting] = useState(false);
+  const { user } = useSession();
   const m = useMutation(logOpportunityNote);
 
   useEffect(() => {
     setNote("");
+    setQuoting(false);
     m.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const o = opps.data?.find((x) => x.id === id);
   const linked = (quotes.data ?? []).filter((q) => q.opportunityId === id);
+  const openQuote = linked.find((q) => OPEN_QUOTE_STATUSES.includes(q.status));
+  const mayQuote = canAccess(user, "crm", "edit") && canAccess(user, "sales", "edit");
   const customer = customers.data?.find((c) => c.name === o?.account);
 
   const saveNote = async () => {
@@ -112,13 +120,23 @@ export function OpportunityDrawer({ id, onClose }: { id: string | undefined; onC
               }
               items={moveItems(o, toast)}
             />
-            {linked[0] ? (
-              <ButtonLink to={href.record(linked[0].id)} variant="primary" iconRight={ArrowRight}>
-                Open {linked[0].id}
+            {openQuote || (linked[0] && !isOpen(o)) ? (
+              <ButtonLink to={href.record((openQuote ?? linked[0]).id)} variant="primary" iconRight={ArrowRight}>
+                Open {(openQuote ?? linked[0]).id}
               </ButtonLink>
-            ) : (
-              <SoonButton icon={FileText} what="Start a quotation in Sales with this account, vertical and value filled in.">Start quotation</SoonButton>
-            )}
+            ) : isOpen(o) && mayQuote ? (
+              <Button variant="primary" icon={FileText} onClick={() => setQuoting(true)}>
+                Start quotation
+              </Button>
+            ) : isOpen(o) ? (
+              <Tooltip content={`Quotations need edit access to CRM and Sales. Your role (${user?.role ?? "unknown"}) can view them.`}>
+                <span tabIndex={0}>
+                  <Button variant="primary" icon={FileText} disabled>
+                    Start quotation
+                  </Button>
+                </span>
+              </Tooltip>
+            ) : null}
           </>
         ) : undefined
       }
@@ -216,6 +234,7 @@ export function OpportunityDrawer({ id, onClose }: { id: string | undefined; onC
               }))}
             />
           </section>
+          <StartQuotationDialog opportunity={o} open={quoting} onOpenChange={setQuoting} />
         </>
       )}
     </Drawer>

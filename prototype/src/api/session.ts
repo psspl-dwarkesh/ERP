@@ -7,7 +7,7 @@ import { useSyncExternalStore } from "react";
 import { http, whenSignedOut } from "./http";
 import * as fx from "./fixtures";
 import { API_MODE } from "./store";
-import type { ModuleKey } from "./types";
+import type { ModuleKey, Role } from "./types";
 
 export type Level = "none" | "view" | "edit" | "approve" | "admin";
 
@@ -61,9 +61,13 @@ export const DEMO_PEOPLE: { id: string; name: string; email: string; roleId: str
 
 const VIEW_AS_KEY = "threadline-view-as";
 
+/** Browser demo: role permissions come from the in-browser database once it loads, so an edit in Users & Access takes effect. */
+let mockRoles: () => Role[] = () => fx.roles;
+let viewAsId: string | null = null;
+
 function mockUserFor(id: string | null): SessionUser {
   const p = DEMO_PEOPLE.find((x) => x.id === id);
-  const role = p && fx.roles.find((r) => r.id === p.roleId);
+  const role = p && mockRoles().find((r) => r.id === p.roleId);
   if (!p || !role) return MOCK_USER;
   const person = p.personId ? fx.people.find((x) => x.id === p.personId) : undefined;
   return {
@@ -81,7 +85,8 @@ function mockUserFor(id: string | null): SessionUser {
 
 function initialMockUser() {
   try {
-    return mockUserFor(localStorage.getItem(VIEW_AS_KEY));
+    viewAsId = localStorage.getItem(VIEW_AS_KEY);
+    return mockUserFor(viewAsId);
   } catch {
     return MOCK_USER;
   }
@@ -98,7 +103,20 @@ export function viewAs(userId: string | null) {
   } catch {
     /* storage blocked: the switch still applies for this tab */
   }
+  viewAsId = userId;
   set({ status: "signed-in", user: mockUserFor(userId) });
+}
+
+/** Browser demo: read role permissions from this source (the mock database) and re-derive the viewer's access. */
+export function setMockRoleSource(source: () => Role[]) {
+  mockRoles = source;
+  refreshMockUser();
+}
+
+/** Browser demo: a role's permissions changed — the person viewing as that role sees the change at once. */
+export function refreshMockUser() {
+  if (API_MODE === "remote" || state.status !== "signed-in") return;
+  set({ status: "signed-in", user: mockUserFor(viewAsId) });
 }
 
 /** The full-access demo user ("Demo · all modules") is the mock default. */

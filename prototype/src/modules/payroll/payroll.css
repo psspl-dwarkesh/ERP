@@ -39,3 +39,11 @@
 .pay-delta { min-height: 16px; color: var(--fg-muted); font-size: var(--text-xs); }
 @media (max-width: 1180px) { .pay-layout { grid-template-columns: minmax(0, 1fr); } }
 .pay-layout > * { min-width: 0; }
+
+/* Maker-checker flow (E2E-08) */
+.pay-ack { margin-top: 4px; padding: 6px 10px; border-left: 2px solid var(--warn); background: var(--bg-subtle); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; color: var(--fg-default); font-size: var(--text-sm); }
+.pay-joiners li { align-items: center; }
+.pay-joiners li.is-ok svg { color: var(--ok-fg); }
+.pay-joiner-text { flex: 1; min-width: 0; }
+.pay-joiners li .btn { flex: none; }
+@media (max-width: 640px) { .pay-joiners li { flex-wrap: wrap; } }

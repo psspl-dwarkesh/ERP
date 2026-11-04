@@ -1,6 +1,9 @@
 import { ApiError, api, mutate, defineCommand } from "../../api/client";
 import { TODAY } from "../../api/fixtures";
-import type { Opportunity, Vertical } from "../../api/types";
+import { actorName, addAudit, nextId, requireLevel } from "../../api/command-kit";
+import { inr } from "../../api/format";
+import type { Opportunity, Quotation, QuoteLine, Vertical } from "../../api/types";
+import { OPEN_QUOTE_STATUSES, QUOTE_VALIDITY_DAYS, lineProblem, quoteValue } from "../sales/rules";
 
 function nextOppId(list: Opportunity[]) {
   const max = list.reduce((m, o) => Math.max(m, Number(o.id.split("-")[1]) || 0), 0);
@@ -102,7 +105,47 @@ function logOpportunityNoteLocal(id: string, note: string) {
   );
 }
 
+/**
+ * E2E-01 step 2 (CRM-007, CRM-018, SAL-002): a Draft quotation from the opportunity —
+ * account, title and owner carried over, value = sum of the priced lines. The
+ * opportunity moves to Proposal. Same rules as crm.startQuotation on the API.
+ */
+function startQuotationLocal(opportunityId: string, lines: QuoteLine[]) {
+  return mutate((db) => {
+    requireLevel("crm", "edit");
+    requireLevel("sales", "edit");
+    const o = db.opportunities.find((x) => x.id === opportunityId);
+    if (!o) throw new ApiError(`Opportunity ${opportunityId} not found`, "NOT_FOUND");
+    if (o.stage === "Won" || o.stage === "Lost") throw new ApiError(`${o.id} is ${o.stage.toLowerCase()}. Quotations start from an open opportunity.`, "BLOCKED");
+    const open = db.quotations.find((q) => q.opportunityId === o.id && OPEN_QUOTE_STATUSES.includes(q.status));
+    if (open) throw new ApiError(`${open.id} rev ${open.revision} is still open (${open.status}). Revise it instead of starting a second quotation.`, "BLOCKED");
+    const problem = lineProblem(lines);
+    if (problem) throw new ApiError(problem, "VALIDATION");
+    const clean = lines.map((l) => ({ ...l, description: l.description.trim(), rate: Math.round(l.rate) }));
+    const value = quoteValue(clean);
+    const q: Quotation = {
+      id: nextId(db.quotations.map((x) => x.id), "QUO"),
+      opportunityId: o.id,
+      customer: o.account,
+      title: o.name,
+      revision: "A",
+      value,
+      validUntil: addDays(TODAY, QUOTE_VALIDITY_DAYS),
+      status: "Draft",
+      owner: actorName(),
+      revisionNote: "First issue",
+      lines: clean,
+    };
+    db.quotations.push(q);
+    Object.assign(o, { stage: "Proposal", nextAction: `Send ${q.id} rev A to ${o.account}`, nextActionDue: addDays(TODAY, 3) });
+    addAudit(db, `started ${q.id} (${inr(value)}) from`, o.id, "crm");
+    addAudit(db, `drafted rev A from ${o.id}:`, q.id, "sales");
+    return q;
+  });
+}
+
 /* Routed to the Threadline API in remote mode; the bodies above are the in-browser implementation. */
 export const createRenewalOpportunity = defineCommand("crm.createRenewalOpportunity", (contractId) => ({ contractId }), createRenewalOpportunityLocal);
 export const createOpportunity = defineCommand("crm.createOpportunity", (input, owner) => ({ input, owner }), createOpportunityLocal);
 export const logOpportunityNote = defineCommand("crm.logOpportunityNote", (id, note) => ({ id, note }), logOpportunityNoteLocal);
+export const startQuotation = defineCommand("crm.startQuotation", (opportunityId, lines) => ({ opportunityId, lines }), startQuotationLocal);

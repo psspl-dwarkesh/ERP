@@ -52,6 +52,8 @@ export interface Person {
   joined: ISODate;
   utilisation: number; // 0..100 this month
   reportsTo?: string;
+  /** Joined in the current pay period: payroll can't pay them until HR verifies the bank account. */
+  joining?: { bank: "Pending" | "Verified"; note: string };
 }
 
 export interface Customer {
@@ -349,6 +351,32 @@ export interface Quotation {
   validUntil: ISODate;
   status: "Draft" | "Sent" | "In review" | "Accepted" | "Expired";
   owner: string;
+  /** Priced lines of the current revision (absent on quotations that predate line capture). */
+  lines?: QuoteLine[];
+  /** Why the current revision was issued. */
+  revisionNote?: string;
+  /** Earlier revisions, oldest first, each kept as it stood when superseded. */
+  revisions?: QuoteRevision[];
+}
+
+export type BillingType = "Material" | "Engineering" | "Commissioning" | "AMC";
+
+export interface QuoteLine {
+  description: string;
+  billing: BillingType;
+  qty: number;
+  rate: Rupees;
+}
+
+export interface QuoteRevision {
+  revision: string;
+  value: Rupees;
+  validUntil: ISODate;
+  wasStatus: string;
+  note?: string;
+  supersededAt: ISODateTime;
+  supersededBy: string;
+  lines?: QuoteLine[];
 }
 
 export interface SalesOrder {
@@ -362,6 +390,9 @@ export interface SalesOrder {
   status: "Confirmed" | "In fulfilment" | "Delivered" | "Closed";
   projectId?: string;
   owner: string;
+  /** Customer PO or contract reference (SAL-005). */
+  customerPo?: string;
+  acceptedOn?: ISODate;
 }
 
 export interface BillingAdvice {
@@ -406,7 +437,24 @@ export interface PayrollRun {
   gross: Rupees;
   deductions: Rupees;
   net: Rupees;
-  checks: { name: string; status: "Pass" | "Warning" | "Blocked"; detail: string }[];
+  checks: PayrollCheck[];
+  /** Maker: who submitted the run for review. */
+  preparedBy?: string;
+  preparedAt?: ISODateTime;
+  /** Checker: the Finance owner who approved it (never the maker). */
+  approvedBy?: string;
+  approvedAt?: ISODateTime;
+  approvalNote?: string;
+  lockedBy?: string;
+  lockedAt?: ISODateTime;
+}
+
+export interface PayrollCheck {
+  name: string;
+  status: "Pass" | "Warning" | "Blocked";
+  detail: string;
+  /** A warning carried into review with a note. Blocked checks can't be acknowledged. */
+  acknowledged?: { by: string; at: ISODateTime; note: string };
 }
 
 /* ---------------- Platform ---------------- */
@@ -439,6 +487,19 @@ export interface Role {
   users: number;
   description: string;
   permissions: Partial<Record<ModuleKey, "none" | "view" | "edit" | "approve" | "admin">>;
+}
+
+/** A sign-in account (Users & Access). Never carries a password or token. */
+export interface UserAccount {
+  id: string; // USR-0001
+  name: string;
+  email: string;
+  employeeId?: string;
+  roleId: string;
+  mfa: "On" | "Not enrolled" | "Not required";
+  lastActive?: ISODateTime;
+  status: "Active" | "Invited" | "Deactivated";
+  note?: string;
 }
 
 export interface ReportDef {

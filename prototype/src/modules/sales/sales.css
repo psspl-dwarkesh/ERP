@@ -61,3 +61,32 @@
 .sal-pkey { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; color: var(--fg-strong); font-weight: 500; }
 .sal-pkey svg { color: var(--accent); }
 .sal-note { display: block; max-width: 420px; color: var(--fg-muted); font-size: var(--text-sm); line-height: 1.4; }
+
+/* ---- Quotation line editor (E2E-01) ---- */
+.sal-lines { display: flex; flex-direction: column; gap: var(--space-2); }
+.sal-lines-head,
+.sal-line { display: grid; grid-template-columns: minmax(0, 1fr) 150px 64px 112px 88px 28px; gap: var(--space-2); align-items: center; }
+.sal-lines-head { color: var(--fg-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); padding: 0 2px; }
+.sal-lines-num { text-align: right; }
+.sal-lines-list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.sal-line-billing .select-trigger { width: 100%; }
+.sal-line-qty input,
+.sal-line-rate input { text-align: right; font-variant-numeric: tabular-nums; }
+.sal-line-amount { text-align: right; color: var(--fg-strong); font-size: var(--text-sm); white-space: nowrap; }
+.sal-lines-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding-top: var(--space-2); border-top: 1px solid var(--line-subtle); }
+.sal-lines-total { display: flex; align-items: baseline; gap: var(--space-2); }
+.sal-lines-total strong { color: var(--fg-strong); font-size: var(--text-lg); }
+@media (max-width: 640px) {
+  .sal-lines-head { display: none; }
+  .sal-line { grid-template-columns: 72px minmax(0, 1fr) 28px; padding-bottom: var(--space-2); border-bottom: 1px solid var(--line-subtle); }
+  .sal-line-desc,
+  .sal-line-billing { grid-column: 1 / -1; }
+  .sal-line > .icon-btn { order: 1; }
+  .sal-line-amount { order: 2; grid-column: 1 / -1; }
+}
+
+/* Revision diff summary in the revise dialog */
+.sal-delta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--line-default); border-radius: var(--radius-md); background: var(--bg-subtle); }
+.sal-delta > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sal-delta strong { color: var(--fg-strong); font-size: var(--text-md); white-space: nowrap; }
+@media (max-width: 560px) { .sal-delta { grid-template-columns: 1fr 1fr; } }

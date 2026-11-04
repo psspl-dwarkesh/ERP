@@ -9,6 +9,7 @@ import { audit, fail, nextId, requireLevel, today, type Actor } from "../core";
 import type { Tx } from "../db/client";
 import * as s from "../db/schema";
 import { read } from "../read";
+import { applyPayrollReversal } from "./admin-flow";
 import { command } from "./registry";
 
 const id = z.string().min(3).max(40);
@@ -63,6 +64,7 @@ export const decideApproval = command({
       await tx.update(s.subcontractIssues).set({ status: decision === "Approved" ? "Closed" : "Open" }).where(eq(s.subcontractIssues.id, a.reference));
     }
     await audit(tx, actor, decision === "Approved" ? "approved" : "rejected", a.reference, a.module as never, reason ? { reason } : undefined);
+    if (a.type === "Payroll reversal") await applyPayrollReversal(tx, actor, a.reference, decision);
     return (await read.approvals(tx)).find((x) => x.id === a.id);
   },
 });

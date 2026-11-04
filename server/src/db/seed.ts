@@ -41,7 +41,7 @@ export async function seed(db: Database) {
     await tx.insert(t.rolePermissions).values(
       fx.roles.flatMap((r) => MODULES.map((m) => ({ roleId: r.id, module: m, level: r.permissions[m] ?? "none" }))),
     );
-    await tx.insert(t.people).values(fx.people.map((p) => ({ ...p, assignment: p.assignment ?? null, assignmentUntil: p.assignmentUntil ?? null, reportsTo: p.reportsTo ?? null })));
+    await tx.insert(t.people).values(fx.people.map((p) => ({ ...p, assignment: p.assignment ?? null, assignmentUntil: p.assignmentUntil ?? null, reportsTo: p.reportsTo ?? null, joining: p.joining ?? null })));
     await tx.insert(t.users).values(
       DEMO_USERS.map((u) => ({
         id: u.id,
@@ -51,8 +51,16 @@ export async function seed(db: Database) {
         roleId: u.roleId,
         passwordHash: hash,
         mfaEnabled: u.mfa,
+        lastLoginAt: fx.accounts.find((a) => a.id === u.id)?.lastActive ?? null,
       })),
     );
+    // The other lifecycle states (invited, deactivated): no usable password, so they can't sign in.
+    const others = fx.accounts.filter((a) => !DEMO_USERS.some((u) => u.id === a.id));
+    if (others.length) {
+      await tx.insert(t.users).values(
+        others.map((a) => ({ id: a.id, name: a.name, email: a.email, personId: a.employeeId ?? null, roleId: a.roleId, passwordHash: "!", mfaEnabled: a.mfa === "On", status: a.status, note: a.note ?? null, lastLoginAt: a.lastActive ?? null })),
+      );
+    }
 
     await tx.insert(t.customers).values(fx.customers.map(({ sites: _s, ...c }) => c));
     await tx.insert(t.customerSites).values(fx.customers.flatMap((c) => c.sites.map((s) => ({ ...s, id: `${c.id}-${s.id}`, customerId: c.id }))));
@@ -91,14 +99,16 @@ export async function seed(db: Database) {
     await tx.insert(t.poLines).values(fx.purchaseOrders.flatMap((p) => p.lines.map((l, seq) => ({ ...l, poId: p.id, seq }))));
 
     await tx.insert(t.opportunities).values(fx.opportunities);
-    await tx.insert(t.quotations).values(fx.quotations.map((q) => ({ ...q, opportunityId: q.opportunityId ?? null })));
-    await tx.insert(t.salesOrders).values(fx.salesOrders.map((s) => ({ ...s, quotationId: s.quotationId ?? null, projectId: s.projectId ?? null })));
+    await tx.insert(t.quotations).values(fx.quotations.map(({ lines: _l, revisions: _r, ...q }) => ({ ...q, opportunityId: q.opportunityId ?? null, revisionNote: q.revisionNote ?? null })));
+    const quoteLines = fx.quotations.flatMap((q) => (q.lines ?? []).map((l, seq) => ({ ...l, quotationId: q.id, revision: q.revision, seq })));
+    if (quoteLines.length) await tx.insert(t.quotationLines).values(quoteLines);
+    await tx.insert(t.salesOrders).values(fx.salesOrders.map((s) => ({ ...s, quotationId: s.quotationId ?? null, projectId: s.projectId ?? null, customerPo: s.customerPo ?? null, acceptedOn: s.acceptedOn ?? null })));
     await tx.insert(t.billingAdvices).values(fx.billingAdvices);
 
     await tx.insert(t.leaveRequests).values(fx.leaveRequests);
     await tx.insert(t.claims).values(fx.claims);
     await tx.insert(t.payrollRuns).values(fx.payrollRuns.map(({ checks: _c, ...r }) => r));
-    const checks = fx.payrollRuns.flatMap((r) => r.checks.map((c, seq) => ({ ...c, runId: r.id, seq })));
+    const checks = fx.payrollRuns.flatMap((r) => r.checks.map(({ name, status, detail }, seq) => ({ name, status, detail, runId: r.id, seq })));
     if (checks.length) await tx.insert(t.payrollChecks).values(checks);
 
     await tx.insert(t.approvals).values(fx.approvals.map((a) => ({ ...a, approverRoleId: APPROVER_ROLE[a.id] ?? null })));
@@ -122,7 +132,7 @@ export async function seed(db: Database) {
       ...fx.tickets.map((x) => x.id), ...fx.purchaseRequests.map((x) => x.id), ...fx.rfqs.map((x) => x.id), ...fx.purchaseOrders.map((x) => x.id),
       ...fx.opportunities.map((x) => x.id), ...fx.quotations.map((x) => x.id), ...fx.salesOrders.map((x) => x.id), ...fx.billingAdvices.map((x) => x.id),
       ...fx.leaveRequests.map((x) => x.id), ...fx.claims.map((x) => x.id), ...fx.approvals.map((x) => x.id), ...fx.calibrations.map((x) => x.id),
-      ...fx.subcontractIssues.map((x) => x.id), ...fx.exitCases.map((x) => x.id),
+      ...fx.subcontractIssues.map((x) => x.id), ...fx.exitCases.map((x) => x.id), ...fx.accounts.map((x) => x.id),
       "GRN-0073", "CNT-0013", "ACT-0007", "N-4", "PO-0120",
     ];
     const max = new Map<string, number>();

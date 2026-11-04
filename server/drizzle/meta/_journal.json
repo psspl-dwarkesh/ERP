@@ -22,6 +22,20 @@
       "when": 1793741162319,
       "tag": "0002_integrity_checks",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793744454412,
+      "tag": "0003_quotation_revisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793744528298,
+      "tag": "0004_payroll_run_access",
+      "breakpoints": true
     }
   ]
 }

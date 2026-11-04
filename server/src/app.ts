@@ -6,8 +6,10 @@ import { fileURLToPath } from "node:url";
 import { sql } from "drizzle-orm";
 import { ZodError } from "zod";
 import type { ModuleKey } from "../../prototype/src/api/types";
-import { demoAccounts, login, logout, profile, resolveSession, SESSION_COOKIE } from "./auth";
+import { activate, demoAccounts, login, logout, profile, resolveSession, SESSION_COOKIE } from "./auth";
+import { adminFlowCommands } from "./commands/admin-flow";
 import { commercialCommands } from "./commands/commercial";
+import { commercialFlowCommands } from "./commands/commercial-flow";
 import { custodyCommands } from "./commands/custody";
 import { operationsCommands } from "./commands/operations";
 import type { Command } from "./commands/registry";
@@ -54,17 +56,18 @@ const RESOURCES: Record<string, { module: ModuleKey; load: (db: Database) => Pro
   claims: { module: "hr", load: read.claims },
   "payroll-runs": { module: "payroll", load: read.payrollRuns },
   roles: { module: "users", load: read.roles },
+  users: { module: "users", load: read.users },
   reports: { module: "reports", load: read.reports },
   "subcontract-issues": { module: "inventory", load: read.subcontractIssues },
   "exit-cases": { module: "hr", load: read.exitCases },
   postings: { module: "sales", load: read.postings },
 };
 
-const COMMANDS = new Map<string, Command>([...operationsCommands, ...commercialCommands, ...custodyCommands].map((c) => [c.name, c]));
+const COMMANDS = new Map<string, Command>([...operationsCommands, ...commercialCommands, ...commercialFlowCommands, ...custodyCommands, ...adminFlowCommands].map((c) => [c.name, c]));
 
 export async function buildApp(db: Database, opts: { logger?: boolean; serveFrontend?: boolean } = {}) {
   const app = Fastify({
-    logger: opts.logger === false ? false : { level: env.logLevel, redact: ["req.headers.cookie", "req.body.password"] },
+    logger: opts.logger === false ? false : { level: env.logLevel, redact: ["req.headers.cookie", "req.body.password", "req.body.token"] },
     bodyLimit: 1_000_000,
     trustProxy: true,
   });
@@ -151,6 +154,13 @@ export async function buildApp(db: Database, opts: { logger?: boolean; serveFron
   });
 
   app.get("/api/auth/me", async (req) => ({ user: await profile(db, actorOf(req)) }));
+
+  /** Accept an invite: the one-time token from the activation link plus a new password. No session needed. */
+  app.post<{ Body: { token?: string; password?: string } }>("/api/auth/activate", async (req) => {
+    const { token = "", password = "" } = req.body ?? {};
+    limitSignIns(req.ip);
+    return activate(db, String(token), String(password));
+  });
 
   /** Demo sign-in helper: lists accounts (never passwords). Disable with DEMO_ACCOUNTS=false. */
   app.get("/api/auth/demo-accounts", async () => (process.env.DEMO_ACCOUNTS === "false" ? [] : demoAccounts(db)));
