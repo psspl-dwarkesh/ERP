@@ -5,7 +5,7 @@
 .hr-label { display: block; margin-bottom: 4px; color: var(--fg-muted); font-size: var(--text-xs); font-weight: var(--weight-medium); }
 .hr-util { display: inline-flex; align-items: center; gap: 10px; min-width: 110px; flex-wrap: nowrap; }
 .hr-util .cell-num, .hr-util .t-num { width: 34px; flex: none; }
-.hr-link { color: var(--fg-accent); font-size: 12.5px; border-radius: var(--radius-xs); }
+.hr-link { color: var(--fg-accent); font-size: var(--text-xs); border-radius: var(--radius-xs); }
 .hr-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 .hr-link:focus-visible { outline: none; box-shadow: var(--ring); }
 

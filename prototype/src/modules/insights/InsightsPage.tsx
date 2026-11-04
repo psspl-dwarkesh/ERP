@@ -3,12 +3,12 @@
  * Briefing first, then forecasts, a question box, the ranked findings and per-project
  * risk, and finally every check that ran (DASH-012: documented definitions, refresh time).
  */
-import { ArrowRight, CalendarClock, ChevronDown, Download, ListChecks, LockKeyhole, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
+import { ArrowRight, CalendarClock, ChevronDown, Download, Gauge, ListChecks, LockKeyhole, ShieldCheck, TrendingDown, Wallet } from "lucide-react";
 import { useMemo, useState } from "react";
 import { date, inr, time } from "../../api/format";
 import { useSession } from "../../api/session";
 import { ModuleFrame } from "../../app/Shell";
-import { href } from "../../app/router";
+import { href, setTab, useRoute } from "../../app/router";
 import {
   ButtonLink,
   Button,
@@ -24,6 +24,7 @@ import {
   RecordLink,
   Segmented,
   Status,
+  Tabs,
   Tag,
   cx,
   downloadCsv,
@@ -37,10 +38,14 @@ import "./insights.css";
 
 const actionHref = (a: FindingAction) => (a.recordId ? href.record(a.recordId) : href.module(a.module ?? "dashboard", a.tab));
 
+const TABS = ["briefing", "findings", "forecasts", "risk", "checks"] as const;
+
 export default function InsightsPage() {
+  const route = useRoute();
   const { ds, analysis, loading, error } = useInsights();
   const user = useSession().user;
   const toast = useToast();
+  const tab = route.tab && (TABS as readonly string[]).includes(route.tab) ? route.tab : "briefing";
 
   const counts = analysis ? (["high", "medium", "low"] as Severity[]).map((s) => analysis.findings.filter((f) => f.severity === s).length) : [0, 0, 0];
   const ran = analysis?.checks.filter((c) => c.status !== "hidden").length ?? 0;
@@ -105,22 +110,35 @@ export default function InsightsPage() {
             </Callout>
           )}
 
-          <div className="grid grid-main-aside ins-top">
-            <Briefing analysis={analysis} />
-            <SlipForecast analysis={analysis} />
-          </div>
+          <Tabs
+            value={tab}
+            onChange={(v) => setTab(v)}
+            items={[
+              { value: "briefing", label: "Briefing", icon: CalendarClock, count: analysis.briefing.length },
+              { value: "findings", label: "Findings", icon: ListChecks, count: analysis.findings.length },
+              { value: "forecasts", label: "Forecasts", icon: Wallet },
+              { value: "risk", label: "Project risk", icon: Gauge, count: analysis.projects.length },
+              { value: "checks", label: "Checks", icon: ShieldCheck, count: analysis.checks.length },
+            ]}
+          />
 
-          <AskPanel ds={ds} analysis={analysis} />
+          {tab === "briefing" && (
+            <>
+              <div className="grid grid-main-aside ins-top">
+                <Briefing analysis={analysis} />
+                <SlipForecast analysis={analysis} />
+              </div>
+              <AskPanel ds={ds} analysis={analysis} />
+            </>
+          )}
 
-          <div className="grid grid-main-aside ins-main">
-            <FindingsList findings={analysis.findings} />
-            <div className="stack ins-aside">
-              <BillableForecast analysis={analysis} />
-              <ProjectRiskCard risks={analysis.projects} visible={ds.visible.includes("projects")} />
-            </div>
-          </div>
+          {tab === "findings" && <FindingsList findings={analysis.findings} />}
 
-          <ChecksCard analysis={analysis} />
+          {tab === "forecasts" && <BillableForecast analysis={analysis} />}
+
+          {tab === "risk" && <ProjectRiskCard risks={analysis.projects} visible={ds.visible.includes("projects")} />}
+
+          {tab === "checks" && <ChecksCard analysis={analysis} />}
         </>
       )}
     </ModuleFrame>

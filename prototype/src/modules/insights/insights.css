@@ -1,5 +1,5 @@
 /* Insights — built only from tokens.css */
-.ins-plain-id { color: var(--fg-strong); font-size: 12.5px; }
+.ins-plain-id { color: var(--fg-strong); font-size: var(--text-xs); }
 .ins-top, .ins-main { align-items: start; }
 
 /* ---- briefing ---- */

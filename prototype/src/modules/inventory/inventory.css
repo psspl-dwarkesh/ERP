@@ -7,7 +7,7 @@
 .inv-inline-error { display: block; margin-top: 4px; color: var(--risk-fg); font-size: var(--text-xs); font-weight: var(--weight-medium); }
 .inv-clip { display: block; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .inv-loc { color: var(--fg-default); white-space: nowrap; }
-.inv-plain-id { color: var(--fg-default); font-size: 12.5px; }
+.inv-plain-id { color: var(--fg-default); font-size: var(--text-xs); }
 .inv-ref { color: inherit; }
 td .inv-ref { color: var(--fg-muted); font-size: var(--text-sm); }
 .inv-flush .table-wrap { border: 0; border-top: 1px solid var(--line-subtle); border-radius: 0; box-shadow: none; }

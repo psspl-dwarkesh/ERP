@@ -64,7 +64,7 @@
 .ast-card:focus-visible { outline: none; box-shadow: var(--ring); }
 .ast-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .ast-card-top { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
-.ast-card-id { color: var(--fg-accent); font-size: 12px; white-space: nowrap; }
+.ast-card-id { color: var(--fg-accent); font-size: var(--text-xs); white-space: nowrap; }
 .ast-card-clock { margin-left: auto; }
 .ast-card-title { color: var(--fg-strong); font-size: var(--text-sm); font-weight: var(--weight-semibold); line-height: 1.35; }
 .ast-card-sub { color: var(--fg-muted); font-size: var(--text-xs); }

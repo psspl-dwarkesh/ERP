@@ -6,7 +6,7 @@ import type { ModuleKey, ReportDef } from "../../api/types";
 import { moduleDef } from "../../app/modules";
 import { ModuleFrame } from "../../app/Shell";
 import { navigate, useRoute } from "../../app/router";
-import { EmptyState, FilterChips, LoadingRows, PageHeader, SearchField, SoonTag, Tag, Toolbar, cx } from "../../ds/components";
+import { Button, EmptyState, FilterChips, LoadingRows, PageHeader, SearchField, SoonTag, Tag, Toolbar, cx } from "../../ds/components";
 import { PREVIEWS } from "./previews";
 import { ReportDrawer } from "./ReportDrawer";
 import "./reports.css";
@@ -50,7 +50,7 @@ export default function ReportsPage() {
       {reports.loading ? (
         <LoadingRows rows={6} columns={3} />
       ) : groups.length === 0 ? (
-        <EmptyState title="No reports match" action={<button className="btn btn-secondary btn-sm" onClick={() => { setQ(""); setMod("all"); }}>Clear filters</button>}>
+        <EmptyState title="No reports match" action={<Button variant="secondary" size="sm" onClick={() => { setQ(""); setMod("all"); }}>Clear filters</Button>}>
           Try another word, or ask the report owner to add it to the catalogue.
         </EmptyState>
       ) : (

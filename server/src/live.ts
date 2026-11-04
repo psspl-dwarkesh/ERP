@@ -7,6 +7,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { ModuleKey } from "../../prototype/src/api/types";
 import { can, type Actor } from "./core";
+import { env } from "./env";
 
 type Client = { actor: Actor; reply: FastifyReply };
 const clients = new Set<Client>();
@@ -49,12 +50,21 @@ export function registerLive(app: FastifyInstance, actorOf: (req: FastifyRequest
   app.get("/api/events", async (req, reply) => {
     const actor = actorOf(req);
     reply.hijack();
-    reply.raw.writeHead(200, {
+    const headers: Record<string, string> = {
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
       "X-Accel-Buffering": "no",
-    });
+    };
+    // hijack() + raw.writeHead bypasses the global CORS hook, so the EventSource
+    // (opened withCredentials cross-origin) needs these set on the stream itself.
+    const origin = req.headers.origin;
+    if (origin && env.corsOrigin !== "" && (env.corsOrigin === "*" || origin === env.corsOrigin)) {
+      headers["Access-Control-Allow-Origin"] = origin;
+      headers["Vary"] = "Origin";
+      headers["Access-Control-Allow-Credentials"] = "true";
+    }
+    reply.raw.writeHead(200, headers);
     reply.raw.write(`event: ready\ndata: ${JSON.stringify({ online: clients.size + 1 })}\n\n`);
     const client: Client = { actor, reply };
     clients.add(client);
