@@ -197,8 +197,8 @@ export function AssetDrawer({ id, assets, loading, onClose }: { id: string; asse
               <p className="ast-own-title">{a.ownership === "Customer" ? `Customer-owned · ${a.customer}, ${a.site}` : `Company-owned · Pinnacle Engineering, ${a.site}`}</p>
               <p className="ast-footnote">
                 {a.ownership === "Customer"
-                  ? "Service history and contract cover are kept here; it isn't on ABC's fixed-asset register."
-                  : `ABC fixed asset held by ${a.custodian}.`}
+                  ? "Service history and contract cover are kept here; it isn't on Pinnacle Engineering's fixed-asset register."
+                  : `Pinnacle Engineering fixed asset held by ${a.custodian}.`}
               </p>
             </div>
           </div>

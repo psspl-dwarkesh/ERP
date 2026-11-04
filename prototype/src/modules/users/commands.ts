@@ -61,7 +61,7 @@ function setPermissionLocal(roleId: string, module: ModuleKey, level: Level) {
       const before = role.permissions[module] ?? "none";
       if (before === level) throw new ApiError(`${role.name} already has ${level} on ${module}.`, "BLOCKED");
       if (module === "users" && before === "admin") {
-        const others = db.users.filter((u) => u.status === "Active" && u.roleId !== roleId && db.roles.find((r) => r.id === u.roleId)?.permissions.users === "admin");
+        const others = db.users.filter((u) => u.status === "Active" && u.roleId !== roleId && u.roleId !== "ROLE-00" && db.roles.find((r) => r.id === u.roleId)?.permissions.users === "admin");
         if (!others.length) throw new ApiError(`${role.name} holds the last Users & Access admin right. Give another active role admin first, or nobody could manage access.`, "BLOCKED");
       }
       role.permissions[module] = level;

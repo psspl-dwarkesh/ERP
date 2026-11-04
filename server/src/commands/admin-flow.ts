@@ -241,11 +241,13 @@ export const setPermission = command({
     if (before === level) throw fail.blocked(`${role.name} already has ${level} on ${module}.`);
     if (module === "users" && before === "admin") {
       // Someone active must still be able to administer access after this change.
+      // The backstage "Full access (demo)" role (ROLE-00) is a presenter convenience, not a real
+      // business admin, so it doesn't count toward keeping a genuine Users & Access admin.
       const others = await tx
         .select({ id: s.users.id })
         .from(s.users)
         .innerJoin(s.rolePermissions, and(eq(s.rolePermissions.roleId, s.users.roleId), eq(s.rolePermissions.module, "users"), eq(s.rolePermissions.level, "admin")))
-        .where(and(eq(s.users.status, "Active"), ne(s.users.roleId, roleId)));
+        .where(and(eq(s.users.status, "Active"), ne(s.users.roleId, roleId), ne(s.users.roleId, "ROLE-00")));
       if (!others.length) throw fail.blocked(`${role.name} holds the last Users & Access admin right. Give another active role admin first, or nobody could manage access.`);
     }
     if (row) await tx.update(s.rolePermissions).set({ level }).where(and(eq(s.rolePermissions.roleId, roleId), eq(s.rolePermissions.module, module)));
