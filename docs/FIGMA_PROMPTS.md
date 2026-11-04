@@ -10,12 +10,12 @@ For an independent comparison, do not attach our screenshot on the first pass. B
 
 Start with Prompt 0 in Plan mode if available, then run the Build prompts in order. If Plan mode is unavailable, prepend “Give a short design plan before generating the first screen; use the attached assumptions and continue without routine questions” to Prompt 1. Current [Plan mode guidance](https://help.figma.com/hc/en-us/articles/40830441709719-Use-plan-mode-in-Figma-Make) describes plan review followed by Build. Do not send all prompts at once.
 
-## Prompt 0 — Complete design plan
+## Prompt 0: Complete design plan
 
 Mode: Plan
 
 ```text
-Plan a premium internal ERP portal for ABC Limited from the attached scope and design files. First map every requirement to a screen/workflow and preserve the source C/V/D status. Do not generate screens or production backend code in this step.
+Plan a premium internal ERP portal for Pinnacle Engineering from the attached scope and design files. First map every requirement to a screen/workflow and preserve the source C/V/D status. Do not generate screens or production backend code in this step.
 
 Context: One legal entity, seven engineering/service verticals, 200+ named users. Exactly eleven business modules: Dashboard, Project, Inventory, Asset, Purchase, Sales, CRM, HR, Payroll, User Management, Reports. Panel assembly/manufacturing belongs inside Inventory/Project. AMC/O&M/service belongs inside Asset/Project. Shared approvals, search, documents, audit and integration monitoring are utilities. All eleven modules ultimately go live in one combined release.
 
@@ -28,18 +28,18 @@ Recommend one coherent visual direction: "one unbroken thread", a job as a linke
 Return: concise screen/route map, component system, visual tokens, twelve end-to-end journey mappings, missing/undecided rules and a build order. Use sensible labeled assumptions rather than stopping to ask routine questions. Separate optional marketing/customer/vendor portals from baseline scope. Do not build production integrations or change the attached scope.
 ```
 
-## Prompt 1 — First visual comparison
+## Prompt 1: First visual comparison
 
 Mode: Build
 
 ```text
-Create the first high-fidelity, interactive design for ABC Limited's engineering ERP: the shared application shell, an expressive portal entry page, and a polished Operations overview dashboard. Use the attached scope, brief, screen plan, coverage register, entry brief and journey designs as context. Build these three surfaces completely before expanding other modules.
+Create the first high-fidelity, interactive design for Pinnacle Engineering's ERP: the shared application shell, an expressive portal entry page, and a polished Operations overview dashboard. Use the attached scope, brief, screen plan, coverage register, entry brief and journey designs as context. Build these three surfaces completely before expanding other modules.
 
 Context: This is a single-company internal operations portal for automation projects, electrical panel assembly, instrumentation supply, calibration, AMC, O&M and CSV/manufacturing IT. It is a design prototype with synthetic data, not a production ERP or public customer portal.
 
 Visual direction: Threadline, a purpose-built engineering operations product where a job is one unbroken thread of linked records. Use deep slate #13222B for navigation and dark bands, mist #F3F6F8 for the page, white #FFFFFF for surfaces, petrol teal #0B7A85 for actions (#45C4CD on dark), and borders #DDE4EA. Use Archivo (semi-condensed width for headings, normal width for work text) and IBM Plex Mono only for record IDs. Hard rules: nothing renders below an 11.5px floor, and every text tone must clear 4.5:1 against its real background (3:1 for large headings). Every control is custom: no native select, checkbox, alert or title tooltip. Theme selection, scrollbars, caret, placeholder, focus ring and `theme-color` from the palette. Radius is 5–7px on controls and 10px on cards; use consistent Lucide line icons. Prefer Radix primitives for accessible dialogs/tabs/menus, TanStack Table for real list interaction and cmdk for keyboard navigation. Headings stand alone with no eyebrow labels, section numbers or category kickers repeating them. Do not use generic KPI cards as the first dashboard content, floating glass cards, promotional feature grids, decorative gradients or ambient circles.
 
-Entry page: the bare URL opens here; direct module URLs still open their module. Keep it short. Top bar has an ABC concept wordmark and Enter workspace CTA. The first viewport has an oversized “One job. Every handoff.” declaration, a small ruled scale plate above the summary paragraph that mirrors the selected stop, and a real, selectable five-stop record route: Order SO-0196 → Project PRJ-0264 → Materials BOM-042 → Assembly WO-0187 → Service AST-0042. Selecting a stop updates the active record, explanatory text and link into that exact module. Beneath, use a concise ruled evidence list for BOM-042 → PR-0084, WO-0187 → QC hold, and AST-0042 → SR-0148. Show that AST-0042 is existing installed equipment associated with the unfinished upgrade. Decoration must be drafting language, not ambient shapes: one registration cross on the cover, one purposeful route-line reveal, and a short settle plus letter-spacing stamp on the record ID when the stop changes. Honor reduced motion. No fake customer logos, testimonials, ROI or certification claims.
+Entry page: the bare URL opens here; direct module URLs still open their module. Keep it short. Top bar has a Pinnacle Engineering concept wordmark and Enter workspace CTA. The first viewport has an oversized “One job. Every handoff.” declaration, a small ruled scale plate above the summary paragraph that mirrors the selected stop, and a real, selectable five-stop record route: Order SO-0196 → Project PRJ-0264 → Materials BOM-042 → Assembly WO-0187 → Service AST-0042. Selecting a stop updates the active record, explanatory text and link into that exact module. Beneath, use a concise ruled evidence list for BOM-042 → PR-0084, WO-0187 → QC hold, and AST-0042 → SR-0148. Show that AST-0042 is existing installed equipment associated with the unfinished upgrade. Decoration must be drafting language, not ambient shapes: one registration cross on the cover, one purposeful route-line reveal, and a short settle plus letter-spacing stamp on the record ID when the stop changes. Honor reduced motion. No fake customer logos, testimonials, ROI or certification claims.
 
 Application shell: approximately 216px ink-dark sidebar, mineral-paper top bar with search, operational scope, notifications and profile. Exactly eleven business destinations: Dashboard, Projects, Inventory, Assets, Purchase, Sales, CRM, HR, Payroll, User Management, Reports. Group them visually; do not invent Manufacturing, Service or Finance as additional modules. Shared approvals and documents remain utilities. Only the first-step surfaces need full content now; keep future destinations visibly planned rather than presenting fake completed screens.
 
@@ -50,7 +50,7 @@ Motion: 160–220ms hover/drawer transitions, a subtle one-time hero and route-l
 Scope guard: design prototype only, local synthetic state, no live database, real authentication, payroll calculation or external integrations. Keep all source C/V/D distinctions and the eleven-module boundary. Complete the shell, entry page and dashboard only in this step.
 ```
 
-## Prompt 2 — Project workspace
+## Prompt 2: Project workspace
 
 Mode: Build
 
@@ -62,7 +62,7 @@ Build portfolio list/filter states, project create/edit, and PRJ-0264 “Process
 Make milestone → shortage → linked PR and commissioning → customer installed asset navigable with shared IDs. Include draft, validation error, empty, rejected approval, read-only and stale-record states. Do not invent financial formulas or claim these mock actions are durable. Keep panel manufacture inside Inventory/Project and service inside Asset/Project. Only extend Projects and necessary cross-links; preserve other completed surfaces.
 ```
 
-## Prompt 3 — Inventory, BOM and assembly
+## Prompt 3: Inventory, BOM and assembly
 
 Mode: Build
 
@@ -76,7 +76,7 @@ Create multi-level BOM with revision comparison and approval; material requireme
 Prototype a blocked attempt to issue quarantined material and a successful eligible issue in local demo state. Include conflicting stock, insufficient quantity and revision-change states. Values and policies are illustrative. Do not silently add valuation/costing algorithms, advanced APS, IoT or barcode hardware. Only extend Inventory and required links; preserve all other completed pages.
 ```
 
-## Prompt 4 — Purchase
+## Prompt 4: Purchase
 
 Mode: Build
 
@@ -88,7 +88,7 @@ The comparison grid must make item identity, quantity/UOM, unit price, tax assum
 Use shared local fixtures and existing components; only extend Purchase and necessary cross-links. Preserve all other completed surfaces and source status distinctions.
 ```
 
-## Prompt 5 — Assets, AMC and field service
+## Prompt 5: Assets, AMC and field service
 
 Mode: Build
 
@@ -100,7 +100,7 @@ Create service queue, ticket detail with priority/contract-specific SLA target, 
 Use existing customer asset AST-0042 associated with upgrade project PRJ-0264, AMC-0031 and ticket SR-0148. Do not imply that the unfinished upgrade has already been commissioned. Connect spare consumption to Inventory and charge decision to Sales. Demonstrate expiry/no-entitlement, no available engineer and late visit states. No assumed native/offline, GPS, customer portal or regulated electronic signature. Only extend Assets and necessary links; preserve completed modules.
 ```
 
-## Prompt 6 — CRM and Sales
+## Prompt 6: CRM and Sales
 
 Mode: Build
 
@@ -112,7 +112,7 @@ Create a billing workspace for eligible milestones, recurring service and charge
 Do not add marketing campaigns, full accounting, vendor/customer portals or live email. Only extend CRM/Sales and necessary links; preserve previous pages and the approved visual system.
 ```
 
-## Prompt 7 — HR
+## Prompt 7: HR
 
 Mode: Build
 
@@ -122,7 +122,7 @@ Design HR using HR-UI-01 through HR-UI-04. Include recruitment/opening/candidate
 Provide an employee self-service variant. Link approved time/claims to project cost without exposing confidential pay data. Include invalid receipt, leave overlap, allocation conflict and unauthorized attachment states. Attendance source, contractor treatment and payout ownership remain decisions. Use synthetic people and data only. Extend HR and necessary links; preserve existing modules.
 ```
 
-## Prompt 8 — Payroll
+## Prompt 8: Payroll
 
 Mode: Build
 
@@ -132,7 +132,7 @@ Design restricted Payroll using PAY-UI-01 through PAY-UI-03. Show pay group/cale
 Do not invent Indian statutory formulas or make legal correctness claims. Show statutory configuration as “Policy confirmation required.” All calculations and amounts are illustrative. Include denied access, missing input, stale run, locked period, approved adjustment and joiner/leaver/final-settlement states. A system administrator must not automatically see salaries. Do not submit a payment or connect a bank. Only extend Payroll and required links; preserve other modules.
 ```
 
-## Prompt 9 — User Management and shared administration
+## Prompt 9: User Management and shared administration
 
 Mode: Build
 
@@ -142,7 +142,7 @@ Design User Management and shared utilities using USR-UI-01/02/03 and SYS-01 thr
 Show the difference between UI visibility and backend enforcement through clear prototype labels; do not claim real security. Add sign-in/recovery/session-expired, access-denied, not-found, loading, empty, server-error, stale-record and integration-not-connected variants. Integration jobs need queued/sent/failed/mismatch states and duplicate-safe retry explanations. Do not invent an accounting provider, activate gateways, expose secrets or build real auth in this design step. Only extend these utilities and preserve all completed business modules.
 ```
 
-## Prompt 10 — Reports and role dashboards
+## Prompt 10: Reports and role dashboards
 
 Mode: Build
 
@@ -152,7 +152,7 @@ Design Reports using RPT-UI-01/02/03 and expand Dashboard using DASH-01/02/03. C
 Each report has definition/owner/source, period and timezone, filters/grouping, refresh time, totals, authorized export and drilldown. Show loading/empty/no-results/export pending/failed/denied. Scheduled delivery remains an undecided provider/security feature. Role views must not leak pay or private documents. Preserve matching filters when drilling to source records. Only extend insights/reporting and required links; preserve completed modules and do not claim real-time or reconciled data from fixtures.
 ```
 
-## Prompt 11 — Design-system handoff and coverage audit
+## Prompt 11: Design-system handoff and coverage audit
 
 Mode: Build
 

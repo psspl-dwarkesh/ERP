@@ -1,6 +1,6 @@
 /**
  * Demo reset for hosted demos (no terminal on Render): empties Threadline's own
- * tables and reseeds the ABC Limited workspace. Only for an admin of Users & Access,
+ * tables and reseeds the Pinnacle Engineering workspace. Only for an admin of Users & Access,
  * only while demo accounts are enabled, and sessions survive so the admin stays signed in.
  */
 import { getTableName, is, sql } from "drizzle-orm";

@@ -1,5 +1,5 @@
 /**
- * Loads the ABC Limited demo dataset (the same fixtures the front end ships with)
+ * Loads the Pinnacle Engineering demo dataset (the same fixtures the front end ships with)
  * plus one sign-in account per role. Idempotent only on an empty database: run
  * `npm run db:reset` to drop and reseed.
  */

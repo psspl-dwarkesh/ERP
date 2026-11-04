@@ -2,7 +2,7 @@
 
 # Entry surface direction
 
-Mode: Persuade. Audience: ABC Limited stakeholders and staff reviewing the ERP concept. Job: understand how one engineering job crosses modules, then enter the working demo. All record names and values are illustrative.
+Mode: Persuade. Audience: Pinnacle Engineering stakeholders and staff reviewing the ERP concept. Job: understand how one engineering job crosses modules, then enter the working demo. All record names and values are illustrative.
 
 ## Direction contract
 

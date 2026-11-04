@@ -44,7 +44,7 @@ export default function SalesPage() {
   return (
     <ModuleFrame>
       <PageHeader
-        crumbs={[{ label: "ABC Limited" }, { label: "Commercial" }, { label: "Sales" }]}
+        crumbs={[{ label: "Pinnacle Engineering" }, { label: "Commercial" }, { label: "Sales" }]}
         title="Orders & billing"
         description={
           loading

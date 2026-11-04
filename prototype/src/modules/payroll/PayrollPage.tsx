@@ -201,7 +201,7 @@ export default function PayrollPage() {
   return (
     <ModuleFrame>
       <PageHeader
-        crumbs={[{ label: "ABC Limited" }, { label: "People" }, { label: "Payroll" }]}
+        crumbs={[{ label: "Pinnacle Engineering" }, { label: "People" }, { label: "Payroll" }]}
         title="Payroll"
         description={headline}
         meta={

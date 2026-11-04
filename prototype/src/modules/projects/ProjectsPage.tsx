@@ -39,7 +39,7 @@ function ProjectsHome({ tab }: { tab: string }) {
   return (
     <>
       <PageHeader
-        crumbs={[{ label: "ABC Limited" }, { label: "Projects" }]}
+        crumbs={[{ label: "Pinnacle Engineering" }, { label: "Projects" }]}
         title="Projects"
         description={
           projects.loading

@@ -18,8 +18,8 @@ flowchart LR
   DB[(PostgreSQL<br/>Supabase / Neon / PGlite)]
 
   UI --> CMD
-  CMD -- browser demo --> MOCK
-  CMD -- API mode --> COM
+  CMD -- mock build --> MOCK
+  CMD -- API mode (default) --> COM
   UI -- GET /api/* --> READ
   AUTH --> READ & COM
   COM --> DB
@@ -29,14 +29,14 @@ flowchart LR
 
 ## Two run modes, one code base
 
-| | Browser demo (`npm run build`) | API mode (`npm run build:api`) |
+| | API mode (default) | Browser-only (`--mode mock`) |
 | --- | --- | --- |
-| Data | Fixtures in the browser, saved to `localStorage` | PostgreSQL through the API |
-| Sign-in | None; **View as** any role | Email + password, server sessions |
-| Rules | Same rules, run in the browser | Same rules, run on the server in a transaction |
-| Hosted on | Vercel (static) | Render (or any Node host) |
+| Data | PostgreSQL through the API (Supabase in the live demo) | Fixtures in the browser, saved to `localStorage` |
+| Sign-in | Email + password, server sessions | None; switch to any role |
+| Rules | Same rules, run on the server in a transaction | Same rules, run in the browser |
+| Hosted on | Vercel front end calling the Render API, and Render serving the app and API on one origin | Offline or static only; not part of the live demo |
 
-The switch is `import.meta.env.VITE_API_MODE`. Screens never branch on it: they call `api.*` for reads and module commands for writes, and the transport is chosen underneath.
+API mode is what the default build produces and what both deployments run. The browser-only build is an explicit `--mode mock` fallback for offline use. The switch is `import.meta.env.VITE_API_MODE`. Screens never branch on it: they call `api.*` for reads and module commands for writes, and the transport is chosen underneath.
 
 ## A command, end to end
 

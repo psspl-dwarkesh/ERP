@@ -43,7 +43,7 @@ export default function HrPage() {
   return (
     <ModuleFrame>
       <PageHeader
-        crumbs={[{ label: "ABC Limited" }, { label: "People" }]}
+        crumbs={[{ label: "Pinnacle Engineering" }, { label: "People" }]}
         title="People"
         description={people.loading ? "Loading the directory…" : `${deployed} of ${list.length} people deployed today · ${pendingLeave + pendingClaims} requests waiting for a manager`}
         actions={

@@ -28,7 +28,7 @@ const SCOPE = [
 const CVD = [
   { key: "C", label: "Confirmed", n: 52, color: "#074047", note: "A requested capability category. It confirms the need, not every field or calculation." },
   { key: "V", label: "Validate", n: 152, color: "#0b7a85", note: "Proposed detail to confirm with process owners in FRD workshops." },
-  { key: "D", label: "Decision", n: 15, color: "#5fb4bb", note: "A choice ABC Limited still has to make before it can be built." },
+  { key: "D", label: "Decision", n: 15, color: "#5fb4bb", note: "A choice Pinnacle Engineering still has to make before it can be built." },
 ];
 const CVD_TOTAL = CVD.reduce((a, b) => a + b.n, 0);
 
@@ -53,7 +53,7 @@ const DECISIONS = [
 const BUILT: Shot[] = [SHOTS.dashboard, SHOTS.project, SHOTS.rfq, SHOTS.assembly, SHOTS.service];
 
 const NEXT = [
-  "Close the ten P0 decisions with ABC Limited: accounting platform and invoice ownership, user load, payroll policy, project and manufacturing depth, inventory valuation, calibration scope, migration sources, billing treatment and deployment architecture.",
+  "Close the ten P0 decisions with Pinnacle Engineering: accounting platform and invoice ownership, user load, payroll policy, project and manufacturing depth, inventory valuation, calibration scope, migration sources, billing treatment and deployment architecture.",
   "Validate the 152 V entries with process owners and sign the FRD before fixing implementation scope.",
   "Replace the demo accounts with real identity (SSO and MFA, once chosen) and data scopes by project, site and department.",
   "Build the integrations the client selects: accounting, attendance devices, bank and notifications. None is connected today.",
@@ -159,12 +159,12 @@ export default function CaseStudy() {
           <p className="cs-kicker">Case study · November 2026</p>
           <h1 className="cs-title t-display">From a draft scope to a working ERP prototype</h1>
           <p className="cs-lede">
-            ABC Limited, an engineering firm with seven lines of business, shared a draft statement of work for an eleven-module ERP. Prakash Software Solutions turned it into a requirement register, twelve end-to-end journeys, a design system, an interactive front end for every module and an API that enforces role permissions and keeps an audit trail.
+            Pinnacle Engineering, an engineering firm with seven lines of business, shared a draft statement of work for an eleven-module ERP. Prakash Software Solutions turned it into a requirement register, twelve end-to-end journeys, a design system, an interactive front end for every module and an API that enforces role permissions and keeps an audit trail.
           </p>
           <dl className="cs-meta">
             <div>
               <dt>Client</dt>
-              <dd>ABC Limited (anonymised)</dd>
+              <dd>Pinnacle Engineering (anonymised)</dd>
             </div>
             <div>
               <dt>Work</dt>

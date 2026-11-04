@@ -70,7 +70,7 @@ export function AssetRegister({ assets, loading, activeId }: { assets: Asset[]; 
       priority: 2,
       cell: (a) => (
         <div className="cell-primary">
-          <span>{a.customer ?? "ABC Limited"}</span>
+          <span>{a.customer ?? "Pinnacle Engineering"}</span>
           <span className="cell-sub">{a.site}</span>
         </div>
       ),
@@ -194,7 +194,7 @@ export function AssetDrawer({ id, assets, loading, onClose }: { id: string; asse
           <div className={`ast-own ${a.ownership === "Customer" ? "tone-info" : "tone-violet"}`}>
             {a.ownership === "Customer" ? <Factory size={18} aria-hidden /> : <Building2 size={18} aria-hidden />}
             <div>
-              <p className="ast-own-title">{a.ownership === "Customer" ? `Customer-owned · ${a.customer}, ${a.site}` : `Company-owned · ABC Limited, ${a.site}`}</p>
+              <p className="ast-own-title">{a.ownership === "Customer" ? `Customer-owned · ${a.customer}, ${a.site}` : `Company-owned · Pinnacle Engineering, ${a.site}`}</p>
               <p className="ast-footnote">
                 {a.ownership === "Customer"
                   ? "Service history and contract cover are kept here; it isn't on ABC's fixed-asset register."

@@ -74,7 +74,7 @@ export default function InventoryPage() {
   return (
     <ModuleFrame>
       <PageHeader
-        crumbs={[{ label: "ABC Limited", to: href.module("dashboard") }, { label: "Inventory & Assembly" }]}
+        crumbs={[{ label: "Pinnacle Engineering", to: href.module("dashboard") }, { label: "Inventory & Assembly" }]}
         title="Inventory & Assembly"
         description={DESCRIPTIONS[tab]}
         actions={

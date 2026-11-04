@@ -26,4 +26,4 @@ export function Logo({ inverse = false, compact = false }: { inverse?: boolean; 
 }
 
 export const PRODUCT = "Threadline";
-export const TENANT = "ABC Limited";
+export const TENANT = "Pinnacle Engineering";

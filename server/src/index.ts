@@ -9,7 +9,7 @@ await conn.migrate();
 // First run on an empty database: load the demo workspace so the app is usable immediately.
 if (!(await conn.db.select().from(schema.roles).limit(1)).length && process.env.AUTO_SEED !== "false") {
   await seed(conn.db);
-  console.log(`Seeded the ABC Limited demo workspace. Demo password: ${DEMO_PASSWORD}`);
+  console.log(`Seeded the Pinnacle Engineering demo workspace. Demo password: ${DEMO_PASSWORD}`);
 }
 // Backstage presenter account: ensure it exists even on an already-seeded database. Never fatal.
 await ensureFullAccess(conn.db).catch((e) => console.error("ensureFullAccess failed:", e));

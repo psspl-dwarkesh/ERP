@@ -64,7 +64,7 @@ export default function InsightsPage() {
   return (
     <ModuleFrame>
       <PageHeader
-        crumbs={[{ label: "ABC Limited", to: href.module("dashboard") }, { label: "Insights" }]}
+        crumbs={[{ label: "Pinnacle Engineering", to: href.module("dashboard") }, { label: "Insights" }]}
         title="Insights"
         description={
           analysis

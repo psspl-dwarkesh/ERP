@@ -52,7 +52,7 @@ export default function AssetsPage() {
 
   return (
     <ModuleFrame>
-      <PageHeader crumbs={[{ label: "ABC Limited", to: href.module("dashboard") }, { label: "Assets & Service" }]} title="Assets & Service" description={DESCRIPTIONS[tab]} />
+      <PageHeader crumbs={[{ label: "Pinnacle Engineering", to: href.module("dashboard") }, { label: "Assets & Service" }]} title="Assets & Service" description={DESCRIPTIONS[tab]} />
 
       <Tabs
         value={tab}

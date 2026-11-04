@@ -1,4 +1,4 @@
-# ABC Limited engineering ERP design brief
+# Pinnacle Engineering ERP design brief
 
 Prepared 3 November 2026. Design proposal for review, based on the supplied Detailed Scope of Work v2.0. This file is an attachment-ready brief for Figma Make and a guide for later development.
 
@@ -38,7 +38,7 @@ Manufacturing is nested within Inventory/Project. AMC, O&M and field service are
 
 ## Visual direction
 
-Working title: **ABC Limited / Operations workspace**. Use the client's name without inventing a brand history, certification, customer list or performance claim. Replace the simple placeholder monogram when actual brand assets arrive.
+Working title: **Pinnacle Engineering / Operations workspace**. Use the client's name without inventing a brand history, certification, customer list or performance claim. Replace the simple placeholder monogram when actual brand assets arrive.
 
 The current direction (Threadline v1.0, 4 November 2026, see [DESIGN.md](../DESIGN.md)) treats a job as one unbroken thread of linked records. It uses deep slate navigation, a mist page with white surfaces, and petrol-teal actions, with restrained status colour. Headings are semi-condensed Archivo, work text is Archivo, and record IDs are IBM Plex Mono. Three earlier concepts were rejected as too generic: green editorial, cool-grey/cobalt and the ink/copper route sheet. Remove promotional headings, floating feature cards and decorative module banners. Show concrete task labels, record IDs, consistent action positions and directly useful workflow views.
 
@@ -63,7 +63,7 @@ Status always includes text and, when useful, an icon. Check text/background com
 
 ### Entry page and hero
 
-The bare URL opens a short introduction; a direct module URL opens the module. The top bar has an ABC concept wordmark and immediate workspace action. An oversized “One job. Every handoff.” headline leads into one interactive route: SO-0196 → PRJ-0264 → BOM-042 → WO-0187 → AST-0042. Selecting a handoff changes its visible evidence and module link. A concise ruled list below connects material demand, QC and service examples. The customer asset is existing equipment associated with the unfinished upgrade; do not imply the upgrade has been commissioned.
+The bare URL opens a short introduction; a direct module URL opens the module. The top bar has a Pinnacle Engineering concept wordmark and immediate workspace action. An oversized “One job. Every handoff.” headline leads into one interactive route: SO-0196 → PRJ-0264 → BOM-042 → WO-0187 → AST-0042. Selecting a handoff changes its visible evidence and module link. A concise ruled list below connects material demand, QC and service examples. The customer asset is existing equipment associated with the unfinished upgrade; do not imply the upgrade has been commissioned.
 
 The route line draws once on entry, then stops. Reduced-motion users see the complete static route. No floating feature cards, generic people imagery, fabricated logos, endorsements, uptime, ROI, compliance badges, pricing page or lead form.
 

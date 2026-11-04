@@ -65,7 +65,7 @@ function PurchaseHome({ tab }: { tab: string }) {
   return (
     <>
       <PageHeader
-        crumbs={[{ label: "ABC Limited" }, { label: "Purchase" }]}
+        crumbs={[{ label: "Pinnacle Engineering" }, { label: "Purchase" }]}
         title="Purchase"
         description={loaded ? (summary.length ? `${summary.join(", ").replace(/, ([^,]*)$/, " and $1")}. Everything else is moving.` : "No requisitions, quotes or deliveries need attention.") : "Requisitions, supplier quotes, orders and receipts."}
         actions={

@@ -81,7 +81,7 @@ export function LoginPage() {
         <Logo inverse />
         <div className="login-brand-copy">
           <p className="login-brand-title t-display">One job. Every handoff. One record.</p>
-          <p className="login-brand-text">Projects, materials, panel assembly, installed assets and AMC service for ABC Limited, with approvals and an audit trail on every decision.</p>
+          <p className="login-brand-text">Projects, materials, panel assembly, installed assets and AMC service for Pinnacle Engineering, with approvals and an audit trail on every decision.</p>
         </div>
         <ul className="login-brand-facts">
           <li><b>11</b> modules</li>
@@ -99,7 +99,7 @@ export function LoginPage() {
             <span className="login-icon">
               <LockKeyhole size={20} aria-hidden />
             </span>
-            <h1 className="login-title">Sign in to ABC Limited</h1>
+            <h1 className="login-title">Sign in to Pinnacle Engineering</h1>
             <p className="login-sub">Use your work email. Sessions end after 12 hours or when you sign out.</p>
           </div>
 
@@ -155,7 +155,7 @@ export function LoginPage() {
             </div>
           )}
         </div>
-        <p className="login-foot">Threadline — a Prakash Software Solutions product</p>
+        <p className="login-foot">Threadline, a Prakash Software Solutions product</p>
       </main>
     </div>
   );

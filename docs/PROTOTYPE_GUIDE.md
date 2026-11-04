@@ -1,14 +1,10 @@
 # Threadline prototype guide
 
-Version 1.0, 4 November 2026. This is an interactive front end with illustrative records for the anonymised ABC Limited workspace. It is not a production ERP: there is no backend, real login, payroll engine or accounting link. Changes you make are saved in your browser only; to restore the starting data, open the account menu and choose **Reset demo data**.
+Version 1.0, 4 November 2026. Threadline is a working ERP for the anonymised Pinnacle Engineering workspace, populated with illustrative records. By default the front end runs in API mode against a Node server and a PostgreSQL database (Supabase in the live demo), with role sign-in and server sessions. It is a demonstration, not a finished production system: there is no payroll calculation and no live accounting integration. An administrator can restore the starting data from the account menu (**Reset workspace data**).
 
 ## Run
 
-```powershell
-cd "D:\5. GitUploaded\ERP\prototype"
-npm.cmd install
-npm.cmd run dev
-```
+The app is live at [erp-prakashinfotech.vercel.app](https://erp-prakashinfotech.vercel.app): pick a role to sign in, password `Threadline@2026`. To run it locally with the API and database, follow [DEPLOYMENT.md](DEPLOYMENT.md). A browser-only build (`--mode mock`) runs the whole front end on in-browser fixtures with no server, for offline use.
 
 Open `http://127.0.0.1:5173/`. `#/` is the product showcase; `#/app/dashboard` is the workspace.
 
@@ -41,6 +37,6 @@ Shared: `Ctrl` + `K` searches every record type; notifications; every record ID 
 6. Assets: open SR-0148, check the AMC entitlement, mark en route, on site, resolved.
 7. Payroll: show why November can't move to review, then Users & Access → Audit to see every action you just took.
 
-## Backend phase
+## Backend
 
-`src/api/client.ts` is the only file that knows the data is local. Each function maps to a REST endpoint (`api.projects()` → `GET /projects`, `api.decideApproval()` → `POST /approvals/:id/decision`). Module commands use `mutate()` and move into the service layer unchanged in intent.
+The backend is built: a Node API with a PostgreSQL database (Supabase in the live demo). `src/api/` holds the transport that talks to it. In API mode each `api.*` function maps to a REST endpoint (`api.projects()` → `GET /api/projects`, `api.decideApproval()` → `POST /api/commands/approvals.decide`); the `--mode mock` build runs the same calls against in-browser fixtures. See [ARCHITECTURE.md](ARCHITECTURE.md) for the command flow and [DEPLOYMENT.md](DEPLOYMENT.md) to run it.

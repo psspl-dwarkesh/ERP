@@ -33,7 +33,7 @@ export default function ReportsPage() {
   return (
     <ModuleFrame>
       <PageHeader
-        crumbs={[{ label: "ABC Limited" }, { label: "Administration" }, { label: "Reports" }]}
+        crumbs={[{ label: "Pinnacle Engineering" }, { label: "Administration" }, { label: "Reports" }]}
         title="Reports"
         description={reports.loading ? "Loading the catalogue…" : `${ready} of ${list.length} reports ready to view and export. The rest are planned — each card says what it will show · times in IST`}
       />

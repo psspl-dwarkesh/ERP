@@ -1,5 +1,5 @@
 /**
- * Illustrative records for the ABC Limited demo workspace.
+ * Illustrative records for the Pinnacle Engineering demo workspace.
  * Every cross-reference resolves: SO-0196 → PRJ-0264 → BOM-042 → PR-0084 → RFQ-0041
  * → PO-0121 → WO-0187 → AST-0042 → AMC-0031 → SR-0148. "Today" is 3 Nov 2026, 09:40 IST.
  */
@@ -215,8 +215,8 @@ export const workOrders: WorkOrder[] = [
 ];
 
 export const assets: Asset[] = [
-  { id: "AST-0042", name: "Process control panel · Line 03", category: "Control panel", ownership: "Customer", customer: "Northstar Pharma", site: "Pune plant", make: "ABC Limited", model: "PCP-S7-03", serial: "PNL-23-0102", status: "In service", contractId: "AMC-0031", custodian: "Karan Patel", installed: "2023-03-14", warrantyEnd: "2025-03-14", nextService: "2026-11-28", projectId: "PRJ-0192" },
-  { id: "AST-0134", name: "MCC panel · Utility block", category: "Motor control centre", ownership: "Customer", customer: "Meridian Foods", site: "Nashik utility block", make: "ABC Limited", model: "MCC-800", serial: "PNL-24-0144", status: "In service", contractId: "AMC-0044", custodian: "Rahul Desai", installed: "2024-06-20", warrantyEnd: "2026-12-20", nextService: "2026-12-12" },
+  { id: "AST-0042", name: "Process control panel · Line 03", category: "Control panel", ownership: "Customer", customer: "Northstar Pharma", site: "Pune plant", make: "Pinnacle Engineering", model: "PCP-S7-03", serial: "PNL-23-0102", status: "In service", contractId: "AMC-0031", custodian: "Karan Patel", installed: "2023-03-14", warrantyEnd: "2025-03-14", nextService: "2026-11-28", projectId: "PRJ-0192" },
+  { id: "AST-0134", name: "MCC panel · Utility block", category: "Motor control centre", ownership: "Customer", customer: "Meridian Foods", site: "Nashik utility block", make: "Pinnacle Engineering", model: "MCC-800", serial: "PNL-24-0144", status: "In service", contractId: "AMC-0044", custodian: "Rahul Desai", installed: "2024-06-20", warrantyEnd: "2026-12-20", nextService: "2026-12-12" },
   { id: "AST-0151", name: "Flow transmitter bank · Reactor R-2", category: "Field instruments", ownership: "Customer", customer: "Crest Chemicals", site: "Nandesari unit", make: "Orbit Process", model: "OF-220", serial: "OF22-88713", status: "Under repair", contractId: "OM-0009", custodian: "Vikram Shah", installed: "2025-01-09", warrantyEnd: "2027-01-09", nextService: "2026-11-06" },
   { id: "AST-0086", name: "Digital pressure calibrator", category: "Calibration master", ownership: "Company", site: "Central lab", make: "Fluke", model: "2700G", serial: "FL27-44120", status: "Calibration due", custodian: "Priya Menon", installed: "2022-02-11", calibrationDue: "2026-11-05" },
   { id: "AST-0093", name: "Multifunction process calibrator", category: "Calibration master", ownership: "Company", site: "Central lab", make: "Beamex", model: "MC6", serial: "BX6-11927", status: "In service", custodian: "Priya Menon", installed: "2023-05-02", calibrationDue: "2027-01-18" },

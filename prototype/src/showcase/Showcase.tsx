@@ -2,8 +2,6 @@ import { ArrowRight, ArrowUpRight, Github, Linkedin, Mail, MapPin, Menu as MenuI
 import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { Logo } from "../app/brand";
 import { navigate, useRoute } from "../app/router";
-import { Reveal } from "./motion";
-import { Flows } from "./Flows";
 import { Hero } from "./Hero";
 import { JobThread } from "./JobThread";
 import { ModuleMap } from "./ModuleMap";
@@ -21,7 +19,6 @@ const LINKS: { id: string; label: string }[] = [
   { id: "thread", label: "How it works" },
   { id: "modules", label: "Modules" },
   { id: "industries", label: "Industries" },
-  { id: "flows", label: "Flows" },
   { id: "controls", label: "Controls" },
   { id: "case-study", label: "Case study" },
 ];
@@ -180,35 +177,13 @@ function Nav({ page }: { page: Page }) {
   );
 }
 
-function FinalCta() {
-  return (
-    <section className="sc-final">
-      <Reveal className="sc-wrap sc-final-inner">
-        <h2 className="sc-h2 t-display">See PRJ-0264 for yourself</h2>
-        <p className="sc-lede">Approve the requisition, try to issue held stock, move the panel through its stages and dispatch an engineer to the P1 ticket.</p>
-        <div className="sc-hero-ctas">
-          <a className="btn btn-primary btn-lg sc-cta" href="#/app/dashboard">
-            Open the live demo <ArrowRight size={18} aria-hidden />
-          </a>
-          <a className="btn btn-inverse btn-lg" href="#/app/projects/PRJ-0264">
-            Start at the project
-          </a>
-        </div>
-        <a className="sc-final-link" href="#/case-study">
-          Or read how it was designed and built <ArrowRight size={14} aria-hidden />
-        </a>
-      </Reveal>
-    </section>
-  );
-}
-
 function Footer() {
   return (
     <footer className="sc-footer">
       <div className="sc-wrap">
         <div className="sc-footer-grid">
           <div className="sc-footer-brand">
-            <Logo />
+            <Logo inverse />
             <p className="sc-footer-note">
               A working product from Prakash Software Solutions: one connected ERP for engineering,
               panel-manufacturing and field-service firms. Every record inside belongs to a fictional sample
@@ -277,10 +252,8 @@ function Home() {
       <JobThread />
       <ModuleMap />
       <Verticals />
-      <Flows />
       <Controls />
       <Delivery />
-      <FinalCta />
     </>
   );
 }
@@ -311,7 +284,7 @@ export default function Showcase() {
   // Dev-only: #/?only=flows renders a single section for visual checks.
   const only = import.meta.env.DEV ? route.query.get("only") : null;
   if (only && page === "home") {
-    const one: Record<string, ReactNode> = { hero: <Hero />, preview: <Preview />, thread: <JobThread />, modules: <ModuleMap />, industries: <Verticals />, flows: <Flows />, controls: <Controls />, delivery: <Delivery />, final: <FinalCta /> };
+    const one: Record<string, ReactNode> = { hero: <Hero />, preview: <Preview />, thread: <JobThread />, modules: <ModuleMap />, industries: <Verticals />, controls: <Controls />, delivery: <Delivery /> };
     return <div className="sc">{one[only]}</div>;
   }
   return (

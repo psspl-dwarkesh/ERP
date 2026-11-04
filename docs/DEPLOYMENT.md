@@ -1,27 +1,28 @@
 # Deploying Threadline
 
-There are two deployments of the same front end. You can run either or both.
+Threadline deploys as a full stack: a Node API with PostgreSQL, serving the React front end in API mode. It runs live in two places, both reading and writing the same Supabase database:
 
-| | Static demo | Full stack |
-| --- | --- | --- |
-| What runs | The whole ERP in the visitor's browser on demo data | Node API + PostgreSQL, sign-in, role permissions, shared data |
-| Host | Vercel (or any static host) | Render (or any Node host) + a PostgreSQL database |
-| Who sees what | Everyone gets their own private copy of the demo | Everyone sees the same records; each role sees only what it is allowed to |
-| Best for | A public portfolio link | A pilot, a client walkthrough with real accounts |
+- **Render** ([threadline-jlfn.onrender.com](https://threadline-jlfn.onrender.com)) runs the API and serves the front end on one origin.
+- **Vercel** ([erp-prakashinfotech.vercel.app](https://erp-prakashinfotech.vercel.app)) hosts the front end, which calls the Render API cross-origin.
 
-## 1. Static demo on Vercel
+The browser-only build (`--mode mock`, fixtures in the browser and no server) is an offline fallback, not a deployment.
+
+## 1. Front end on Vercel
+
+The Vercel deployment serves the front end only; it calls the Render API (section 2) for data and sign-in.
 
 1. Import the GitHub repo in Vercel.
-2. **Root Directory:** `prototype`. **Application Preset:** Vite. Leave the build settings at their defaults (`npm run build`, output `dist`). No environment variables.
-3. Deploy. Every push to `main` redeploys.
+2. **Root Directory:** `prototype`. **Framework Preset:** Vite. **Build command:** `npm run build:api` (API mode), output `dist`.
+3. Set `VITE_API_URL` to the Render service URL (`https://threadline-jlfn.onrender.com`), so the front end knows where the API lives.
+4. Deploy. Every push to `main` redeploys.
 
-The showcase is at `/`, and the workspace at `/#/app/dashboard`. Changes a visitor makes stay in their browser; the account menu's **Reset demo data** restores them.
+The showcase is at `/`, and the workspace at `/#/app/dashboard`. Because the front end and API sit on different origins, sign-in relies on a cross-site session cookie, which a browser set to block third-party cookies will refuse (the Render URL has no such dependency). An administrator re-seeds the shared data from the account menu (**Reset workspace data**).
 
 ## 2. Full stack on Render + PostgreSQL
 
 ### Database
 
-Any PostgreSQL works. On first start the server runs the migrations in `server/drizzle/` and seeds the ABC Limited demo workspace if the tables are empty.
+Any PostgreSQL works. On first start the server runs the migrations in `server/drizzle/` and seeds the Pinnacle Engineering demo workspace if the tables are empty.
 
 **Supabase (the project's database, ref `bvfklogfkajkqirhcpgx`):**
 
@@ -53,7 +54,7 @@ Other options: [Neon](https://neon.tech) or Render Postgres, with their connecti
 | `BUSINESS_DATE` | `2026-11-03` | "Today" for business rules. The demo data is written for this date |
 | `DEMO_ACCOUNTS` | enabled | `false` hides the demo account list on the sign-in page |
 | `AUTO_SEED` | enabled | `false` stops the server seeding an empty database |
-| `DEMO_RESET` | enabled (while demo accounts are on) | `false` removes the IT administrator's "Reset demo data" action |
+| `DEMO_RESET` | enabled (while demo accounts are on) | `false` removes the administrator's "Reset workspace data" action (`POST /api/admin/reset-demo`, which truncates and re-seeds) |
 | `SIGNIN_MAX_PER_IP` | `30` | Sign-in attempts allowed per IP address in 10 minutes |
 | `ANTHROPIC_API_KEY` | unset | Lets Insights answer questions with Claude; without it, answers are computed locally from the records |
 | `ASSIST_MODEL` | see `server/src/assist/` | Claude model for Insights answers |
@@ -68,12 +69,12 @@ Other options: [Neon](https://neon.tech) or Render Postgres, with their connecti
 ## 3. Running the full stack locally
 
 ```powershell
-# terminal 1 — API on http://127.0.0.1:4000 (PGlite, no database install needed)
+# terminal 1: API on http://127.0.0.1:4000 (PGlite, no database install needed)
 cd server
 npm install
 npm run dev
 
-# terminal 2 — front end in API mode on http://127.0.0.1:5173 (proxies /api to :4000)
+# terminal 2: front end in API mode on http://127.0.0.1:5173 (proxies /api to :4000)
 cd prototype
 npm install
 npm run dev:api

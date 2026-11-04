@@ -104,7 +104,7 @@ export async function buildContext(db: Database, actor: Actor): Promise<AssistCo
   const findings = analysis.findings.map((f) => ({ severity: f.severity, area: f.area, title: f.title, detail: f.detail, numbers: f.numbers, records: f.cites }));
   const context = {
     meta: {
-      company: "ABC Limited (demo workspace, illustrative records)",
+      company: "Pinnacle Engineering (demo workspace, illustrative records)",
       businessDate: ds.today,
       now: ds.now,
       timezone: "Asia/Kolkata",

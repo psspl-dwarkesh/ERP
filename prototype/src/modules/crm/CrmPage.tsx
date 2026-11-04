@@ -36,7 +36,7 @@ export default function CrmPage() {
   return (
     <ModuleFrame>
       <PageHeader
-        crumbs={[{ label: "ABC Limited" }, { label: "Commercial" }, { label: "CRM" }]}
+        crumbs={[{ label: "Pinnacle Engineering" }, { label: "Commercial" }, { label: "CRM" }]}
         title="Pipeline"
         description={
           opps.loading
