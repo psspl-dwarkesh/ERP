@@ -22,10 +22,13 @@ export default function App() {
     if (needsSignIn) navigate(`/login?next=${encodeURIComponent(`/${route.path.join("/")}${route.tab ? `?tab=${route.tab}` : ""}`)}`, { replace: true });
   }, [needsSignIn, route.path, route.tab]);
 
-  // Already signed in and on the sign-in page: go to the workspace.
+  // Already signed in and on the sign-in page: go to the workspace. `?pick=1`
+  // (the showcase's "Open the live demo") opts out, so that entry always lands
+  // on the role picker instead of depending on whether a session is still live.
+  const picking = route.query.get("pick") === "1";
   useEffect(() => {
-    if (route.path[0] === "login" && session.status === "signed-in") navigate("/app/dashboard", { replace: true });
-  }, [route.path, session.status]);
+    if (route.path[0] === "login" && session.status === "signed-in" && !picking) navigate("/app/dashboard", { replace: true });
+  }, [route.path, session.status, picking]);
 
   let body;
   if (route.path[0] === "login") body = API_MODE === "remote" ? <LoginPage /> : <Redirect to="/app/dashboard" />;

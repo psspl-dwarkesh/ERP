@@ -90,10 +90,10 @@ export function DemoGuide() {
 
   if (!open) {
     return (
-      <Tooltip content="Guided client demo" side="left">
-        <button className="guide-fab" onClick={() => setOpen(true)} aria-label="Open demo guide">
+      <Tooltip content="Guided walkthrough" side="left">
+        <button className="guide-fab" onClick={() => setOpen(true)} aria-label="Open walkthrough">
           <Compass size={18} aria-hidden />
-          <span>Demo guide</span>
+          <span>Walkthrough</span>
           <span className="guide-fab-count">
             {done}/{steps.length}
           </span>
@@ -103,11 +103,11 @@ export function DemoGuide() {
   }
 
   return (
-    <aside className={cx("guide", collapsed && "is-collapsed")} aria-label="Demo guide">
+    <aside className={cx("guide", collapsed && "is-collapsed")} aria-label="Walkthrough">
       <div className="guide-head">
         <Compass size={16} aria-hidden className="guide-icon" />
         <div className="guide-head-text">
-          <b>Demo guide · one job, end to end</b>
+          <b>Walkthrough · one job, end to end</b>
           <span>
             {done} of {steps.length} steps
           </span>
@@ -115,11 +115,11 @@ export function DemoGuide() {
         <button className="icon-btn icon-btn-ghost icon-btn-sm" aria-label={collapsed ? "Expand" : "Collapse"} onClick={() => setCollapsed((c) => !c)}>
           {collapsed ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </button>
-        <button className="icon-btn icon-btn-ghost icon-btn-sm" aria-label="Close demo guide" onClick={() => setOpen(false)}>
+        <button className="icon-btn icon-btn-ghost icon-btn-sm" aria-label="Close walkthrough" onClick={() => setOpen(false)}>
           <X size={15} />
         </button>
       </div>
-      <Progress value={(done / steps.length) * 100} size="sm" tone={done === steps.length ? "ok" : "accent"} label="Demo progress" />
+      <Progress value={(done / steps.length) * 100} size="sm" tone={done === steps.length ? "ok" : "accent"} label="Walkthrough progress" />
       {!collapsed && (
         <>
           <ol className="guide-steps">
@@ -145,7 +145,7 @@ export function DemoGuide() {
                 onClick={() => {
                   resetDemo();
                   clearSeen();
-                  toast({ title: "Demo reset", body: "Records and the guide are back at step 1." });
+                  toast({ title: "Progress reset", body: "Records and the guide are back at step 1." });
                   navigate("/app/dashboard");
                 }}
               >

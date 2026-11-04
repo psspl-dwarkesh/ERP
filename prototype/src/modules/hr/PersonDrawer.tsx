@@ -115,7 +115,7 @@ export function PersonDrawer({ id, onClose }: { id?: string; onClose: () => void
                 .slice()
                 .reverse()
                 .map((c) => (
-                  <li key={c.id}>{c.name ? <><RecordLink id={c.id}>{c.name}</RecordLink> <span className="hr-small t-muted">· {c.role}</span></> : <span className="hr-small t-muted"><span className="mono">{c.id}</span> · leadership, outside the demo directory</span>}</li>
+                  <li key={c.id}>{c.name ? <><RecordLink id={c.id}>{c.name}</RecordLink> <span className="hr-small t-muted">· {c.role}</span></> : <span className="hr-small t-muted"><span className="mono">{c.id}</span> · leadership, outside this directory</span>}</li>
                 ))}
               <li className="is-self">
                 <Person name={p.name} detail={p.role} size="xs" />

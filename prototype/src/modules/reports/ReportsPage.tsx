@@ -35,7 +35,7 @@ export default function ReportsPage() {
       <PageHeader
         crumbs={[{ label: "ABC Limited" }, { label: "Administration" }, { label: "Reports" }]}
         title="Reports"
-        description={reports.loading ? "Loading the catalogue…" : `${ready} of ${list.length} reports ready to view and export · times in IST`}
+        description={reports.loading ? "Loading the catalogue…" : `${ready} of ${list.length} reports ready to view and export. The rest are planned — each card says what it will show · times in IST`}
       />
 
       <Toolbar end={<SearchField value={q} onChange={setQ} placeholder="Search reports" width={260} />}>

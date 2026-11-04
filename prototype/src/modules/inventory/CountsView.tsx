@@ -110,7 +110,7 @@ export function CountsView({ items, movements, loading }: { items: Item[]; movem
           <Card>
             <CardHeader title="Decided adjustments" />
             {decided.length === 0 ? (
-              <p className="t-muted inv-footnote">None yet in this demo period.</p>
+              <p className="t-muted inv-footnote">None yet in this period.</p>
             ) : (
               <ul className="divider-list">
                 {decided.map((m) => (

@@ -163,7 +163,7 @@ function Sidebar({ active, onClose }: { active: ModuleKey; onClose: () => void }
       <div className="sidebar-foot">
         <div className="sidebar-note">
           <span className={cx("sidebar-note-dot", API_MODE === "remote" && "is-live")} aria-hidden />
-          {API_MODE === "remote" ? `${Math.max(online, 1)} ${Math.max(online, 1) === 1 ? "person" : "people"} online · shared workspace` : "Demo data · changes stay in this browser"}
+          {API_MODE === "remote" ? `${Math.max(online, 1)} ${Math.max(online, 1) === 1 ? "person" : "people"} online · shared workspace` : "Sample data · changes stay in this browser"}
         </div>
         <p className="sidebar-credit">Threadline — a Prakash Infotech product</p>
       </div>
@@ -226,17 +226,17 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
           }
           items={[
             { heading: `${me.email} · ${session?.role ?? me.role}` },
-            { label: API_MODE === "mock" ? "View as another role…" : "Switch demo account…", icon: UsersRound, detail: "See the workspace as another person sees it", onSelect: () => setSwitching(true) },
+            { label: API_MODE === "mock" ? "View as another role…" : "Switch role…", icon: UsersRound, detail: "See the workspace as another person sees it", onSelect: () => setSwitching(true) },
             { label: "Preferences", icon: Settings, detail: "Coming soon", disabled: true, onSelect: () => {} },
             ...(API_MODE === "mock"
               ? [
                   {
-                    label: "Reset demo data",
+                    label: "Reset workspace data",
                     icon: RotateCcw,
                     detail: "Restore every record to its starting state",
                     onSelect: () => {
                       resetDemo();
-                      toast({ title: "Demo data restored", body: "All records are back to their starting state." });
+                      toast({ title: "Workspace data restored", body: "All records are back to their starting state." });
                     },
                   },
                   { separator: true as const },
@@ -246,14 +246,14 @@ function Topbar({ onMenu, onSearch, moduleLabel }: { onMenu: () => void; onSearc
                   ...(canAccess(session, "users", "admin")
                     ? [
                         {
-                          label: "Reset demo data",
+                          label: "Reset workspace data",
                           icon: RotateCcw,
                           detail: "Restore the starting records for everyone",
                           onSelect: async () => {
                             try {
                               await http.post("/admin/reset-demo", {});
                               invalidate();
-                              toast({ title: "Demo data restored", body: "Every user now sees the starting records." });
+                              toast({ title: "Workspace data restored", body: "Every user now sees the starting records." });
                             } catch (e) {
                               toast({ title: "Reset refused", body: e instanceof Error ? e.message : String(e), tone: "risk" });
                             }
@@ -437,7 +437,7 @@ function SwitchUserDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
       else if (p) await switchAccount(p.email, DEMO_PASSWORD);
       onOpenChange(false);
       navigate("/app/dashboard");
-      toast({ title: p ? `Now viewing as ${p.name}` : "Full demo access", body: p ? `${roleOf(p.roleId)?.name} · only what this role may see and do.` : "Every module, every action." });
+      toast({ title: p ? `Now viewing as ${p.name}` : "Full access", body: p ? `${roleOf(p.roleId)?.name} · only what this role may see and do.` : "Every module, every action." });
     } catch (e) {
       toast({ title: "Couldn't switch", body: e instanceof Error ? e.message : String(e), tone: "risk" });
     } finally {
@@ -451,16 +451,16 @@ function SwitchUserDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
       onOpenChange={onOpenChange}
       size="md"
       icon={UsersRound}
-      title={API_MODE === "mock" ? "View the workspace as…" : "Switch demo account"}
-      description={API_MODE === "mock" ? "Permissions, navigation and approvals follow the role you pick. Data stays the same." : "Signs you in as that demo account. Each role sees only what it is allowed to."}
+      title={API_MODE === "mock" ? "View the workspace as…" : "Switch role"}
+      description={API_MODE === "mock" ? "Permissions, navigation and approvals follow the role you pick. Data stays the same." : "Signs you in as that role. Each role sees only what it is allowed to."}
     >
       <ul className="switch-list">
         {API_MODE === "mock" && (
           <li>
             <button className={cx("switch-item", isFullDemoUser(me) && "is-on")} onClick={() => pick(null)} disabled={!!busy}>
-              <Avatar name="Demo Access" size="sm" />
+              <Avatar name="Access" size="sm" />
               <span className="switch-text">
-                <b>Full demo access</b>
+                <b>Full access</b>
                 <small>Every module · for walkthroughs</small>
               </span>
               {isFullDemoUser(me) && <Status tone="accent">Current</Status>}

@@ -108,7 +108,7 @@ export default function PayrollPage() {
   };
 
   const chase = (check: string) =>
-    act(`chase:${check}`, () => chasePayrollInput(CURRENT, check), { title: "HR asked to resolve it", body: `“${check}” · logged against ${CURRENT}. No email or SMS is sent from the demo.`, tone: "info" });
+    act(`chase:${check}`, () => chasePayrollInput(CURRENT, check), { title: "HR asked to resolve it", body: `“${check}” · logged against ${CURRENT}. No email or SMS is sent.`, tone: "info" });
 
   const columns: Column<PayrollRun>[] = [
     {
@@ -403,7 +403,7 @@ export default function PayrollPage() {
           </>
         }
       >
-        <p className="pay-small">Confirm you have matched the account holder name and IFSC against the bank proof (penny-drop or cancelled cheque). The account number itself isn't shown or stored in the demo.</p>
+        <p className="pay-small">Confirm you have matched the account holder name and IFSC against the bank proof (penny-drop or cancelled cheque). The account number itself isn't shown or stored.</p>
       </Dialog>
 
       <NoteDialog

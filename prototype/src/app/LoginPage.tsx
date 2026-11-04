@@ -135,7 +135,7 @@ export function LoginPage() {
 
           {accounts.length > 0 && (
             <div className="login-demo">
-              <p className="login-demo-title">Demo accounts · one per role</p>
+              <p className="login-demo-title">Sign in as a role</p>
               <p className="login-demo-sub">
                 Click a role to sign in instantly. Each role sees only what its permissions allow.
               </p>

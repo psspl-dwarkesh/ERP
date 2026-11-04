@@ -248,7 +248,7 @@ export function ItemDrawer({ id, items, loading, onClose }: { id: string; items:
         <LoadingRows rows={4} columns={2} />
       ) : !item ? (
         <EmptyState icon={PackageSearch} title={`${id} isn't in the item master`}>
-          It may have been merged or never existed in this demo workspace.
+          It may have been merged or never existed in this workspace.
         </EmptyState>
       ) : (
         <>
@@ -310,7 +310,7 @@ export function ItemDrawer({ id, items, loading, onClose }: { id: string; items:
             {movements.loading ? (
               <LoadingRows rows={3} columns={2} />
             ) : history.length === 0 ? (
-              <p className="t-muted inv-footnote">No movements recorded for this item in the demo period.</p>
+              <p className="t-muted inv-footnote">No movements recorded for this item in this period.</p>
             ) : (
               <Timeline items={history.slice(0, 6).map((m) => movementEvent(m, item.uom))} />
             )}

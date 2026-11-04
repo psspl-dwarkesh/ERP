@@ -74,7 +74,7 @@ export function AuditLog() {
         <span className="usr-small t-muted">{visible.length} events · newest first</span>
       </Toolbar>
       <DataTable rows={visible} columns={columns} loading={activity.loading} dense caption="Audit log" />
-      <p className="usr-small t-muted">Field-level before/after values and session events are captured by the backend (USR-010); the demo shows the action trail only.</p>
+      <p className="usr-small t-muted">Field-level before/after values and session events are captured by the backend (USR-010); this view shows the action trail only.</p>
     </div>
   );
 }

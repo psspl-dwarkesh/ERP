@@ -98,7 +98,7 @@ function InviteDialog({ roles, open, onOpenChange }: { roles: Role[]; open: bool
       size="md"
       icon={UserPlus}
       title="Invite user"
-      description="Create an account and assign a role. A sign-in link would go to their work email; nothing is e-mailed in the demo."
+      description="Create an account and assign a role. A sign-in link would go to their work email; nothing is e-mailed here."
       footer={
         <>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>

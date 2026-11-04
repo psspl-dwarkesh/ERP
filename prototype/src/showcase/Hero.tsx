@@ -110,7 +110,7 @@ export function Hero() {
             Threadline carries a job from the first enquiry to the installed asset and its service contract, with cost, people and approvals on the same record.
           </p>
           <div className="sc-hero-ctas">
-            <a className="btn btn-primary btn-lg sc-cta" href="#/app/dashboard">
+            <a className="btn btn-primary btn-lg sc-cta" href={API_MODE === "remote" ? "#/login?pick=1" : "#/app/dashboard"}>
               Open the live demo <ArrowRight size={18} aria-hidden />
             </a>
             <a

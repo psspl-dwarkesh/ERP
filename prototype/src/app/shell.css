@@ -264,10 +264,21 @@
 .login-thread path { fill: none; stroke: rgba(69, 196, 205, 0.2); stroke-width: 1.5; }
 .login-thread .login-thread-pulse { stroke: var(--teal-glow); stroke-width: 2; stroke-dasharray: 90 1100; animation: login-run 6s linear infinite; filter: drop-shadow(0 0 6px rgba(69, 196, 205, 0.8)); }
 @keyframes login-run { from { stroke-dashoffset: 1190; } to { stroke-dashoffset: 0; } }
-/* The thread art runs straight behind this copy, so keep it a background
-   texture and give the words enough contrast to stay readable over it. */
-.login-brand .thr { opacity: 0.4; }
-.login-brand-copy { position: relative; max-width: 440px; text-shadow: 0 1px 3px rgba(12, 24, 32, 0.55); }
+/* The thread art runs straight through this copy. Veil it with a scrim that
+   sits above the art but below the words, so the strands stay visible as
+   texture and the text always has a dark, even surface to sit on. */
+.login-brand .thr { opacity: 0.5; }
+.login-brand::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(12, 24, 32, 0) 0%, rgba(12, 24, 32, 0.35) 28%, rgba(12, 24, 32, 0.8) 48%, rgba(12, 24, 32, 0.88) 100%);
+}
+/* Everything that is real content sits above the scrim; the art does not. */
+.login-brand > *:not(.thr) { position: relative; z-index: 1; }
+.login-brand-copy { max-width: 440px; }
 .login-brand-title { color: #fff; font-size: clamp(32px, 3.4vw, 46px); }
 .login-brand-text { margin-top: var(--space-4); color: #d4dfe6; font-size: var(--text-lg); line-height: 1.6; }
 .login-brand-facts { display: flex; gap: var(--space-8); padding-top: var(--space-5); border-top: 1px solid rgba(255, 255, 255, 0.08); color: #8193a1; font-size: var(--text-sm); }
