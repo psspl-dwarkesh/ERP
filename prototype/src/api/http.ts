@@ -2,9 +2,10 @@
  * HTTP transport for the Threadline API. Reads are GET /api/<resource>;
  * business actions are POST /api/commands/<name>. Cookies carry the session.
  */
+import { API_BASE } from "./base";
 import { ApiError, invalidate, type ApiErrorCode } from "./store";
 
-const BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+const BASE = API_BASE;
 
 type Listener = () => void;
 const onUnauthenticated = new Set<Listener>();

@@ -5,7 +5,7 @@
  * by hand. A module the signed-in role can't view is simply absent from the dataset,
  * and every rule that needs it reports "outside your role" instead of running.
  */
-import { date, duration, inr } from "../../api/format";
+import { date, duration, inr, time } from "../../api/format";
 import type {
   AccountingPosting,
   Approval,
@@ -178,7 +178,8 @@ const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? o
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 const pct = (v: number, digits = 0) => `${(v * 100).toFixed(digits)}%`;
 const inDays = (n: number) => (n === 0 ? "today" : n === 1 ? "tomorrow" : n === -1 ? "yesterday" : n < 0 ? `${-n} days ago` : `in ${n} days`);
-const hhmm = (iso: string) => iso.slice(11, 16);
+/** Clock time in IST. Timestamps arrive as "…+05:30" (fixtures) or "2026-11-03 08:30:00+00" (PostgreSQL), so parse the instant rather than slicing text. */
+const hhmm = (iso: string) => time(iso.replace(" ", "T").replace(/([+-]\d\d)$/, "$1:00"));
 const OPEN_TICKET = (t: ServiceTicket) => t.status !== "Resolved" && t.status !== "Closed";
 export const freeQty = (i: Pick<Item, "onHand" | "reserved" | "quarantined">) => Math.max(0, i.onHand - i.reserved - i.quarantined);
 

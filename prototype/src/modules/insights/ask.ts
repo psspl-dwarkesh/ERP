@@ -3,7 +3,7 @@
  * analysis the Insights page shows: no model, no network. Every answer names the records
  * it used, and says plainly when the data it would need is outside the user's role.
  */
-import { date, duration, inr } from "../../api/format";
+import { date, duration, inr, time } from "../../api/format";
 import type { ModuleKey } from "../../api/types";
 import { MODULE_LABEL, addDays, bomShortages, type Analysis, type Dataset, type Finding } from "./engine";
 
@@ -19,7 +19,8 @@ export const idsIn = (text: string) => [...new Set((text.match(ID_RE) ?? []).map
 
 const uniq = (xs: string[]) => [...new Set(xs)];
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
-const hhmm = (iso: string) => iso.slice(11, 16);
+/** Clock time in IST. Timestamps arrive as "…+05:30" (fixtures) or "2026-11-03 08:30:00+00" (PostgreSQL), so parse the instant rather than slicing text. */
+const hhmm = (iso: string) => time(iso.replace(" ", "T").replace(/([+-]\d\d)$/, "$1:00"));
 const outside = (m: ModuleKey[]) => `That needs ${m.map((x) => MODULE_LABEL[x] ?? x).join(" and ")}, which ${m.length === 1 ? "isn't" : "aren't"} part of your role, so I can't see those records.`;
 
 type Handler = (q: string, ds: Dataset, a: Analysis) => Answer;

@@ -16,7 +16,8 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { requireLevel, type Actor } from "../core";
 import type { Database } from "../db/client";
-import { buildContext } from "./context";
+import { analyze } from "../../../prototype/src/modules/insights/engine";
+import { buildContext, loadDataset } from "./context";
 
 const Body = z.object({ question: z.string().trim().min(3, "Ask a question of at least 3 characters.").max(400, "Keep the question under 400 characters.") });
 
@@ -64,6 +65,17 @@ function allow(userId: string) {
 }
 
 export function registerAssist(app: FastifyInstance, db: Database, actorOf: (req: FastifyRequest) => Actor) {
+  /**
+   * The whole Insights page in one round trip: the dataset this role may see plus the
+   * computed analysis. Replaces ~24 list requests and the browser-side computation.
+   */
+  app.get("/api/insights", async (req) => {
+    const actor = actorOf(req);
+    requireLevel(actor, "insights", "view");
+    const dataset = await loadDataset(db, actor);
+    return { dataset, analysis: analyze(dataset) };
+  });
+
   app.post<{ Body: unknown }>("/api/assist", async (req, reply) => {
     const actor = actorOf(req); // 401 without a session
     requireLevel(actor, "insights", "view");

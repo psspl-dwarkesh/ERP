@@ -4,6 +4,8 @@
  */
 import { useMemo } from "react";
 import { api } from "../../api/client";
+import { http } from "../../api/http";
+import { API_MODE } from "../../api/store";
 import { NOW, TODAY } from "../../api/fixtures";
 import { useQuery } from "../../api/hooks";
 import { canAccess, useSession, type SessionUser } from "../../api/session";
@@ -17,7 +19,22 @@ export function visibleModules(user: SessionUser | null) {
   return MODULES.filter((m) => canAccess(user, m));
 }
 
-export function useInsights(): { ds: Dataset | null; analysis: Analysis | null; loading: boolean; error?: Error } {
+type InsightsState = { ds: Dataset | null; analysis: Analysis | null; loading: boolean; error?: Error };
+
+/**
+ * API mode: the server loads the role's records and runs the engine, in one request
+ * (GET /api/insights) instead of ~24 list calls plus browser-side computation.
+ */
+function useInsightsFromServer(): InsightsState {
+  const user = useSession().user;
+  const res = useQuery(() => http.get<{ dataset: Dataset; analysis: Analysis }>("/insights"), [user?.id]);
+  return { ds: res.data?.dataset ?? null, analysis: res.data?.analysis ?? null, loading: res.loading, error: res.error };
+}
+
+/** Pick once per build so hook order never changes between renders. */
+export const useInsights: () => InsightsState = API_MODE === "remote" ? useInsightsFromServer : useInsightsInBrowser;
+
+function useInsightsInBrowser(): InsightsState {
   const user = useSession().user;
   const visible = visibleModules(user);
   const v = (m: ModuleKey) => visible.includes(m);

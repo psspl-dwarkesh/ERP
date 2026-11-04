@@ -4,7 +4,7 @@ Working list for the client demo. Updated 4 Nov 2026.
 
 **Live now**
 - Full stack: https://threadline-jlfn.onrender.com (API + front end on one origin)
-- Front end: https://erp-prakashinfotech.vercel.app (calls the Render API cross-origin)
+- Front end: https://erp-prakashinfotech.vercel.app (forwards /api to the Render API, same origin for the browser)
 - Both read and write the same Supabase database. Open the live demo → pick a role → you are in. Password `Threadline@2026`.
 
 ---
@@ -47,8 +47,8 @@ Sign in as each of the nine roles and walk every module against the live databas
 ### 4. Requirement coverage review
 Original scope is in `source/ABC_Limited_ERP_Detailed_Scope_of_Work_v2.docx` and `source/requirements.json`, with `docs/REQUIREMENT_COVERAGE.md`. Re-check the built product against it to catch anything basic that was missed. **Not yet done.**
 
-### 5. Make Insights feel fast
-Insights makes **24 API calls** and takes **3.1 seconds** to first content (Projects takes 1.3s), showing loading skeletons meanwhile, because the browser fetches every module and computes the findings locally. One server-side endpoint returning the computed findings would cut 24 round-trips to one. This is the single highest-value performance change left, and it is the most likely reason the app "feels laggy".
+### 5. ~~Make Insights feel fast~~ — done 5 Nov
+Insights now loads with **one request** (`GET /api/insights`): the server reads the records the role may view and runs the findings engine, so the page is ready in about **0.7 s** instead of 24 calls and 3.1 s. Moving the engine to the server also fixed clock times: SLA deadlines from PostgreSQL were shown in UTC ("08:30") instead of IST ("14:00").
 
 ### 6. Walkthrough guide for the manager
 `docs/CLIENT_DEMO_SCRIPT.md` is written for someone who already knows the product. A manager presenting it needs a plain-English version: which page to open, in what order, what to say, what to click. The in-app walkthrough now covers the clicking; this covers the talking.
@@ -72,7 +72,7 @@ Two roles have been walked end to end (operations head, IT administrator) and pe
 - **Rotate the Supabase database password.** The current one is weak and was shared in chat.
 - Set `DEMO_ACCOUNTS=false` and replace the seeded accounts, every seeded user shares one password.
 - Move off the free database tier; it sleeps and has no point-in-time restore.
-- Decide whether both deployments should stay. The Vercel front end depends on a cross-site cookie, which a browser with third-party cookies disabled will block. The Render URL has no such dependency.
+- ~~Decide whether both deployments should stay~~ — fixed 5 Nov: Vercel now forwards `/api/*` to Render (`prototype/vercel.json`), so its session cookie is first-party and sign-in works in Safari and private windows. Both URLs are safe to present from.
 
 ---
 
@@ -98,7 +98,7 @@ Every module was signed into and inventoried as **Operations head** and as **IT 
 
 **Permissions are genuinely enforced, not just hidden.** As Operations head, Payroll and Users & Access are locked. As IT administrator, every operational module is refused. The refusals come back as HTTP 403 from the API, so the rule is on the server, not only in the interface. This is worth showing a client.
 
-**Found: Insights is the slow page.** It makes **24 API calls** and takes **3.1 seconds** to first content, against 1.3 seconds for Projects, showing loading skeletons meanwhile. It is not broken, but on a cold free-tier instance it can look like it is. The fix is one server-side endpoint that returns the computed findings instead of the browser fetching every module and computing locally. This is the single best performance change available and is likely what makes the app "feel laggy".
+**Insights speed (fixed 5 Nov).** It used to make 24 API calls and take 3.1 s; it now makes one call to `GET /api/insights` and is ready in about 0.7 s locally.
 
 ## Branches: read before merging anything
 

@@ -2,6 +2,7 @@
  * Live updates (API mode only). The server pushes "something changed" after every
  * committed command; we refetch, and tell the user when someone else did it.
  */
+import { API_BASE } from "./base";
 import { useEffect, useSyncExternalStore } from "react";
 import { invalidate, API_MODE } from "./store";
 import type { ModuleKey } from "./types";
@@ -14,7 +15,7 @@ export interface LiveChange {
   at: string;
 }
 
-const BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+const BASE = API_BASE;
 let online = 0;
 const onlineSubs = new Set<() => void>();
 const changeSubs = new Set<(c: LiveChange) => void>();

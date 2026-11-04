@@ -36,6 +36,23 @@ const login = async (email: string) => {
 };
 const ask = (cookie: string | undefined, payload: object) => app.inject({ method: "POST", url: "/api/assist", headers: cookie ? { cookie } : {}, payload });
 
+describe("GET /api/insights (one round trip for the page)", () => {
+  it("returns the computed analysis and the role's dataset", async () => {
+    const res = await app.inject({ method: "GET", url: "/api/insights", headers: { cookie: await login("arjun.mehta@abc.example") } });
+    expect(res.statusCode).toBe(200);
+    const { dataset, analysis } = res.json();
+    expect(analysis.findings.length).toBeGreaterThan(10);
+    expect(analysis.findings.some((f: { cites: string[] }) => f.cites.includes("PRJ-0264"))).toBe(true);
+    expect(dataset.projects.length).toBeGreaterThan(0);
+    expect(dataset.payrollRuns).toBeUndefined(); // operations head can't view payroll
+  });
+
+  it("requires a session and Insights access", async () => {
+    expect((await app.inject({ method: "GET", url: "/api/insights" })).statusCode).toBe(401);
+    expect((await app.inject({ method: "GET", url: "/api/insights", headers: { cookie: await login("it.admin@abc.example") } })).statusCode).toBe(403);
+  });
+});
+
 describe("POST /api/assist", () => {
   it("requires a session", async () => {
     const res = await ask(undefined, { question: "What's blocking PRJ-0264?" });

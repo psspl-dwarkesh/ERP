@@ -3,20 +3,20 @@
 Threadline deploys as a full stack: a Node API with PostgreSQL, serving the React front end in API mode. It runs live in two places, both reading and writing the same Supabase database:
 
 - **Render** ([threadline-jlfn.onrender.com](https://threadline-jlfn.onrender.com)) runs the API and serves the front end on one origin.
-- **Vercel** ([erp-prakashinfotech.vercel.app](https://erp-prakashinfotech.vercel.app)) hosts the front end, which calls the Render API cross-origin.
+- **Vercel** ([erp-prakashinfotech.vercel.app](https://erp-prakashinfotech.vercel.app)) hosts the front end and forwards `/api/*` to the Render API, so the browser only ever talks to one origin.
 
 The browser-only build (`--mode mock`, fixtures in the browser and no server) is an offline fallback, not a deployment.
 
 ## 1. Front end on Vercel
 
-The Vercel deployment serves the front end only; it calls the Render API (section 2) for data and sign-in.
+The Vercel deployment serves the front end only. [`prototype/vercel.json`](../prototype/vercel.json) rewrites `/api/*` to the Render API (section 2), and the front end always calls its own `/api`. The session cookie is therefore **first-party**, and sign-in works in Safari, private windows and browsers that block third-party cookies.
 
 1. Import the GitHub repo in Vercel.
-2. **Root Directory:** `prototype`. **Framework Preset:** Vite. **Build command:** `npm run build:api` (API mode), output `dist`.
-3. Set `VITE_API_URL` to the Render service URL (`https://threadline-jlfn.onrender.com`), so the front end knows where the API lives.
+2. **Root Directory:** `prototype`. **Framework Preset:** Vite. **Build command:** `npm run build` (API mode is the default), output `dist`.
+3. If the Render service URL changes, update the `destination` in `prototype/vercel.json`. No environment variables are needed; an old `VITE_API_URL` is ignored unless `VITE_API_CROSS_ORIGIN=true` is also set.
 4. Deploy. Every push to `main` redeploys.
 
-The showcase is at `/`, and the workspace at `/#/app/dashboard`. Because the front end and API sit on different origins, sign-in relies on a cross-site session cookie, which a browser set to block third-party cookies will refuse (the Render URL has no such dependency). An administrator re-seeds the shared data from the account menu (**Reset workspace data**).
+The showcase is at `/`, and the workspace at `/#/app/dashboard`. An administrator re-seeds the shared data from the account menu (**Reset workspace data**).
 
 ## 2. Full stack on Render + PostgreSQL
 
