@@ -18,13 +18,12 @@ database. Three flows, ~15–20 minutes total.
    (a P1 ticket, a waiting approval, a QC hold), then the approval queue and
    today's service tickets.
 
-> ⚠️ **Reset caveat — read this.** The live demo has **no reset button** (reset
-> exists only in the in-browser build). If you run the *action* steps below
-> (approve, award, raise PO, release, complete wiring…), those records change
-> for good and will still be "done" at your next demo. For a repeatable demo,
-> either (a) **walk the screens and describe the control without clicking the
-> final button**, or (b) ask me to re-seed the database / add a reset before the
-> session.
+> ♻️ **Resetting between demos.** The action steps below (approve, award, raise
+> PO, release, complete wiring…) change real records. To restore the pristine
+> starting state, **switch to IT Administrator** (account menu, top-right →
+> Switch role) and use **Reset workspace data** — either from the account menu
+> or the **Restart demo** button in the Walkthrough panel. It re-seeds every
+> record for everyone and keeps you signed in. Only the administrator can do it.
 
 ---
 
@@ -111,8 +110,9 @@ hidden in the menu.**
 
 ## Known caveats (for you, not the client)
 
-1. **No reset on the live demo** — see the box at the top. After the action steps,
-   records stay changed. I can re-seed before each demo or add a remote reset.
+1. **Resetting between demos** — see the box at the top. Switch to IT Administrator
+   and use **Reset workspace data** (account menu) or **Restart demo** (Walkthrough
+   panel) to re-seed every record back to its starting state.
 2. **Audit step needs the admin role** — the "Follow one job" track doesn't tell
    you to switch roles for step 11. I can add that instruction to the track.
 3. **Minor polish:** the IT Administrator dashboard still shows a "Your approval"

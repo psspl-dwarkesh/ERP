@@ -8,6 +8,9 @@ import { ArrowLeft, CheckCircle2, ChevronDown, ChevronRight, ChevronUp, Circle, 
 import { useEffect, useMemo, useState } from "react";
 import { api, API_MODE, resetDemo } from "../api/client";
 import { useQuery } from "../api/hooks";
+import { http } from "../api/http";
+import { canAccess, useSession } from "../api/session";
+import { invalidate } from "../api/store";
 import { Button, Progress, Tooltip, cx, useToast } from "../ds/components";
 import { navigate } from "./router";
 
@@ -61,6 +64,8 @@ export function DemoGuide() {
   const [collapsed, setCollapsed] = useState(false);
   const [track, setTrack] = useState<string | null>(() => read(TRACK_KEY));
   const [seen, clearSeen] = useSeenRoutes();
+  const session = useSession().user;
+  const [resetting, setResetting] = useState(false);
   const approvals = useQuery(safe(api.approvals));
   const rfqs = useQuery(safe(api.rfqs));
   const pos = useQuery(safe(api.purchaseOrders));
@@ -253,6 +258,30 @@ export function DemoGuide() {
                     }}
                   >
                     Restart
+                  </Button>
+                )}
+                {API_MODE === "remote" && canAccess(session, "users", "admin") && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    icon={RotateCcw}
+                    loading={resetting}
+                    onClick={async () => {
+                      setResetting(true);
+                      try {
+                        await http.post("/admin/reset-demo", {});
+                        invalidate();
+                        clearSeen();
+                        toast({ title: "Demo reset", body: "Every record is back to its starting state for everyone signed in." });
+                        navigate("/app/dashboard");
+                      } catch (e) {
+                        toast({ title: "Reset refused", body: e instanceof Error ? e.message : String(e), tone: "risk" });
+                      } finally {
+                        setResetting(false);
+                      }
+                    }}
+                  >
+                    Restart demo
                   </Button>
                 )}
               </div>
