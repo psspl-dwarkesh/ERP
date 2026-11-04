@@ -119,8 +119,11 @@ export function refreshMockUser() {
   set({ status: "signed-in", user: mockUserFor(viewAsId) });
 }
 
-/** The full-access demo user ("Demo · all modules") is the mock default. */
-export const isFullDemoUser = (u: SessionUser | null) => !!u && u.id === MOCK_USER.id && u.role === MOCK_USER.role && Object.values(u.permissions).every((l) => l === "admin");
+/** The remote "Full access (demo)" sign-in account; reachable only through Switch role. */
+export const FULL_ACCESS_EMAIL = "demo@abc.example";
+
+/** Any demo user with full access to every module: the mock default, or the remote full-access account. */
+export const isFullDemoUser = (u: SessionUser | null) => !!u && ALL.every((m) => u.permissions[m] === "admin");
 
 /** API mode: jump straight into another demo account (signs out, then in). */
 export async function switchAccount(email: string, password: string) {

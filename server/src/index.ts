@@ -1,7 +1,7 @@
 import { buildApp } from "./app";
 import { connect } from "./db/client";
 import * as schema from "./db/schema";
-import { DEMO_PASSWORD, seed } from "./db/seed";
+import { DEMO_PASSWORD, ensureFullAccess, seed } from "./db/seed";
 import { env } from "./env";
 
 const conn = await connect();
@@ -11,6 +11,8 @@ if (!(await conn.db.select().from(schema.roles).limit(1)).length && process.env.
   await seed(conn.db);
   console.log(`Seeded the ABC Limited demo workspace. Demo password: ${DEMO_PASSWORD}`);
 }
+// Backstage presenter account: ensure it exists even on an already-seeded database. Never fatal.
+await ensureFullAccess(conn.db).catch((e) => console.error("ensureFullAccess failed:", e));
 
 const app = await buildApp(conn.db);
 const shutdown = async () => {

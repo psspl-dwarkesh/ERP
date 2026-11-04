@@ -176,7 +176,7 @@ export const read = {
   async users(q: Q): Promise<T.UserAccount[]> {
     const PRIVILEGED = ["ROLE-01", "ROLE-06", "ROLE-07", "ROLE-08"];
     const rows = await q.select().from(s.users).orderBy(asc(s.users.id));
-    return rows.map((u) =>
+    return rows.filter((u) => u.id !== "USR-0000").map((u) =>
       clean({
         id: u.id,
         name: u.name,
@@ -202,7 +202,7 @@ export const read = {
     const [rs, ps, us] = await Promise.all([q.select().from(s.roles).orderBy(asc(s.roles.id)), q.select().from(s.rolePermissions), q.select({ roleId: s.users.roleId }).from(s.users)]);
     const P = group(ps, "roleId");
     const seeded: Record<string, number> = { "ROLE-01": 2, "ROLE-02": 9, "ROLE-03": 7, "ROLE-04": 5, "ROLE-05": 8, "ROLE-06": 3, "ROLE-07": 2, "ROLE-08": 2 };
-    return rs.map((r) => ({
+    return rs.filter((r) => r.id !== "ROLE-00").map((r) => ({
       ...r,
       // Headcount per role in the client's org; accounts in this database are a subset.
       users: Math.max(seeded[r.id] ?? 0, us.filter((u) => u.roleId === r.id).length),

@@ -4,6 +4,7 @@
  * `npm run db:reset` to drop and reseed.
  */
 import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
 import { pathToFileURL } from "node:url";
 import * as fx from "../../../prototype/src/api/fixtures";
 import { connect, type Database } from "./client";
@@ -13,6 +14,7 @@ export const DEMO_PASSWORD = "Threadline@2026";
 
 /** One account per role so every permission boundary can be demonstrated. */
 export const DEMO_USERS = [
+  { id: "USR-0000", name: "Demo (full access)", personId: null, roleId: "ROLE-00", mfa: false, email: "demo@abc.example" },
   { id: "USR-0001", name: "Arjun Mehta", personId: "EMP-0012", roleId: "ROLE-01", mfa: true },
   { id: "USR-0002", name: "Ananya Rao", personId: "EMP-0034", roleId: "ROLE-02", mfa: false },
   { id: "USR-0003", name: "Imran Sheikh", personId: "EMP-0104", roleId: "ROLE-03", mfa: false },
@@ -33,6 +35,25 @@ const APPROVER_ROLE: Record<string, string> = {
 };
 
 const MODULES = ["dashboard", "insights", "projects", "inventory", "assets", "purchase", "sales", "crm", "hr", "payroll", "users", "reports"] as const;
+
+/**
+ * Idempotently create the "Full access (demo)" role + sign-in account on an already-seeded
+ * database (e.g. the hosted demo), so adding it doesn't need a destructive re-seed. Runs on
+ * every boot; a fresh seed() already includes it, so this is then a no-op.
+ */
+export async function ensureFullAccess(db: Database) {
+  const role = fx.roles.find((r) => r.id === "ROLE-00");
+  if (!role) return;
+  const hasRole = (await db.select().from(t.roles).where(eq(t.roles.id, role.id)).limit(1)).length > 0;
+  if (!hasRole) {
+    await db.insert(t.roles).values({ id: role.id, name: role.name, description: role.description });
+    await db.insert(t.rolePermissions).values(MODULES.map((m) => ({ roleId: role.id, module: m, level: role.permissions[m] ?? "admin" })));
+  }
+  const hasUser = (await db.select().from(t.users).where(eq(t.users.id, "USR-0000")).limit(1)).length > 0;
+  if (!hasUser) {
+    await db.insert(t.users).values({ id: "USR-0000", name: "Demo (full access)", email: "demo@abc.example", personId: null, roleId: role.id, passwordHash: await bcrypt.hash(DEMO_PASSWORD, 10), mfaEnabled: false });
+  }
+}
 
 export async function seed(db: Database) {
   const hash = await bcrypt.hash(DEMO_PASSWORD, 10);

@@ -6,7 +6,7 @@
  */
 import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "node:crypto";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, eq, gt, ne, sql } from "drizzle-orm";
 import type { ModuleKey } from "../../prototype/src/api/types";
 import { AppError, nextId, type Actor, type Level } from "./core";
 import type { Database } from "./db/client";
@@ -131,6 +131,6 @@ export async function demoAccounts(db: Database) {
     .select({ email: users.email, name: users.name, role: roles.name, roleId: users.roleId })
     .from(users)
     .innerJoin(roles, eq(roles.id, users.roleId))
-    .where(eq(users.status, "Active"))
+    .where(and(eq(users.status, "Active"), ne(users.id, "USR-0000")))
     .orderBy(users.id);
 }

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { API_MODE, api, resetDemo } from "../api/client";
-import { DEMO_PEOPLE, canAccess, isFullDemoUser, signOut, switchAccount, useSession, viewAs } from "../api/session";
+import { DEMO_PEOPLE, FULL_ACCESS_EMAIL, canAccess, isFullDemoUser, signOut, switchAccount, useSession, viewAs } from "../api/session";
 import * as fx from "../api/fixtures";
 import { ago } from "../api/format";
 import { useQuery } from "../api/hooks";
@@ -436,7 +436,7 @@ function SwitchUserDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
     setBusy(p?.id ?? "full");
     try {
       if (API_MODE === "mock") viewAs(p?.id ?? null);
-      else if (p) await switchAccount(p.email, DEMO_PASSWORD);
+      else await switchAccount(p?.email ?? FULL_ACCESS_EMAIL, DEMO_PASSWORD);
       onOpenChange(false);
       navigate("/app/dashboard");
       toast({ title: p ? `Now viewing as ${p.name}` : "Full access", body: p ? `${roleOf(p.roleId)?.name} · only what this role may see and do.` : "Every module, every action." });
@@ -457,18 +457,16 @@ function SwitchUserDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
       description={API_MODE === "mock" ? "Permissions, navigation and approvals follow the role you pick. Data stays the same." : "Signs you in as that role. Each role sees only what it is allowed to."}
     >
       <ul className="switch-list">
-        {API_MODE === "mock" && (
-          <li>
-            <button className={cx("switch-item", isFullDemoUser(me) && "is-on")} onClick={() => pick(null)} disabled={!!busy}>
-              <Avatar name="Access" size="sm" />
-              <span className="switch-text">
-                <b>Full access</b>
-                <small>Every module · for walkthroughs</small>
-              </span>
-              {isFullDemoUser(me) && <Status tone="accent">Current</Status>}
-            </button>
-          </li>
-        )}
+        <li>
+          <button className={cx("switch-item", isFullDemoUser(me) && "is-on")} onClick={() => pick(null)} disabled={!!busy}>
+            <Avatar name="Access" size="sm" />
+            <span className="switch-text">
+              <b>Full access</b>
+              <small>Every module · for walkthroughs</small>
+            </span>
+            {isFullDemoUser(me) && <Status tone="accent">Current</Status>}
+          </button>
+        </li>
         {DEMO_PEOPLE.map((p) => {
           const current = me?.id === p.id && !isFullDemoUser(me);
           return (

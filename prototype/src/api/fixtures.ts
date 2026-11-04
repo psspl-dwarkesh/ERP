@@ -391,6 +391,8 @@ export const roles: Role[] = [
   { id: "ROLE-06", name: "HR & payroll", users: 3, description: "Maintains people records and prepares payroll; salary fields restricted to this role.", permissions: { dashboard: "view", insights: "view", projects: "none", inventory: "none", assets: "view", purchase: "none", sales: "none", crm: "none", hr: "admin", payroll: "edit", users: "view", reports: "view" } },
   { id: "ROLE-07", name: "Finance owner", users: 2, description: "Approves billing advice and payroll; reconciles with external accounting.", permissions: { dashboard: "view", insights: "view", projects: "view", inventory: "view", assets: "none", purchase: "view", sales: "approve", crm: "none", hr: "none", payroll: "approve", users: "none", reports: "view" } },
   { id: "ROLE-08", name: "System administrator", users: 2, description: "Manages users, roles and integrations. No business approvals.", permissions: { dashboard: "view", insights: "none", projects: "none", inventory: "none", assets: "none", purchase: "none", sales: "none", crm: "none", hr: "none", payroll: "none", users: "admin", reports: "view" } },
+  // A walkthrough convenience for the presenter: every module at full access. Reachable only via Switch role; hidden from the login page and the roles matrix.
+  { id: "ROLE-00", name: "Full access (demo)", users: 1, description: "Every module — a walkthrough convenience for the presenter, not a production role.", permissions: { dashboard: "admin", insights: "admin", projects: "admin", inventory: "admin", assets: "admin", purchase: "admin", sales: "admin", crm: "admin", hr: "admin", payroll: "admin", users: "admin", reports: "admin" } },
 ];
 
 export const reports: ReportDef[] = [
