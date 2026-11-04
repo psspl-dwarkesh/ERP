@@ -34,6 +34,12 @@ export function LoginPage() {
       .catch(() => setAccounts([]));
   }, []);
 
+  // Return to where the user was headed, or the dashboard.
+  const afterSignIn = () => {
+    const next = route.query.get("next");
+    navigate(next && next.startsWith("/app") ? next : "/app/dashboard", { replace: true });
+  };
+
   const submit = async (e?: FormEvent) => {
     e?.preventDefault();
     setError(null);
@@ -44,9 +50,7 @@ export function LoginPage() {
     setPending(true);
     try {
       await signIn(email, password);
-      // Return to where the user was headed, or the dashboard.
-      const next = route.query.get("next");
-      navigate(next && next.startsWith("/app") ? next : "/app/dashboard", { replace: true });
+      afterSignIn();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in failed.");
     } finally {
@@ -54,10 +58,20 @@ export function LoginPage() {
     }
   };
 
-  const pick = (a: DemoAccount) => {
+  // One click on a demo role fills the form (for feedback) and signs straight in.
+  const loginAs = async (a: DemoAccount) => {
     setEmail(a.email);
     setPassword(DEMO_PASSWORD);
     setError(null);
+    setPending(true);
+    try {
+      await signIn(a.email, DEMO_PASSWORD);
+      afterSignIn();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign-in failed.");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -123,12 +137,12 @@ export function LoginPage() {
             <div className="login-demo">
               <p className="login-demo-title">Demo accounts · one per role</p>
               <p className="login-demo-sub">
-                Pick one to fill the form. Password <span className="mono">{DEMO_PASSWORD}</span>. Each role sees only what its permissions allow.
+                Click a role to sign in instantly. Each role sees only what its permissions allow.
               </p>
               <ul className="login-accounts">
                 {accounts.map((a) => (
                   <li key={a.email}>
-                    <button type="button" className={`login-account ${email === a.email ? "is-on" : ""}`} onClick={() => pick(a)}>
+                    <button type="button" className={`login-account ${email === a.email ? "is-on" : ""}`} onClick={() => loginAs(a)} disabled={pending}>
                       <Avatar name={a.name} size="sm" />
                       <span className="login-account-text">
                         <b>{a.name}</b>
