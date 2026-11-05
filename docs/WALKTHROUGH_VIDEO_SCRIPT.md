@@ -40,6 +40,13 @@ thank-you card. Target length ~4.5-6 minutes. Replaces `prototype/public/walkthr
 - Caption: "Sign in as any role. Each person sees only what their permissions allow."
 - Wait for the dashboard to load.
 
+## Part 2b - Switch to the organization (Full access) profile
+- Scene: as Arjun, open the account menu, **Switch role**, pick **Full access** (the
+  organization-wide profile). Wait for the dashboard. This lets the tour show every
+  module without hitting a role's limits; Part 4 then shows how a single role is restricted.
+- Caption: "For the tour we switch to the organization-wide Full access profile, so
+  every module is open."
+
 ## Part 3 - The portal, top to bottom
 Walk the sidebar in order. For each page: land, let the caption read, scroll to show
 the page; open one record on the pages marked **(deeper)**.
@@ -93,21 +100,22 @@ the page; open one record on the pages marked **(deeper)**.
 - Explain: deployment roster, leave and attendance, claims, and exits with asset recovery.
 - Caption: "People: who is deployed where, their time, claims, and a clean exit checklist."
 
-**Payroll (3:45-4:02)** `/#/app/payroll`
+**Payroll** `/#/app/payroll`  (open as Full access, so it shows the run)
 - Explain: input checks before a run, maker-checker approval and lock, cost by project.
-  (As the Operations head this may show the access notice; that is the point - see roles.)
 - Caption: "Payroll is a controlled run: checks, maker-checker approval, then lock."
 
 **Reports (4:02-4:15)** `/#/app/reports`
 - Explain: MIS with a defined owner, source and refresh, and controlled, audited exports.
 - Caption: "Reports with an owner, a source, and export control."
 
-## Part 4 - Roles and permissions (4:15-4:45)  **(flow)**
-- As Arjun: show Payroll / Users & Access locked in the sidebar; open **Payroll** and
-  show the server 403. Account menu, **Switch role to IT Administrator**, open **Users &
-  Access**: the roles matrix, then the audit log. Show the Switch-role panel once more.
-- Caption: "Permissions are enforced by the server, not hidden in the menu, and every
-  change lands in the audit trail. Switch into any role to see the workspace as they do."
+## Part 4 - Roles and permissions (flow)
+- From Full access, open the account menu and **Switch role to Arjun Mehta (Operations
+  head)** to show a restricted role: Payroll and Users & Access carry a lock in the
+  sidebar; open **Payroll** and show the server 403. Then **Switch role back to Full
+  access** and open **Users & Access**: the roles matrix, then the audit log. Show the
+  Switch-role panel once more (it lists every role, including Full access).
+- Caption: "Permissions are enforced by the server, not hidden in the menu. Each role
+  sees only its own work, and every change lands in the audit trail."
 
 ## Part 5 - Thank-you / Prakash Software Solutions card (4:45-end)
 - Scene: a full-screen end card (the recorder injects a styled overlay, black
