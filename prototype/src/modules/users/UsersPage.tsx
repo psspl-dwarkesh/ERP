@@ -115,7 +115,7 @@ function InviteDialog({ roles, open, onOpenChange }: { roles: Role[]; open: bool
           <Input id="inv-name" value={name} placeholder="e.g. Meera Nair" invalid={err.includes("full name") || undefined} onChange={(e) => { setName(e.target.value); m.reset(); }} />
         </Field>
         <Field label="Work email" htmlFor="inv-email">
-          <Input id="inv-email" type="email" value={email} placeholder="name@abc.example" invalid={err.includes("email") || undefined} onChange={(e) => { setEmail(e.target.value); m.reset(); }} />
+          <Input id="inv-email" type="email" value={email} placeholder="name@pinnacle.example" invalid={err.includes("email") || undefined} onChange={(e) => { setEmail(e.target.value); m.reset(); }} />
         </Field>
         <Field label="Role" htmlFor="inv-role">
           <Select

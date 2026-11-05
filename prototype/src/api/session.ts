@@ -35,7 +35,7 @@ const ALL: ModuleKey[] = ["dashboard", "insights", "projects", "inventory", "ass
 const MOCK_USER: SessionUser = {
   id: "USR-0001",
   name: "Arjun Mehta",
-  email: "arjun.mehta@abc.example",
+  email: "arjun.mehta@pinnacle.example",
   role: "Operations head",
   roleId: "ROLE-01",
   title: "Operations Head",
@@ -49,14 +49,14 @@ const MOCK_USER: SessionUser = {
  * so a role looks identical in both modes.
  */
 export const DEMO_PEOPLE: { id: string; name: string; email: string; roleId: string; personId: string | null }[] = [
-  { id: "USR-0001", name: "Arjun Mehta", email: "arjun.mehta@abc.example", roleId: "ROLE-01", personId: "EMP-0012" },
-  { id: "USR-0002", name: "Ananya Rao", email: "ananya.rao@abc.example", roleId: "ROLE-02", personId: "EMP-0034" },
-  { id: "USR-0003", name: "Imran Sheikh", email: "imran.sheikh@abc.example", roleId: "ROLE-03", personId: "EMP-0104" },
-  { id: "USR-0004", name: "Karan Patel", email: "karan.patel@abc.example", roleId: "ROLE-04", personId: "EMP-0072" },
-  { id: "USR-0005", name: "Sana Kapoor", email: "sana.kapoor@abc.example", roleId: "ROLE-05", personId: "EMP-0081" },
-  { id: "USR-0006", name: "Kavya Iyer", email: "kavya.iyer@abc.example", roleId: "ROLE-06", personId: "EMP-0135" },
-  { id: "USR-0007", name: "Ritu Agarwal", email: "ritu.agarwal@abc.example", roleId: "ROLE-07", personId: null },
-  { id: "USR-0008", name: "IT Administrator", email: "it.admin@abc.example", roleId: "ROLE-08", personId: null },
+  { id: "USR-0001", name: "Arjun Mehta", email: "arjun.mehta@pinnacle.example", roleId: "ROLE-01", personId: "EMP-0012" },
+  { id: "USR-0002", name: "Ananya Rao", email: "ananya.rao@pinnacle.example", roleId: "ROLE-02", personId: "EMP-0034" },
+  { id: "USR-0003", name: "Imran Sheikh", email: "imran.sheikh@pinnacle.example", roleId: "ROLE-03", personId: "EMP-0104" },
+  { id: "USR-0004", name: "Karan Patel", email: "karan.patel@pinnacle.example", roleId: "ROLE-04", personId: "EMP-0072" },
+  { id: "USR-0005", name: "Sana Kapoor", email: "sana.kapoor@pinnacle.example", roleId: "ROLE-05", personId: "EMP-0081" },
+  { id: "USR-0006", name: "Kavya Iyer", email: "kavya.iyer@pinnacle.example", roleId: "ROLE-06", personId: "EMP-0135" },
+  { id: "USR-0007", name: "Ritu Agarwal", email: "ritu.agarwal@pinnacle.example", roleId: "ROLE-07", personId: null },
+  { id: "USR-0008", name: "IT Administrator", email: "it.admin@pinnacle.example", roleId: "ROLE-08", personId: null },
 ];
 
 const VIEW_AS_KEY = "threadline-view-as";
@@ -120,7 +120,7 @@ export function refreshMockUser() {
 }
 
 /** The remote "Full access (demo)" sign-in account; reachable only through Switch role. */
-export const FULL_ACCESS_EMAIL = "demo@abc.example";
+export const FULL_ACCESS_EMAIL = "demo@pinnacle.example";
 
 /** Any demo user with full access to every module: the mock default, or the remote full-access account. */
 export const isFullDemoUser = (u: SessionUser | null) => !!u && ALL.every((m) => u.permissions[m] === "admin");

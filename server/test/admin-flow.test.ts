@@ -12,11 +12,11 @@ let db: Awaited<ReturnType<typeof connect>>["db"];
 const cookies: Record<string, string> = {};
 
 const EMAIL = {
-  ops: "arjun.mehta@abc.example",
-  hr: "kavya.iyer@abc.example",
-  finance: "ritu.agarwal@abc.example",
-  admin: "it.admin@abc.example",
-  stores: "imran.sheikh@abc.example",
+  ops: "arjun.mehta@pinnacle.example",
+  hr: "kavya.iyer@pinnacle.example",
+  finance: "ritu.agarwal@pinnacle.example",
+  admin: "it.admin@pinnacle.example",
+  stores: "imran.sheikh@pinnacle.example",
 };
 type Who = keyof typeof EMAIL | "invitee";
 
@@ -146,7 +146,7 @@ describe("payroll run PAY-2026-11: inputs → review → approve → lock", () =
 describe("users & access", () => {
   let activationPath = "";
   let inviteeId = "";
-  const NEW = { name: "Test Storekeeper", email: "test.storekeeper@abc.example", password: "Correct-Horse-9" };
+  const NEW = { name: "Test Storekeeper", email: "test.storekeeper@pinnacle.example", password: "Correct-Horse-9" };
 
   it("lets only a Users & Access admin invite, and returns the activation link once", async () => {
     expect((await cmd("hr", "users.invite", { name: NEW.name, email: NEW.email, roleId: "ROLE-03" })).statusCode).toBe(403);
@@ -217,7 +217,7 @@ describe("users & access", () => {
     const users = (await get("admin", "/api/users")).json();
     expect(users.find((u: { id: string }) => u.id === "USR-0010")).toMatchObject({ status: "Invited" });
     expect(users.find((u: { id: string }) => u.id === "USR-0011")).toMatchObject({ status: "Deactivated" });
-    expect((await signIn("suresh.pillai@abc.example", DEMO_PASSWORD)).statusCode).toBe(401);
+    expect((await signIn("suresh.pillai@pinnacle.example", DEMO_PASSWORD)).statusCode).toBe(401);
     expect((await get("stores", "/api/users")).statusCode).toBe(403);
   });
 });

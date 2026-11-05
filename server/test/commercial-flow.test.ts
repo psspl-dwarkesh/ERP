@@ -14,7 +14,7 @@ let app: FastifyInstance;
 let db: Database;
 let close: () => Promise<void>;
 const cookies: Record<string, string> = {};
-const EMAIL = { sales: "sana.kapoor@abc.example", ops: "arjun.mehta@abc.example", pm: "ananya.rao@abc.example" };
+const EMAIL = { sales: "sana.kapoor@pinnacle.example", ops: "arjun.mehta@pinnacle.example", pm: "ananya.rao@pinnacle.example" };
 
 beforeAll(async () => {
   const conn = await connect({ memory: true });

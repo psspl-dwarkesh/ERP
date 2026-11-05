@@ -32,7 +32,7 @@ function HeroConsole() {
     <div className="sc-console" aria-hidden>
       <div className="sc-console-bar">
         <span className="sc-dots"><i /><i /><i /></span>
-        <span className="sc-console-url">threadline.app / abc-limited / dashboard</span>
+        <span className="sc-console-url">threadline.app / pinnacle / dashboard</span>
         <span className="sc-live"><i /> Live</span>
       </div>
       <div className="sc-console-body">

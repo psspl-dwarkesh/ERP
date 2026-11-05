@@ -14,15 +14,15 @@ export const DEMO_PASSWORD = "Threadline@2026";
 
 /** One account per role so every permission boundary can be demonstrated. */
 export const DEMO_USERS = [
-  { id: "USR-0000", name: "Demo (full access)", personId: null, roleId: "ROLE-00", mfa: false, email: "demo@abc.example" },
+  { id: "USR-0000", name: "Demo (full access)", personId: null, roleId: "ROLE-00", mfa: false, email: "demo@pinnacle.example" },
   { id: "USR-0001", name: "Arjun Mehta", personId: "EMP-0012", roleId: "ROLE-01", mfa: true },
   { id: "USR-0002", name: "Ananya Rao", personId: "EMP-0034", roleId: "ROLE-02", mfa: false },
   { id: "USR-0003", name: "Imran Sheikh", personId: "EMP-0104", roleId: "ROLE-03", mfa: false },
   { id: "USR-0004", name: "Karan Patel", personId: "EMP-0072", roleId: "ROLE-04", mfa: false },
   { id: "USR-0005", name: "Sana Kapoor", personId: "EMP-0081", roleId: "ROLE-05", mfa: false },
   { id: "USR-0006", name: "Kavya Iyer", personId: "EMP-0135", roleId: "ROLE-06", mfa: true },
-  { id: "USR-0007", name: "Ritu Agarwal", personId: null, roleId: "ROLE-07", mfa: true, email: "ritu.agarwal@abc.example" },
-  { id: "USR-0008", name: "IT Administrator", personId: null, roleId: "ROLE-08", mfa: true, email: "it.admin@abc.example" },
+  { id: "USR-0007", name: "Ritu Agarwal", personId: null, roleId: "ROLE-07", mfa: true, email: "ritu.agarwal@pinnacle.example" },
+  { id: "USR-0008", name: "IT Administrator", personId: null, roleId: "ROLE-08", mfa: true, email: "it.admin@pinnacle.example" },
   { id: "USR-0009", name: "Deepa Kulkarni", personId: "EMP-0117", roleId: "ROLE-03", mfa: false },
 ] as const;
 
@@ -51,7 +51,7 @@ export async function ensureFullAccess(db: Database) {
   }
   const hasUser = (await db.select().from(t.users).where(eq(t.users.id, "USR-0000")).limit(1)).length > 0;
   if (!hasUser) {
-    await db.insert(t.users).values({ id: "USR-0000", name: "Demo (full access)", email: "demo@abc.example", personId: null, roleId: role.id, passwordHash: await bcrypt.hash(DEMO_PASSWORD, 10), mfaEnabled: false });
+    await db.insert(t.users).values({ id: "USR-0000", name: "Demo (full access)", email: "demo@pinnacle.example", personId: null, roleId: role.id, passwordHash: await bcrypt.hash(DEMO_PASSWORD, 10), mfaEnabled: false });
   }
 }
 

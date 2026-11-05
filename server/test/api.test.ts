@@ -9,13 +9,13 @@ let close: () => Promise<void>;
 const cookies: Record<string, string> = {};
 
 const EMAIL = {
-  ops: "arjun.mehta@abc.example",
-  pm: "ananya.rao@abc.example",
-  stores: "imran.sheikh@abc.example",
-  hr: "kavya.iyer@abc.example",
-  finance: "ritu.agarwal@abc.example",
-  qc: "deepa.kulkarni@abc.example",
-  sales: "sana.kapoor@abc.example",
+  ops: "arjun.mehta@pinnacle.example",
+  pm: "ananya.rao@pinnacle.example",
+  stores: "imran.sheikh@pinnacle.example",
+  hr: "kavya.iyer@pinnacle.example",
+  finance: "ritu.agarwal@pinnacle.example",
+  qc: "deepa.kulkarni@pinnacle.example",
+  sales: "sana.kapoor@pinnacle.example",
 };
 
 beforeAll(async () => {
@@ -43,7 +43,7 @@ const cmd = (who: keyof typeof EMAIL, name: string, payload: unknown) =>
 describe("authentication", () => {
   it("rejects a wrong password without revealing whether the account exists", async () => {
     const a = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: EMAIL.ops, password: "nope" } });
-    const b = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "nobody@abc.example", password: "nope" } });
+    const b = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "nobody@pinnacle.example", password: "nope" } });
     expect(a.statusCode).toBe(401);
     expect(b.statusCode).toBe(401);
     expect(a.json().error.message).toBe(b.json().error.message);
@@ -131,7 +131,7 @@ describe("inventory rules", () => {
   it("blocks issuing stock that is on QC hold", async () => {
     const res = await cmd("ops", "inventory.issueStock", { itemId: "ITM-0137", qty: 1, to: "WO-0187" });
     expect(res.statusCode).toBe(403); // operations head only views inventory
-    const stores = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "deepa.kulkarni@abc.example", password: DEMO_PASSWORD } });
+    const stores = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "deepa.kulkarni@pinnacle.example", password: DEMO_PASSWORD } });
     const qc = String(stores.headers["set-cookie"]).split(";")[0];
     const held = await app.inject({ method: "POST", url: "/api/commands/inventory.issueStock", headers: { cookie: qc }, payload: { itemId: "ITM-0137", qty: 1, to: "WO-0187" } });
     expect(held.statusCode).toBe(409);
@@ -145,7 +145,7 @@ describe("inventory rules", () => {
   });
 
   it("commits wiring and reports the assembly block from BOM shortages", async () => {
-    const stores = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "deepa.kulkarni@abc.example", password: DEMO_PASSWORD } });
+    const stores = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "deepa.kulkarni@pinnacle.example", password: DEMO_PASSWORD } });
     const qc = String(stores.headers["set-cookie"]).split(";")[0];
     const res = await app.inject({ method: "POST", url: "/api/commands/inventory.advanceWorkOrder", headers: { cookie: qc }, payload: { id: "WO-0187" } });
     expect(res.statusCode).toBe(200);
@@ -269,7 +269,7 @@ describe("accounting outbox (E2E-10)", () => {
 describe("demo reset (hosted demos)", () => {
   it("is refused for non-admins and restores the seed for the IT administrator", async () => {
     expect((await app.inject({ method: "POST", url: "/api/admin/reset-demo", headers: { cookie: cookies.ops }, payload: {} })).statusCode).toBe(403);
-    const login = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "it.admin@abc.example", password: DEMO_PASSWORD } });
+    const login = await app.inject({ method: "POST", url: "/api/auth/login", payload: { email: "it.admin@pinnacle.example", password: DEMO_PASSWORD } });
     const admin = String(login.headers["set-cookie"]).split(";")[0];
     const res = await app.inject({ method: "POST", url: "/api/admin/reset-demo", headers: { cookie: admin }, payload: {} });
     expect(res.statusCode).toBe(200);

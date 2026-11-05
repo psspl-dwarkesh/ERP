@@ -38,7 +38,7 @@ const ask = (cookie: string | undefined, payload: object) => app.inject({ method
 
 describe("GET /api/insights (one round trip for the page)", () => {
   it("returns the computed analysis and the role's dataset", async () => {
-    const res = await app.inject({ method: "GET", url: "/api/insights", headers: { cookie: await login("arjun.mehta@abc.example") } });
+    const res = await app.inject({ method: "GET", url: "/api/insights", headers: { cookie: await login("arjun.mehta@pinnacle.example") } });
     expect(res.statusCode).toBe(200);
     const { dataset, analysis } = res.json();
     expect(analysis.findings.length).toBeGreaterThan(10);
@@ -49,7 +49,7 @@ describe("GET /api/insights (one round trip for the page)", () => {
 
   it("requires a session and Insights access", async () => {
     expect((await app.inject({ method: "GET", url: "/api/insights" })).statusCode).toBe(401);
-    expect((await app.inject({ method: "GET", url: "/api/insights", headers: { cookie: await login("it.admin@abc.example") } })).statusCode).toBe(403);
+    expect((await app.inject({ method: "GET", url: "/api/insights", headers: { cookie: await login("it.admin@pinnacle.example") } })).statusCode).toBe(403);
   });
 });
 
@@ -60,18 +60,18 @@ describe("POST /api/assist", () => {
   });
 
   it("answers 501 NOT_CONFIGURED when no Anthropic key is set", async () => {
-    const res = await ask(await login("arjun.mehta@abc.example"), { question: "What's blocking PRJ-0264?" });
+    const res = await ask(await login("arjun.mehta@pinnacle.example"), { question: "What's blocking PRJ-0264?" });
     expect(res.statusCode).toBe(501);
     expect(res.json().error.code).toBe("NOT_CONFIGURED");
   });
 
   it("validates the question", async () => {
-    const res = await ask(await login("arjun.mehta@abc.example"), { question: "" });
+    const res = await ask(await login("arjun.mehta@pinnacle.example"), { question: "" });
     expect(res.statusCode).toBe(400);
   });
 
   it("refuses roles without Insights access", async () => {
-    const res = await ask(await login("it.admin@abc.example"), { question: "What's blocking PRJ-0264?" });
+    const res = await ask(await login("it.admin@pinnacle.example"), { question: "What's blocking PRJ-0264?" });
     expect(res.statusCode).toBe(403);
   });
 });

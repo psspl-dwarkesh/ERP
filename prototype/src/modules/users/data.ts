@@ -41,20 +41,20 @@ export interface AppUser {
 
 /** Illustrative identities. Employee ids link to People where the person exists in the demo directory. */
 export const USERS: AppUser[] = [
-  { id: "U-01", name: "Arjun Mehta", email: "arjun.mehta@abc.example", employeeId: "EMP-0012", roleId: "ROLE-01", mfa: "On", lastActive: "2026-11-03T09:38:00+05:30", status: "Active" },
-  { id: "U-02", name: "Ananya Rao", email: "ananya.rao@abc.example", employeeId: "EMP-0034", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-03T07:41:00+05:30", status: "Active" },
-  { id: "U-03", name: "Rahul Desai", email: "rahul.desai@abc.example", employeeId: "EMP-0027", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-03T05:31:00+05:30", status: "Active" },
-  { id: "U-04", name: "Vikram Shah", email: "vikram.shah@abc.example", employeeId: "EMP-0056", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-02T19:05:00+05:30", status: "Active" },
-  { id: "U-05", name: "Nikhil Joshi", email: "nikhil.joshi@abc.example", employeeId: "EMP-0063", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-02T11:06:00+05:30", status: "Active", note: "Stopgap: no Purchase role exists yet" },
-  { id: "U-06", name: "Imran Sheikh", email: "imran.sheikh@abc.example", employeeId: "EMP-0104", roleId: "ROLE-03", mfa: "Not required", lastActive: "2026-11-02T16:21:00+05:30", status: "Active" },
-  { id: "U-07", name: "Deepa Kulkarni", email: "deepa.kulkarni@abc.example", employeeId: "EMP-0117", roleId: "ROLE-03", mfa: "Not required", lastActive: "2026-11-03T08:55:00+05:30", status: "Active" },
-  { id: "U-08", name: "Karan Patel", email: "karan.patel@abc.example", employeeId: "EMP-0072", roleId: "ROLE-04", mfa: "Not required", lastActive: "2026-11-03T08:24:00+05:30", status: "Active" },
-  { id: "U-09", name: "Priya Menon", email: "priya.menon@abc.example", employeeId: "EMP-0091", roleId: "ROLE-04", mfa: "Not required", lastActive: "2026-11-01T17:40:00+05:30", status: "Active" },
-  { id: "U-10", name: "Sana Kapoor", email: "sana.kapoor@abc.example", employeeId: "EMP-0081", roleId: "ROLE-05", mfa: "Not required", lastActive: "2026-11-03T09:02:00+05:30", status: "Active" },
-  { id: "U-11", name: "Kavya Iyer", email: "kavya.iyer@abc.example", employeeId: "EMP-0135", roleId: "ROLE-06", mfa: "On", lastActive: "2026-11-03T09:15:00+05:30", status: "Active" },
-  { id: "U-12", name: "Ritu Bansal", email: "ritu.bansal@abc.example", roleId: "ROLE-07", mfa: "Not enrolled", status: "Invited", note: "Invite sent 30 Oct; MFA must be enrolled at first sign-in" },
-  { id: "U-13", name: "Dev Malhotra", email: "it.admin@abc.example", roleId: "ROLE-08", mfa: "On", lastActive: "2026-11-02T18:10:00+05:30", status: "Active" },
-  { id: "U-14", name: "Suresh Pillai", email: "suresh.pillai@abc.example", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-10-30T18:00:00+05:30", status: "Deactivated", note: "Exit 31 Oct · access revoked by HR trigger; approvals delegated to Ananya Rao" },
+  { id: "U-01", name: "Arjun Mehta", email: "arjun.mehta@pinnacle.example", employeeId: "EMP-0012", roleId: "ROLE-01", mfa: "On", lastActive: "2026-11-03T09:38:00+05:30", status: "Active" },
+  { id: "U-02", name: "Ananya Rao", email: "ananya.rao@pinnacle.example", employeeId: "EMP-0034", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-03T07:41:00+05:30", status: "Active" },
+  { id: "U-03", name: "Rahul Desai", email: "rahul.desai@pinnacle.example", employeeId: "EMP-0027", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-03T05:31:00+05:30", status: "Active" },
+  { id: "U-04", name: "Vikram Shah", email: "vikram.shah@pinnacle.example", employeeId: "EMP-0056", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-02T19:05:00+05:30", status: "Active" },
+  { id: "U-05", name: "Nikhil Joshi", email: "nikhil.joshi@pinnacle.example", employeeId: "EMP-0063", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-11-02T11:06:00+05:30", status: "Active", note: "Stopgap: no Purchase role exists yet" },
+  { id: "U-06", name: "Imran Sheikh", email: "imran.sheikh@pinnacle.example", employeeId: "EMP-0104", roleId: "ROLE-03", mfa: "Not required", lastActive: "2026-11-02T16:21:00+05:30", status: "Active" },
+  { id: "U-07", name: "Deepa Kulkarni", email: "deepa.kulkarni@pinnacle.example", employeeId: "EMP-0117", roleId: "ROLE-03", mfa: "Not required", lastActive: "2026-11-03T08:55:00+05:30", status: "Active" },
+  { id: "U-08", name: "Karan Patel", email: "karan.patel@pinnacle.example", employeeId: "EMP-0072", roleId: "ROLE-04", mfa: "Not required", lastActive: "2026-11-03T08:24:00+05:30", status: "Active" },
+  { id: "U-09", name: "Priya Menon", email: "priya.menon@pinnacle.example", employeeId: "EMP-0091", roleId: "ROLE-04", mfa: "Not required", lastActive: "2026-11-01T17:40:00+05:30", status: "Active" },
+  { id: "U-10", name: "Sana Kapoor", email: "sana.kapoor@pinnacle.example", employeeId: "EMP-0081", roleId: "ROLE-05", mfa: "Not required", lastActive: "2026-11-03T09:02:00+05:30", status: "Active" },
+  { id: "U-11", name: "Kavya Iyer", email: "kavya.iyer@pinnacle.example", employeeId: "EMP-0135", roleId: "ROLE-06", mfa: "On", lastActive: "2026-11-03T09:15:00+05:30", status: "Active" },
+  { id: "U-12", name: "Ritu Bansal", email: "ritu.bansal@pinnacle.example", roleId: "ROLE-07", mfa: "Not enrolled", status: "Invited", note: "Invite sent 30 Oct; MFA must be enrolled at first sign-in" },
+  { id: "U-13", name: "Dev Malhotra", email: "it.admin@pinnacle.example", roleId: "ROLE-08", mfa: "On", lastActive: "2026-11-02T18:10:00+05:30", status: "Active" },
+  { id: "U-14", name: "Suresh Pillai", email: "suresh.pillai@pinnacle.example", roleId: "ROLE-02", mfa: "Not required", lastActive: "2026-10-30T18:00:00+05:30", status: "Deactivated", note: "Exit 31 Oct · access revoked by HR trigger; approvals delegated to Ananya Rao" },
 ];
 
 export interface ApprovalRule {

@@ -105,7 +105,7 @@ export function LoginPage() {
 
           <form className="stack" onSubmit={submit} noValidate>
             <Field label="Work email" htmlFor="login-email">
-              <Input id="login-email" icon={Mail} type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@abc.example" autoFocus invalid={!!error} />
+              <Input id="login-email" icon={Mail} type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@pinnacle.example" autoFocus invalid={!!error} />
             </Field>
             <Field label="Password" htmlFor="login-password">
               <Input
